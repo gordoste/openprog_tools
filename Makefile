@@ -62,7 +62,7 @@ icons.c : write.png read.png sys.png
 	stepover_icon stepover.png stop_icon stop.png >> icons.c
 
 clean:
-	rm -f opgui $(OBJECTS) icons.c
+	rm -f $(targets) $(OBJECTS) icons.c
 	
 install: all
 	#test -d $(prefix) || mkdir $(prefix)
