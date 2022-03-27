@@ -4,15 +4,28 @@ CC = gcc
 PREFIX = /usr/local
 appimage: PREFIX = ./opgui.AppDir/usr
 
+# Check if we are running on windows
+UNAME := $(shell uname)
+ifneq (, $(findstring _NT-, $(UNAME)))
+	LDFLAGS = -mwindows
+	HIDAPI_PKG = hidapi
+else
+	LDFLAGS += -lrt
+	HIDAPI_PKG = hidapi-hidraw
+endif
+
 CFLAGS_GTK2 = `pkg-config --cflags gtk+-2.0`
 LDFLAGS_GTK2 = `pkg-config --libs gtk+-2.0`
+
+CFLAGS_HIDAPI = `pkg-config --cflags $(HIDAPI_PKG)`
+LDFLAGS_HIDAPI = `pkg-config --libs $(HIDAPI_PKG)`
 
 CFLAGS =  '-DVERSION="$(VERSION)"' -w
 CFLAGS += -Os -s #size
 #CFLAGS += -O3 -s #speed
 #CFLAGS += -g #debug
 
-CFLAGS += $(CFLAGS_GTK2)
+CFLAGS += $(CFLAGS_GTK2) $(CFLAGS_HIDAPI)
 
 OBJECTS_SHARED = deviceRW.o \
 	fileIO.o \
@@ -30,17 +43,13 @@ OBJECTS_OPGUI = opgui.o \
 	icd.o \
 	icons.o
 
+OBJECTS_HIDTEST = hid_test.o
+
 OBJECTS_OP = op.o
 
-# Check if we are running on windows
-UNAME := $(shell uname)
-ifneq (, $(findstring _NT-, $(UNAME)))
-	LDFLAGS = -mwindows
-else
-	LDFLAGS += -lrt
-endif
 LDFLAGS_OPGUI = $(LDFLAGS) $(LDFLAGS_GTK2)
 LDFLAGS_OP = $(LDFLAGS)
+LDFLAGS_HIDTEST = $(LDFLAGS) $(LDFLAGS_HIDAPI)
 
 OBJECTS = $(OBJECTS_OP) $(OBJECTS_OPGUI) $(OBJECTS_SHARED)
 
@@ -54,6 +63,9 @@ opgui: $(OBJECTS_OPGUI) $(OBJECTS_SHARED)
 
 op: $(OBJECTS_OP) $(OBJECTS_SHARED)
 	$(CC) -o $@ $(OBJECTS_OP) $(OBJECTS_SHARED) $(LDFLAGS_OP)
+
+hid_test: $(OBJECTS_HIDTEST)
+	$(CC) -o $@ $(OBJECTS_HIDTEST) $(LDFLAGS_HIDTEST)
 
 icons.c : write.png read.png sys.png
 	echo "#include <gtk/gtk.h>" > icons.c
