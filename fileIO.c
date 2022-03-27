@@ -800,7 +800,7 @@ void OpenLogFile()
 {
 	logfile=fopen(LogFileName,"w");
 	if(!logfile) return;
-	fprintf(logfile,_APPNAME " version %s (%s)\n",VERSION,SYSNAME);
+	fprintf(logfile,"%s version %s (%s)\n",appName,VERSION,SYSNAME);
 	fprintf(logfile,"Firmware version %d.%d.%d\n",FWVersion>>16,(FWVersion>>8)&0xFF,FWVersion&0xFF);
 	struct tm * timeinfo;
 	time_t rawtime;

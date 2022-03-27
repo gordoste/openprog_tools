@@ -1,7 +1,6 @@
 #ifndef _COMMON_DECLARATIONS
 #define _COMMON_DECLARATIONS
 //#define DEBUG
-#define _APPNAME "OPGUI"
 
 #if !defined _WIN32 && !defined __CYGWIN__
 	#include <sys/ioctl.h>
@@ -25,8 +24,6 @@
 	#include <wchar.h>
 #endif
 
-#include <gtk/gtk.h>
-//#include <gtk.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -41,15 +38,13 @@ typedef unsigned long DWORD;
 typedef unsigned short WORD;
 typedef unsigned char BYTE;
 
-//to use the same code of windows version
-#define PrintMessage1(s,p) {sprintf(str,s,p); PrintMessage(str);}
-#define PrintMessage2(s,p1,p2) {sprintf(str,s,p1,p2); PrintMessage(str);}
-#define PrintMessage3(s,p1,p2,p3) {sprintf(str,s,p1,p2,p3); PrintMessage(str);}
-#define PrintMessage4(s,p1,p2,p3,p4) {sprintf(str,s,p1,p2,p3,p4); PrintMessage(str);}
-#define PrintStatus(s,p1,p2) {sprintf(str,s,p1,p2); gtk_statusbar_push(GTK_STATUSBAR(status_bar),statusID,str);while (gtk_events_pending ()) gtk_main_iteration();}
-#define	PrintStatusSetup() //only needed for console version
-#define	PrintStatusEnd() //only needed for console version
-#define	PrintStatusClear() gtk_statusbar_push(GTK_STATUSBAR(status_bar),statusID,"");
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
 
 #define COL 16
 //Version defined in makefile
@@ -81,8 +76,6 @@ typedef unsigned char BYTE;
 	extern HANDLE hEventObject;
 #endif
 
-extern int statusID;
-extern GtkWidget *status_bar;
 extern char str[4096];
 extern int saveLog;
 extern char** strings;
@@ -102,10 +95,21 @@ extern unsigned char *memCODE,*memEE,memID[64],memCONFIG[48],memUSERID[8];
 extern double hvreg;
 extern int RWstop;
 
+const char appName[6];
+
+#define PrintMessage1(s,p) {sprintf(str,s,p); PrintMessage(str);}
+#define PrintMessage2(s,p1,p2) {sprintf(str,s,p1,p2); PrintMessage(str);}
+#define PrintMessage3(s,p1,p2,p3) {sprintf(str,s,p1,p2,p3); PrintMessage(str);}
+#define PrintMessage4(s,p1,p2,p3,p4) {sprintf(str,s,p1,p2,p3,p4); PrintMessage(str);}
+
+void PrintStatus(s,p1,p2);
+void PrintStatusSetup();
+void PrintStatusEnd();
+void PrintStatusClear();
+
 int StartHVReg(double V);
 void msDelay(double delay);
 void DisplayEE();
-void PrintMessage(const char *msg);
 void PrintMessageI2C(const char *msg);
 int CheckV33Regulator(void);
 void OpenLogFile(void);

@@ -21,7 +21,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA
  * or see <http://www.gnu.org/licenses/>
  */
+
+#include "opgui.h"
 #include "common.h"
+
 #include "I2CSPI.h"
 #include "coff.h"
 #include "icd.h"
@@ -33,6 +36,7 @@
 #define  CONFIG_FILE "opgui.ini"
 #define  CONFIG_DIR ".opgui"
 #define MinDly 0
+
 void Connect(GtkWidget *widget,GtkWidget *window);
 void I2cspiR();
 void I2cspiS();
@@ -2035,6 +2039,8 @@ void Xclose(){
 ///-----------------------------------
 int main( int argc, char *argv[])
 {
+	strcpy(appName,_APPNAME);
+
 	//int langID=GetUserDefaultLangID();
 	FILE *f;
 	gchar *homedir,*config_dir,*fname=0;
@@ -3549,4 +3555,17 @@ int FindDevice(int vid,int pid){
 		//gtk_statusbar_push(status_bar,statusID,strings[S_prog]);
 	}
 	return MyDeviceDetected;
+}
+
+void PrintStatus(s,p1,p2) {
+	sprintf(str,s,p1,p2);
+	gtk_statusbar_push(GTK_STATUSBAR(status_bar),statusID,str);
+	while (gtk_events_pending ()) gtk_main_iteration();
+}
+
+void PrintStatusSetup() {}
+void PrintStatusEnd() {}
+
+void PrintStatusClear() {
+	gtk_statusbar_push(GTK_STATUSBAR(status_bar), statusID,"");
 }

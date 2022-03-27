@@ -1,47 +1,59 @@
 # equivalent to #define in c code
-VERSION = 0.11.5
+VERSION = 0.12.0
 CC = gcc
 PREFIX = /usr/local
 appimage: PREFIX = ./opgui.AppDir/usr
 
-CFLAGS =  '-DVERSION="$(VERSION)"' -w `pkg-config --libs --cflags gtk+-2.0` 
+CFLAGS_GTK2 = `pkg-config --cflags gtk+-2.0`
+LDFLAGS_GTK2 = `pkg-config --libs gtk+-2.0`
+
+CFLAGS =  '-DVERSION="$(VERSION)"' -w
 CFLAGS += -Os -s #size
 #CFLAGS += -O3 -s #speed
 #CFLAGS += -g #debug
 
-OBJECTS = opgui.o \
-	deviceRW.o \
+CFLAGS += $(CFLAGS_GTK2)
+
+OBJECTS_SHARED = deviceRW.o \
+	fileIO.o \
+	I2CSPI.o \
+	progAVR.o \
+	progEEPROM.o \
 	progP12.o \
 	progP16.o \
 	progP18.o \
 	progP24.o \
-	progEEPROM.o \
-	progAVR.o \
-	fileIO.o \
-	I2CSPI.o \
+	strings.o
+
+OBJECTS_OPGUI = opgui.o \
 	coff.o \
 	icd.o \
-	strings.o \
 	icons.o
-#	progP32.o \
+
+OBJECTS_OP = op.o
 
 # Check if we are running on windows
 UNAME := $(shell uname)
 ifneq (, $(findstring _NT-, $(UNAME)))
-	CFLAGS += -mwindows
+	LDFLAGS = -mwindows
 else
-	CFLAGS += -lrt
+	LDFLAGS += -lrt
 endif
-	
+LDFLAGS_OPGUI = $(LDFLAGS) $(LDFLAGS_GTK2)
+LDFLAGS_OP = $(LDFLAGS)
+
+OBJECTS = $(OBJECTS_OP) $(OBJECTS_OPGUI) $(OBJECTS_SHARED)
+
+targets = opgui op
 
 # Targets
-all: opgui
+all: $(targets)
 
-opgui : $(OBJECTS)
-	$(CC) -o $@ $(OBJECTS) $(CFLAGS)
+opgui: $(OBJECTS_OPGUI) $(OBJECTS_SHARED)
+	$(CC) -o $@ $(OBJECTS_OPGUI) $(OBJECTS_SHARED) $(LDFLAGS_OPGUI)
 
-%.o : %.c
-	$(CC) $(CFLAGS) -c $<
+op: $(OBJECTS_OP) $(OBJECTS_SHARED)
+	$(CC) -o $@ $(OBJECTS_OP) $(OBJECTS_SHARED) $(LDFLAGS_OP)
 
 icons.c : write.png read.png sys.png
 	echo "#include <gtk/gtk.h>" > icons.c
