@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Opgui
+Exec=opgui
+Icon=opgui_icon_linux
+Type=Application
+Categories=Utility;

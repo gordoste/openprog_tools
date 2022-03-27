@@ -1,0 +1,86 @@
+opgui: control program for open programmer, 
+an USB programmer for PIC and ATMEL micros, I2C/SPI/MicroWire memories, 
+and other I2C/SPI devices.
+Website: http://openprog.altervista.org
+These sources are given free of charge under the GNU General Public License version 2 
+
+Changelog (to use new features the corresponding firmware is required):
+V 0.11.5 december 2021: fixed config word write on some 33FJXX devices
+
+V 0.11.4 july 2021:     fixed missing parentheses in progP18.c and progP16.c
+
+V 0.11.3 april 2021:    fixed EEPROM write on 16F184xx/188xx/191xx
+
+V 0.11.2 october 2020:  fixed 16F18xxx write with empty space at address 0;
+						added 18F25-26-27-45-46-47-55-56-57Q43, 
+						18F25-26-27-45-46-47-55-56-57K42, 18F25-26K83;
+						[linux] changed HW access path to /dev/hidraw
+
+V 0.11.1 february 2020: fixes: save file for 12F1XXX; 
+						timeout writing config for 16F18XXX; 
+						avoid reading DIA-DCI on 16F188XX;
+						EE verification of 0x22 on 18FXXX;
+
+V 0.11.0 january 2019:  added 16F15313-23-24-25-44-45-54-55-56-75-76-85-86,
+						16F18424-25-26-44-45-46-54-55-56,
+						16F18854-55-56-57-75-76-77,
+						16F19155-56-75-76-85-86-95-96-97
+
+V 0.10.1 december 2018: added 16F1764-65-68-69-73-76-77-78-79;
+						removed MSVC6 function definitions
+
+V 0.10.0 june 2016:  	added 16F18313-23-24-25-26-44-45-46;
+						improved USB communication
+
+V 0.9.1 november 2014:	Fixed verification of ATTiny11-12;
+						fixed 24FJ128GA3xx-GB2xx-GCxx-DAxx;
+						added config force for PIC18, IO lines hardware test,
+						AVR auto speed communication, AVR write fuse at low frequency;
+						faster write verification for SPI FLASH memories;
+						added 10F320-22,12F529T39A,12F752,12F1612-13-14-15-18-19,
+						16F1512-13,16F1574-75-78-79,16F1703-04-05-07-08-09-13-16-17-18-19,
+						16F1788-89,16F570,16LF1554-59,
+						18F24K50-25K50-26K50-45K50-46K50,
+						18F25K80-26K80-45K80-46K80-65K80-66K80,
+						18F63J11-90,18F64J11-90,18F65J10-11-15-50-90,
+						18F66J10-11-15-16-50-55-90-93,18F67J10-11-50-90-93,
+						18F83J11-90,18F84J11-90,18F85J10-11-15-50-90,
+						18F86J10-11-15-16-50-55-90-93,18F87J10-11-50-72-90-93,
+						25X128,25Q40
+
+V 0.9.0 march 2014:		Write16F72x requires only config-word 1;
+						added HV serial programming for ATtiny11-12-13-24-25-44-45-84-85;
+						added 24FJ64GA3xx-GCxx,24FJ128GA3xx-GB2xx-GCxx-DAxx,24FJ256DAxx,24EPx,33EPx;
+						added 95xx SPI EEPROM,25X05 FLASH;
+						added 12F1571-72,16F527,16F753,16F1454-55-59;
+						some code rework & minor improvements
+
+V 0.8.1 june 2013:		added IO and Utility tabs;
+						start programming with S1; SPI/I2C speed selection; -command option;
+						multiple language support; force config word; skip LV check;
+						fixed EEPROM write when code protection is active (16F83-84,12F629,
+						12F675,16F627-28,16F630,16F676,16F870-1-2,16F873-74,16F876-77);
+						fixed read of files > 1MB;
+						modified prog mode entry for AVR;
+						fixed write of 93Sx6 with protection 
+
+V 0.8.0 june 2012:		added one-wire memories DS2430,DS2431,DS2433,DS28EC20, thermometer DS1820;
+						added UNIO memories 11010-20-40-80-160;
+						fixed algorithms for 24x1024/5 and 251024, 
+						added SPI FLASH 251005,252005,254005,258005,251605,25X10,25X20,25X40,25X80,
+						25X16,25X32,25X64;
+						added 16F1782-83-84-86-87,12C508-509
+
+V 0.7.10 january 2012:	added 12F617,12F1501,16F1503-07-08-09,16F720-21,16F72,16F707,
+						18F13K22,18F14K22,18F23K22,18F43K22,18F24K22,18F44K22,18F25K22,
+						18F45K22,18F26K22,18F46K22,18F8520,18F66J60,18F66J65,18F67J60,
+						18F86J60,18F86J65,18F87J60,18F96J60,18F96J65,18F97J60,
+						fixed read/write binary files, various corrections,
+						added support for in-circuit debugging
+						
+V 0.7.9	april 2011:		first public version, using the same version number as op
+
+To compile: make
+To install: make install
+Can be compiled under windows with MinGW/MSYS and GTK bundle
+
