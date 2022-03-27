@@ -2098,8 +2098,8 @@ int main( int argc, char *argv[])
 		{"langfile",      no_argument,       &langfile, 1},
 		{0, 0, 0, 0}
 	};
-	while ((c = getopt_long_only (argc, argv, "",long_options,&option_index)) != -1){
-		if(c=='l'){ //language
+	while ((j = getopt_long_only (argc, argv, "",long_options,&option_index)) != -1){
+		if(j=='l'){ //language
 			strncpy(lang,optarg,sizeof(lang)-1);
 		}
 	}
