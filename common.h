@@ -95,7 +95,7 @@ extern unsigned char *memCODE,*memEE,memID[64],memCONFIG[48],memUSERID[8];
 extern double hvreg;
 extern int RWstop;
 
-const char appName[6];
+extern char appName[6];
 
 #define PrintMessage1(s,p) {sprintf(str,s,p); PrintMessage(str);}
 #define PrintMessage2(s,p1,p2) {sprintf(str,s,p1,p2); PrintMessage(str);}

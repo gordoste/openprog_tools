@@ -55,6 +55,7 @@ int AVRlock=0x100,AVRfuse=0x100,AVRfuse_h=0x100,AVRfuse_x=0x100;
 int ICDenable=0,ICDaddr=0x1FF0;
 int FWVersion=0,HwID=0;
 FILE* logfile=0;
+char appName[6]=_APPNAME;
 char LogFileName[512]="";
 char loadfile[512]="",savefile[512]="";
 char loadfileEE[512]="",savefileEE[512]="";
@@ -2039,8 +2040,6 @@ void Xclose(){
 ///-----------------------------------
 int main( int argc, char *argv[])
 {
-	strcpy(appName,_APPNAME);
-
 	//int langID=GetUserDefaultLangID();
 	FILE *f;
 	gchar *homedir,*config_dir,*fname=0;

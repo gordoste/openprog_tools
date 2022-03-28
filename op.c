@@ -67,6 +67,7 @@ int ICDenable=0,ICDaddr=0x1FF0;
 int FWVersion=0,HwID=0;
 
 FILE* logfile=0;
+char appName[6]=_APPNAME;
 char LogFileName[512]="";
 char loadfile[512]="",savefile[512]="";
 char loadfileEE[512]="",savefileEE[512]="";
@@ -107,7 +108,6 @@ char str[4096];
 
 
 int main (int argc, char **argv) {
-	strcpy(appName, _APPNAME);
 	int ee=0,r=0,ver=0,c=0,support=0,i2c=0,spi_mode=0,i,j,testhw=0,s1=0;
 	int spi_speed=0,command=0,langfile=0,help=0;
 	char lang[32]="";
