@@ -4055,7 +4055,7 @@ void Write12F61x(int dim, int d, int d2)
 				else if(bufferI[z]==LOAD_DATA_PROG&&bufferI[z+5]==READ_DATA_PROG){
 					if (memCODE_W[k]!=(bufferI[z+6]<<8)+bufferI[z+7]){
 						PrintMessage("\r\n");
-						PrintMessage3(strings[S_CodeWError2],k,memCODE_W[k],(bufferI[z+4]<<8)+bufferI[z+5]);	//"Error writing address %3X: written %04X, read %04X\r\n"
+						PrintMessage3(strings[S_CodeWError2],k,memCODE_W[k],(bufferI[z+6]<<8)+bufferI[z+7]);	//"Error writing address %3X: written %04X, read %04X\r\n"
 						err++;
 						if(max_err&&err>max_err){
 							PrintMessage1(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
