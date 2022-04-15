@@ -17,15 +17,18 @@ endif
 CFLAGS_GTK2 = `pkg-config --cflags gtk+-2.0`
 LDFLAGS_GTK2 = `pkg-config --libs gtk+-2.0`
 
+CFLAGS_GTK3 = `pkg-config --cflags gtk+-3.0`
+LDFLAGS_GTK3 = `pkg-config --libs gtk+-3.0`
+
 CFLAGS_HIDAPI = `pkg-config --cflags $(HIDAPI_PKG)`
 LDFLAGS_HIDAPI = `pkg-config --libs $(HIDAPI_PKG)`
 
-CFLAGS =  '-DVERSION="$(VERSION)"' -w
+CFLAGS =  '-DVERSION="$(VERSION)"'
 CFLAGS += -Os -s #size
 #CFLAGS += -O3 -s #speed
 #CFLAGS += -g #debug
 
-CFLAGS += $(CFLAGS_GTK2) $(CFLAGS_HIDAPI)
+CFLAGS += $(CFLAGS_GTK3) $(CFLAGS_HIDAPI)
 
 OBJECTS_SHARED = deviceRW.o \
 	fileIO.o \
@@ -47,7 +50,7 @@ OBJECTS_HIDTEST = hid_test.o
 
 OBJECTS_OP = op.o
 
-LDFLAGS_OPGUI = $(LDFLAGS) $(LDFLAGS_GTK2)
+LDFLAGS_OPGUI = $(LDFLAGS) $(LDFLAGS_GTK3)
 LDFLAGS_OP = $(LDFLAGS)
 LDFLAGS_HIDTEST = $(LDFLAGS) $(LDFLAGS_HIDAPI)
 
