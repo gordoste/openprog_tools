@@ -26,6 +26,7 @@
 
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <time.h>
 #include <ctype.h>
@@ -102,7 +103,7 @@ extern char appName[6];
 #define PrintMessage3(s,p1,p2,p3) {sprintf(str,s,p1,p2,p3); PrintMessage(str);}
 #define PrintMessage4(s,p1,p2,p3,p4) {sprintf(str,s,p1,p2,p3,p4); PrintMessage(str);}
 
-void PrintStatus(s,p1,p2);
+void PrintStatus(char *s,  uint16_t p1, uint16_t p2);
 void PrintStatusSetup();
 void PrintStatusEnd();
 void PrintStatusClear();

@@ -210,7 +210,7 @@ int ee = 0;
 int readRes=0;
 char dev[64]="";
 int devType=-1;
-char str[4096];
+char str[4096]="";
 char* cur_path=0;
 char* cur_pathEE=0;
 #if !defined _WIN32 && !defined __CYGWIN__	//Linux
@@ -3556,7 +3556,7 @@ int FindDevice(int vid,int pid){
 	return MyDeviceDetected;
 }
 
-void PrintStatus(s,p1,p2) {
+void PrintStatus(char *s,  uint16_t p1, uint16_t p2) {
 	sprintf(str,s,p1,p2);
 	gtk_statusbar_push(GTK_STATUSBAR(status_bar),statusID,str);
 	while (gtk_events_pending ()) gtk_main_iteration();

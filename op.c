@@ -1348,7 +1348,7 @@ int FindDevice(int vid,int pid){
 
 void PrintMessage(str) { puts(str); }
 
-void PrintStatus(s,p1,p2) { printf("\b\b\b\b%3d%",p1); fflush(stdout); }
+void PrintStatus(char *s,  uint16_t p1, uint16_t p2) { printf("\b\b\b\b%3d%",p1); fflush(stdout); }
 void PrintStatusSetup() { printf("    "); }
 void PrintStatusEnd() { printf("\b\b\b\b"); }
 void PrintStatusClear() {}
