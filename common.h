@@ -108,6 +108,8 @@ void PrintStatusSetup();
 void PrintStatusEnd();
 void PrintStatusClear();
 
+void PrintMessage(const char *msg);
+
 int StartHVReg(double V);
 void msDelay(double delay);
 void DisplayEE();

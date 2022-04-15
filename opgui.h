@@ -8,6 +8,4 @@
 extern int StatusID;
 extern GtkWidget *status_bar;
 
-void PrintMessage(const char *msg);
-
 #endif
