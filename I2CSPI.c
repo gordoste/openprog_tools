@@ -26,7 +26,7 @@
 #endif
 
 
-#ifdef defined _GTKGUI
+#ifdef _GTKGUI
 	#define printM(id) PrintMessageI2C(id);
 #else
 	#define printM(id) printf(id);

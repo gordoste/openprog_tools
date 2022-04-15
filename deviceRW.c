@@ -850,7 +850,7 @@ struct DEVICES{
 };
 
 //Add all devices to the appropriate structure
-#ifdef defined _GTKGUI
+#ifdef _GTKGUI
 extern	GtkWidget * devCombo;
 void AddDevices(){
 	int i;
