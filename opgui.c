@@ -82,7 +82,7 @@ int ver=0,reset=1,freeze=0,icdConnected=0,running=0;
 int break_addr,print_addr;
 #define Tck 30
 double Tcom=0.001*Tck*18+0.03; //communication time for a 16 bit tranfer (ms)
-int icdTimer=0,IOTimer=0;
+guint icdTimer=0,IOTimer=0;
 int currentSource=-1;
 int sourceHilight=0;
 char lastCmd[64]="";
@@ -1081,13 +1081,13 @@ void ICDHelp(GtkWidget *widget,GtkWidget *window)
 }
 ///
 ///ICD: check if program is running
-void icdCheck(GtkWidget *widget,GtkWidget *window)
+gboolean icdCheck(GtkWidget *widget,GtkWidget *window)
 {
 #ifndef DEBUG
-	if(DeviceDetected!=1) return;
+	if(DeviceDetected!=1) return G_SOURCE_CONTINUE;
 #endif
 	if(!isRunning()){
-		gtk_timeout_remove(icdTimer);
+		g_source_remove(icdTimer);
 		ShowContext();
 	}
 }
@@ -1107,12 +1107,12 @@ void icdRun(GtkWidget *widget,GtkWidget *window)
 		startICD(Tck);	//start ICD mode by supplying the target and forcing a reset
 		run();			//remove reset
 		icdConnected=1;
-		icdTimer=gtk_timeout_add(20,(GtkFunction)icdCheck,NULL);
+		icdTimer=g_timeout_add(20,(GSourceFunc)icdCheck,NULL);
 		PrintMessageICD("running");
 	}
 	else if(!running){
 		cont(break_addr,freeze);	//continue execution
-		icdTimer=gtk_timeout_add(20,(GtkFunction)icdCheck,NULL);
+		icdTimer=g_timeout_add(20,(GSourceFunc)icdCheck,NULL);
 		PrintMessageICD("running");
 	}
 }
@@ -1124,7 +1124,7 @@ void icdHalt(GtkWidget *widget,GtkWidget *window)
 	if(DeviceDetected!=1) return;
 #endif
 	if(running){
-		gtk_timeout_remove(icdTimer);
+		g_source_remove(icdTimer);
 		Halt();
 		ShowContext();
 	}
@@ -1137,7 +1137,7 @@ void icdStep(GtkWidget *widget,GtkWidget *window)
 	if(DeviceDetected!=1) return;
 #endif
 	if(running){
-		gtk_timeout_remove(icdTimer);
+		g_source_remove(icdTimer);
 		Halt();
 	}
 	step();
@@ -1155,14 +1155,14 @@ void icdStepOver(GtkWidget *widget,GtkWidget *window)
 #endif
 	int addr,data;
 	if(running){
-		gtk_timeout_remove(icdTimer);
+		g_source_remove(icdTimer);
 		Halt();
 	}
 	addr=((ReadRegister(0x18E)&0x1F)<<8)+ReadRegister(0x18F);
 	data=ReadProgMem(addr);
 	if((data>>11)==4){	//if call break at return address
 		cont(addr+1,freeze);
-		icdTimer=gtk_timeout_add(20,(GtkFunction)icdCheck,NULL);
+		icdTimer=g_timeout_add(20,(GSourceFunc)icdCheck,NULL);
 	}
 	else{		//normal step
 		step();
@@ -1180,7 +1180,7 @@ void icdStop(GtkWidget *widget,GtkWidget *window)
 	if(DeviceDetected!=1) return;
 #endif
 	if(running){
-		gtk_timeout_remove(icdTimer);
+		g_source_remove(icdTimer);
 		Halt();
 	}
 //	bufferU[0]=0;
@@ -1759,13 +1759,13 @@ gint icd_key_event(GtkWidget *widget, GdkEventButton *event, gpointer func_data)
 }
 ///
 /// Check or set IO signals according to IO tab controls
-void IOchanged(GtkWidget *widget,GtkWidget *window)
+gboolean IOchanged(GtkWidget *widget,GtkWidget *window)
 {
-	if(progress) return;
+	if(progress) return G_SOURCE_CONTINUE;
 #ifndef DEBUG
-	if(DeviceDetected!=1) return;
+	if(DeviceDetected!=1) return G_SOURCE_CONTINUE;
 #endif
-	if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(b_io_active))) return;
+	if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(b_io_active))) return G_SOURCE_CONTINUE;
 	int i,j=0;
 	int trisa=1,trisb=0,trisc=0x30,latac=0,latb=0;
 	int port=0,z;
@@ -1845,17 +1845,17 @@ void IOchanged(GtkWidget *widget,GtkWidget *window)
 	double vpp=((bufferI[z+1]<<8)+bufferI[z+2])/1024.0*5*34/12;	//VPP
 	sprintf(str,"VPP=%.2fV",vpp);
 	gtk_statusbar_push(GTK_STATUSBAR(status_bar),statusID,str);
-	return;
+	return G_SOURCE_CONTINUE;
 }
 ///
 /// Start/stop timer to check for IO status
 void IOactive(GtkWidget *widget,GtkWidget *window)
 {
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(b_io_active))&&!icdTimer){
-		IOTimer=gtk_timeout_add(100,(GtkFunction)IOchanged,NULL);
+		IOTimer=g_timeout_add(100,(GSourceFunc)IOchanged,NULL);
 	}
 	else if(IOTimer){
-		gtk_timeout_remove(IOTimer);
+		g_source_remove(IOTimer);
 	}
 }
 ///
