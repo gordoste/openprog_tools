@@ -162,7 +162,7 @@ void DisplayCODEAVR(int dim){
 //Software SPI for very slow speed
 //RB1=CLK, RB0=MISO, RC7=MOSI, RC6=RESET
 //speed in bit/s  min 10
-SWSPI(int data, int speed){
+void SWSPI(int data, int speed){
 	int i,j,din=0;
 	double Tbit=1.0/speed*1e6;		//Tbit in us
 	if(saveLog)	fprintf(logfile,"SWSPI(0x%X,%d)\n",data,speed);
