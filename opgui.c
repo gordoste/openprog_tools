@@ -2177,7 +2177,7 @@ int main( int argc, char *argv[])
 	g_signal_connect(GTK_WINDOW(window), "destroy",G_CALLBACK(Xclose),NULL);
 	GdkPixbuf* pixbuf = gdk_pixbuf_new_from_inline (-1, system_icon, FALSE, NULL);
 	gtk_window_set_icon(GTK_WINDOW(window),pixbuf);
-	GtkWidget * vbox = gtk_vbox_new(FALSE,0);
+	GtkWidget * vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	gtk_container_add(GTK_CONTAINER(window),vbox);
 	PangoFontDescription    *font_desc;
 //------toolbar-------------
@@ -2246,7 +2246,7 @@ int main( int argc, char *argv[])
 	label = gtk_label_new(strings[I_Dev]);	//"Device"
 	GtkWidget * table_dev = gtk_table_new(2,2,FALSE);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),table_dev,label);
-	GtkWidget * devHbox1 = gtk_hbox_new(FALSE,10);
+	GtkWidget * devHbox1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
 	gtk_table_attach(GTK_TABLE(table_dev),devHbox1,0,2,0,1,4,0,5,5);
 	label = gtk_label_new(strings[I_Type]);	//"Type"
 	gtk_box_pack_start(GTK_BOX(devHbox1),label,FALSE,TRUE,0);
@@ -2258,7 +2258,7 @@ int main( int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(devHbox1),label,FALSE,TRUE,0);
 	devCombo = gtk_combo_box_text_new();
 	gtk_box_pack_start(GTK_BOX(devHbox1),devCombo,FALSE,TRUE,0);
-	GtkWidget * devHbox2 = gtk_hbox_new(FALSE,10);
+	GtkWidget * devHbox2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
 	gtk_table_attach(GTK_TABLE(table_dev),devHbox2,0,2,1,2,4,0,5,5);
 	label = gtk_label_new("info: ");
 	gtk_box_pack_start(GTK_BOX(devHbox2),label,FALSE,FALSE,0);
@@ -2269,12 +2269,12 @@ int main( int argc, char *argv[])
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EEPROM_RW),TRUE);
 	gtk_table_attach(GTK_TABLE(table_dev),EEPROM_RW,0,1,2,3,4,0,5,5);
 //	devFramePIC = gtk_frame_new(strings[I_PIC_CONFIG]);	//"PIC configuration"
-	devFramePIC = gtk_vbox_new(FALSE,0);//gtk_frame_new(NULL);	//"PIC configuration"
+	devFramePIC = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);//gtk_frame_new(NULL);	//"PIC configuration"
 	gtk_table_attach(GTK_TABLE(table_dev),devFramePIC,0,1,3,4,4,0,5,5);
 	GtkWidget * table_PIC = gtk_table_new(2,2,FALSE);
 	//gtk_container_add(GTK_CONTAINER(devFramePIC),GTK_WIDGET(table_PIC));
 	gtk_box_pack_start(GTK_BOX(devFramePIC),table_PIC,FALSE,TRUE,0);
-	GtkWidget * devVboxPIC = gtk_vbox_new(FALSE,5);
+	GtkWidget * devVboxPIC = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	gtk_table_attach(GTK_TABLE(table_PIC),devVboxPIC,0,1,0,1,0,0,0,0);
 	ReadReserved = gtk_check_button_new_with_label(strings[I_ReadRes]);	//"Read reserved area"
 	gtk_container_add(GTK_CONTAINER(devVboxPIC),GTK_WIDGET(ReadReserved));
@@ -2284,7 +2284,7 @@ int main( int argc, char *argv[])
 	gtk_container_add(GTK_CONTAINER(devVboxPIC),GTK_WIDGET(WriteCalib12));
 	devFrameOsc = gtk_frame_new(strings[I_OSCW]);	//"Write OscCal"
 	gtk_table_attach(GTK_TABLE(table_PIC),devFrameOsc,0,1,1,2,GTK_FILL,0,5,0);
-	GtkWidget * devVboxOsc = gtk_vbox_new(FALSE,5);
+	GtkWidget * devVboxOsc = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	gtk_container_add(GTK_CONTAINER(devFrameOsc),GTK_WIDGET(devVboxOsc));
 	UseOSCCAL = gtk_radio_button_new_with_label(NULL,strings[I_OSC]);	//"OSCCal"
 	UseBKOSCCAL = gtk_radio_button_new_with_label(\
@@ -2296,11 +2296,11 @@ int main( int argc, char *argv[])
 	gtk_container_add(GTK_CONTAINER(devVboxOsc),GTK_WIDGET(UseFileCal));
 	devFrameICD = gtk_frame_new("ICD");
 	gtk_table_attach(GTK_TABLE(table_PIC),devFrameICD,0,2,2,3,GTK_FILL,0,5,5);
-	GtkWidget * devVboxICD = gtk_hbox_new(FALSE,25);
+	GtkWidget * devVboxICD = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,25);
 	gtk_container_add(GTK_CONTAINER(devFrameICD),GTK_WIDGET(devVboxICD));
 	ICD_check = gtk_check_button_new_with_label(strings[I_ICD_ENABLE]);	//"Enable ICD"
 	gtk_container_add(GTK_CONTAINER(devVboxICD),ICD_check);
-	GtkWidget * devHboxICD = gtk_hbox_new(FALSE,0);
+	GtkWidget * devHboxICD = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	label = gtk_label_new(strings[I_ICD_ADDRESS]);	//"ICD routine address"
 	gtk_box_pack_start(GTK_BOX(devHboxICD),GTK_WIDGET(label),0,0,1);
 	ICD_addr_entry = gtk_entry_new();
@@ -2313,7 +2313,7 @@ int main( int argc, char *argv[])
 	gtk_container_add(GTK_CONTAINER(devFrameConfigW),GTK_WIDGET(table_devCW));
 	ConfigForce = gtk_check_button_new_with_label(strings[I_PIC_FORCECW]); //"force config word"
 	gtk_table_attach(GTK_TABLE(table_devCW),ConfigForce,0,2,0,1,0,0,0,0);
-#define CWX(y) 	devPIC_CW##y = gtk_hbox_new(FALSE,0);\
+#define CWX(y) 	devPIC_CW##y = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);\
 				label = gtk_label_new("CW"#y);\
 				gtk_box_pack_start(GTK_BOX(devPIC_CW##y),GTK_WIDGET(label),0,0,1);\
 				CW##y##_entry = gtk_entry_new();\
@@ -2334,7 +2334,7 @@ int main( int argc, char *argv[])
 	gtk_table_attach(GTK_TABLE(table_devCW),devPIC_CW6,1,2,3,4,0,0,0,0);
 	gtk_table_attach(GTK_TABLE(table_devCW),devPIC_CW7,0,1,4,5,0,0,0,0);
 //	devFrameAVR = gtk_frame_new(strings[I_AT_CONFIG]);	//"Atmel configuration"
-	devFrameAVR = gtk_vbox_new(FALSE,0);	//Atmel configuration
+	devFrameAVR = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);	//Atmel configuration
 	gtk_table_attach(GTK_TABLE(table_dev),devFrameAVR,0,1,3,4,4,0,0,0);
 	GtkWidget * devTableAVR = gtk_table_new(2,2,FALSE);
 //	gtk_container_add(GTK_CONTAINER(devFrameAVR),devTableAVR);
@@ -2369,14 +2369,14 @@ int main( int argc, char *argv[])
 	gtk_table_attach(GTK_TABLE(optTable),b_connect,0,1,0,1,GTK_FILL,0,5,5);
 	b_testhw = gtk_button_new_with_label(strings[I_TestHWB]);	//"Hardware test"
 	gtk_table_attach(GTK_TABLE(optTable),b_testhw,0,1,2,3,GTK_FILL,0,5,5);
-	GtkWidget * optHboxVid = gtk_hbox_new(FALSE,5);
+	GtkWidget * optHboxVid = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	gtk_table_attach(GTK_TABLE(optTable),optHboxVid,0,1,1,2,GTK_FILL,0,5,5);
 	label = gtk_label_new("Vid");
 	gtk_box_pack_start(GTK_BOX(optHboxVid),label,FALSE,TRUE,0);
 	VID_entry = gtk_entry_new();
 	gtk_entry_set_width_chars(GTK_ENTRY(VID_entry),4);
 	gtk_box_pack_start(GTK_BOX(optHboxVid),VID_entry,FALSE,TRUE,0);
-	GtkWidget * optHboxPid = gtk_hbox_new(FALSE,5);
+	GtkWidget * optHboxPid = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	gtk_table_attach(GTK_TABLE(optTable),optHboxPid,1,2,1,2,GTK_FILL,0,5,5);
 	label = gtk_label_new("Pid");
 	gtk_box_pack_start(GTK_BOX(optHboxPid),label,FALSE,TRUE,0);
@@ -2389,7 +2389,7 @@ int main( int argc, char *argv[])
 	gtk_table_attach(GTK_TABLE(optTable),b_V33check,0,2,7,8,GTK_FILL,0,5,5);
 	b_WaitS1 = gtk_check_button_new_with_label(strings[I_WAITS1]);	//"Wait for S1 before read/write"
 	gtk_table_attach(GTK_TABLE(optTable),b_WaitS1,0,2,8,9,GTK_FILL,0,5,5);
-	GtkWidget * optHboxErr = gtk_hbox_new(FALSE,5);
+	GtkWidget * optHboxErr = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	gtk_table_attach(GTK_TABLE(optTable),optHboxErr,0,2,9,10,GTK_FILL,0,5,5);
 	label = gtk_label_new(strings[I_MAXERR]);	//"Max errors"
 	gtk_container_add(GTK_CONTAINER(optHboxErr),label);
@@ -2402,7 +2402,7 @@ int main( int argc, char *argv[])
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),i2cTable,label);
 	GtkWidget * i2cModeFrame = gtk_frame_new(strings[I_I2CMode]);	//"Mode"
 	gtk_table_attach(GTK_TABLE(i2cTable),i2cModeFrame,0,1,0,5,GTK_FILL,0,5,0);
-	GtkWidget * i2cVboxMode = gtk_vbox_new(FALSE,10);
+	GtkWidget * i2cVboxMode = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
 	gtk_container_add(GTK_CONTAINER(i2cModeFrame),i2cVboxMode);
 	I2C8bit = gtk_radio_button_new_with_label(NULL,"I2C 8 Bit");
 	I2C16bit = gtk_radio_button_new_with_label(\
@@ -2422,13 +2422,13 @@ int main( int argc, char *argv[])
 	gtk_container_add(GTK_CONTAINER(i2cVboxMode),GTK_WIDGET(SPI01));
 	gtk_container_add(GTK_CONTAINER(i2cVboxMode),GTK_WIDGET(SPI10));
 	gtk_container_add(GTK_CONTAINER(i2cVboxMode),GTK_WIDGET(SPI11));
-	GtkWidget * i2cVboxTX = gtk_vbox_new(FALSE,2);
+	GtkWidget * i2cVboxTX = gtk_box_new(GTK_ORIENTATION_VERTICAL,2);
 	gtk_table_attach(GTK_TABLE(i2cTable),i2cVboxTX,1,3,3,4,GTK_FILL,0,5,0);
 	label = gtk_label_new(strings[I_I2CDATAOUT]);	//"Data to send"
 	gtk_container_add(GTK_CONTAINER(i2cVboxTX),label);
 	I2CDataSend = gtk_entry_new();
 	gtk_container_add(GTK_CONTAINER(i2cVboxTX),GTK_WIDGET(I2CDataSend));
-	GtkWidget * i2cVboxRX = gtk_vbox_new(FALSE,2);
+	GtkWidget * i2cVboxRX = gtk_box_new(GTK_ORIENTATION_VERTICAL,2);
 	gtk_table_attach(GTK_TABLE(i2cTable),i2cVboxRX,1,3,4,5,GTK_FILL,0,5,0);
 	label = gtk_label_new(strings[I_I2CDATATR]);	//"Data transferred"
 	gtk_container_add(GTK_CONTAINER(i2cVboxRX),label);
@@ -2436,13 +2436,13 @@ int main( int argc, char *argv[])
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(I2CDataReceive),FALSE);
 	gtk_container_add(GTK_CONTAINER(i2cVboxRX),GTK_WIDGET(I2CDataReceive));
 	gtk_widget_set_size_request(I2CDataReceive,100,60);
-	GtkWidget * i2cHboxNB = gtk_hbox_new(FALSE,5);
+	GtkWidget * i2cHboxNB = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	gtk_table_attach(GTK_TABLE(i2cTable),i2cHboxNB,1,3,0,1,GTK_FILL,0,5,0);
 	label = gtk_label_new(strings[I_I2C_NB]);	//"Byes to read/write"
 	gtk_container_add(GTK_CONTAINER(i2cHboxNB),label);
 	I2CNbyte = 	gtk_spin_button_new_with_range(0,64,1);
 	gtk_container_add(GTK_CONTAINER(i2cHboxNB),GTK_WIDGET(I2CNbyte));
-	GtkWidget * i2cHboxSpeed = gtk_hbox_new(FALSE,5);
+	GtkWidget * i2cHboxSpeed = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	gtk_table_attach(GTK_TABLE(i2cTable),i2cHboxSpeed,1,3,1,2,GTK_FILL,0,5,0);
 	label = gtk_label_new(strings[I_Speed]);	//"Speed"
 	gtk_container_add(GTK_CONTAINER(i2cHboxSpeed),label);
@@ -2459,7 +2459,7 @@ int main( int argc, char *argv[])
 	gtk_table_attach(GTK_TABLE(i2cTable),I2CReceiveBtn,2,3,2,3,GTK_FILL,0,5,0);
 //------ICD tab-------------
 	label = gtk_label_new("ICD");
-	icdVbox1 = gtk_vbox_new(FALSE,5);
+	icdVbox1 = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),icdVbox1,label);
 	//menu
 	GtkWidget * icdMenuBar = gtk_menu_bar_new ();
@@ -2549,7 +2549,7 @@ int main( int argc, char *argv[])
 	gtk_window_get_size(GTK_WINDOW(window),&width,&height);
 	gtk_paned_set_position(GTK_PANED (hpaned),width/2);
 	//source
-	GtkWidget * icdVbox2 = gtk_vbox_new(FALSE,5);
+	GtkWidget * icdVbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	gtk_paned_pack1 (GTK_PANED (hpaned), icdVbox2, TRUE, FALSE);
 	label = gtk_label_new(strings[I_ICD_SOURCE]);	//"Source"
 	gtk_box_pack_start(GTK_BOX(icdVbox2),label,FALSE,FALSE,0);
@@ -2563,9 +2563,10 @@ int main( int argc, char *argv[])
 	pango_font_description_free (font_desc);
 	gtk_box_pack_start(GTK_BOX(icdVbox2),sourceScroll,TRUE,TRUE,0);
 	//status
-	GtkWidget * icdVbox3 = gtk_vbox_new(FALSE,5);
+	GtkWidget * icdVbox3 = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	gtk_paned_pack2 (GTK_PANED (hpaned), icdVbox3, TRUE, FALSE);
-	GtkWidget * icdHbox2 = gtk_hbox_new(TRUE,20);
+	GtkWidget * icdHbox2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,20);
+	gtk_box_set_homogeneous(GTK_BOX(icdHbox2), TRUE);
 	gtk_box_pack_start(GTK_BOX(icdVbox3),icdHbox2,FALSE,FALSE,0);
 	label = gtk_label_new(strings[I_ICD_STATUS]);	//"Status"
 	gtk_box_pack_start(GTK_BOX(icdHbox2),label,FALSE,FALSE,0);
@@ -2581,7 +2582,7 @@ int main( int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(icdVbox3),statusScroll,TRUE,TRUE,0);
 //------IO tab-------------
 	label = gtk_label_new("I/O");
-	GtkWidget * ioVbox1 = gtk_vbox_new(FALSE,5);
+	GtkWidget * ioVbox1 = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),ioVbox1,label);
 	GtkWidget * ioFrameIO = gtk_frame_new("I/O");
 	gtk_box_pack_start(GTK_BOX(ioVbox1),ioFrameIO,FALSE,FALSE,0);
@@ -2614,7 +2615,7 @@ int main( int argc, char *argv[])
 	ioButtons[12].x=1;
 	ioButtons[12].y=5;
 	for(ii=0;ii<sizeof(ioButtons)/sizeof(ioButtons[0]);ii++){
-		GtkWidget * ioBoxRBx = gtk_hbox_new(FALSE,5);
+		GtkWidget * ioBoxRBx = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 		gtk_table_attach(GTK_TABLE(ioTable),ioBoxRBx,ioButtons[ii].x,ioButtons[ii].x+1,ioButtons[ii].y,ioButtons[ii].y+1,GTK_FILL,0,0,0);
 		label = gtk_label_new(ioButtons[ii].name);
 		gtk_box_pack_start(GTK_BOX(ioBoxRBx),label,FALSE,TRUE,0);
@@ -2634,7 +2635,7 @@ int main( int argc, char *argv[])
 		g_signal_connect(G_OBJECT(ioButtons[ii].r_1),"toggled",G_CALLBACK(IOchanged),NULL);
 		g_signal_connect(G_OBJECT(ioButtons[ii].r_I),"toggled",G_CALLBACK(IOchanged),NULL);
 	}
-	GtkWidget * ioBoxDCDC = gtk_hbox_new(FALSE,5);
+	GtkWidget * ioBoxDCDC = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	gtk_box_pack_start(GTK_BOX(ioVbox1),ioBoxDCDC,FALSE,FALSE,0);
 	VDD_ON = gtk_check_button_new_with_label("VDDU");	//""
 	gtk_box_pack_start(GTK_BOX(ioBoxDCDC),VDD_ON,FALSE,TRUE,2);
@@ -2646,13 +2647,13 @@ int main( int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(ioBoxDCDC),DCDC_voltage,TRUE,TRUE,2);
 //------Utility tab-------------
 	label = gtk_label_new("Utility");
-	GtkWidget * utVbox1 = gtk_vbox_new(FALSE,5);
+	GtkWidget * utVbox1 = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),utVbox1,label);
 	GtkWidget * utFrameH2D = gtk_frame_new("HEX -> DATA");
 	gtk_box_pack_start(GTK_BOX(utVbox1),utFrameH2D,FALSE,FALSE,5);
-	GtkWidget * utVboxHex = gtk_vbox_new(FALSE,5);
+	GtkWidget * utVboxHex = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	gtk_container_add(GTK_CONTAINER(utFrameH2D),utVboxHex);
-	GtkWidget * utHboxHex = gtk_hbox_new(FALSE,5);
+	GtkWidget * utHboxHex = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	gtk_container_add(GTK_CONTAINER(utVboxHex),utHboxHex);
 	label = gtk_label_new("Hex");	//
 	gtk_box_pack_start(GTK_BOX(utHboxHex),label,FALSE,TRUE,5);
