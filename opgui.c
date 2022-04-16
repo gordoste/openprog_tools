@@ -2232,50 +2232,54 @@ int main( int argc, char *argv[])
 	notebook = gtk_notebook_new();
 	gtk_box_pack_start(GTK_BOX(vbox),notebook,TRUE,TRUE,0);
 //------data tab-------------
-	label = gtk_label_new(strings[I_Data]);	//"Data"
 	data_scroll = gtk_scrolled_window_new(NULL,NULL);
 	data = gtk_text_view_new();
 	dataBuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data));
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(data),FALSE);
 	gtk_container_add(GTK_CONTAINER(data_scroll),data);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),data_scroll,label);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),data_scroll,gtk_label_new(strings[I_Data])); //"Data"
 	font_desc = pango_font_description_from_string ("monospace 8");
-	gtk_widget_modify_font (data, font_desc);
+	gtk_widget_override_font(data, font_desc);
 	pango_font_description_free (font_desc);
 //------device tab-------------
 	label = gtk_label_new(strings[I_Dev]);	//"Device"
-	GtkWidget * table_dev = gtk_table_new(2,2,FALSE);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),table_dev,label);
+	GtkWidget * devGrid = gtk_grid_new();
+	gtk_grid_set_column_spacing(GTK_GRID(devGrid), 5);
+	gtk_grid_set_row_spacing(GTK_GRID(devGrid), 5);
+	
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),devGrid,label);
 	GtkWidget * devHbox1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
-	gtk_table_attach(GTK_TABLE(table_dev),devHbox1,0,2,0,1,4,0,5,5);
-	label = gtk_label_new(strings[I_Type]);	//"Type"
-	gtk_box_pack_start(GTK_BOX(devHbox1),label,FALSE,TRUE,0);
+	
+	gtk_grid_attach(GTK_GRID(devGrid),devHbox1,0,0,2,1);
+	gtk_box_pack_start(GTK_BOX(devHbox1),gtk_label_new(strings[I_Type]),FALSE,TRUE,0); //"Type"
 	devTypeCombo = gtk_combo_box_text_new();
 	gtk_box_pack_start(GTK_BOX(devHbox1),devTypeCombo,FALSE,TRUE,0);
-	label = gtk_label_new("   ");
-	gtk_box_pack_start(GTK_BOX(devHbox1),label,FALSE,TRUE,0);
-	label = gtk_label_new(strings[I_Dev]);	//"Device"
-	gtk_box_pack_start(GTK_BOX(devHbox1),label,FALSE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(devHbox1),gtk_label_new("   "),FALSE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(devHbox1),gtk_label_new(strings[I_Dev]),FALSE,TRUE,0); //"Device"
 	devCombo = gtk_combo_box_text_new();
 	gtk_box_pack_start(GTK_BOX(devHbox1),devCombo,FALSE,TRUE,0);
 	GtkWidget * devHbox2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
-	gtk_table_attach(GTK_TABLE(table_dev),devHbox2,0,2,1,2,4,0,5,5);
-	label = gtk_label_new("info: ");
-	gtk_box_pack_start(GTK_BOX(devHbox2),label,FALSE,FALSE,0);
+	
+	gtk_grid_attach(GTK_GRID(devGrid),devHbox2,0,1,2,1);
+	gtk_box_pack_start(GTK_BOX(devHbox2),gtk_label_new("info: "),FALSE,FALSE,0);
 	devinfo = gtk_label_new("i");
-//	gtk_table_attach(GTK_TABLE(table_dev),devinfo,0,1,1,2,0,0,5,5);
 	gtk_box_pack_start(GTK_BOX(devHbox2),devinfo,FALSE,FALSE,0);
 	EEPROM_RW = gtk_check_button_new_with_label(strings[I_EE]);	//"Read and write EEPROM"
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EEPROM_RW),TRUE);
-	gtk_table_attach(GTK_TABLE(table_dev),EEPROM_RW,0,1,2,3,4,0,5,5);
-//	devFramePIC = gtk_frame_new(strings[I_PIC_CONFIG]);	//"PIC configuration"
+	
+	gtk_grid_attach(GTK_GRID(devGrid),EEPROM_RW,0,2,1,1);
 	devFramePIC = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);//gtk_frame_new(NULL);	//"PIC configuration"
-	gtk_table_attach(GTK_TABLE(table_dev),devFramePIC,0,1,3,4,4,0,5,5);
-	GtkWidget * table_PIC = gtk_table_new(2,2,FALSE);
-	//gtk_container_add(GTK_CONTAINER(devFramePIC),GTK_WIDGET(table_PIC));
+	
+	gtk_grid_attach(GTK_GRID(devGrid),devFramePIC,0,3,1,1);
+	
+	GtkWidget * table_PIC = gtk_grid_new();
+	gtk_grid_set_column_spacing(GTK_GRID(table_PIC), 5);
+	gtk_grid_set_row_spacing(GTK_GRID(table_PIC), 5);
+	
 	gtk_box_pack_start(GTK_BOX(devFramePIC),table_PIC,FALSE,TRUE,0);
 	GtkWidget * devVboxPIC = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
-	gtk_table_attach(GTK_TABLE(table_PIC),devVboxPIC,0,1,0,1,0,0,0,0);
+	gtk_grid_attach(GTK_GRID(table_PIC),devVboxPIC,0,0,1,1);
+	
 	ReadReserved = gtk_check_button_new_with_label(strings[I_ReadRes]);	//"Read reserved area"
 	gtk_container_add(GTK_CONTAINER(devVboxPIC),GTK_WIDGET(ReadReserved));
 	Write_ID_BKCal = gtk_check_button_new_with_label(strings[I_ID_BKo_W]);	//"Write ID and BKOscCal"
@@ -2283,7 +2287,8 @@ int main( int argc, char *argv[])
 	WriteCalib12 = gtk_check_button_new_with_label(strings[I_CalW]);	//"Write Calib 1 and 2"
 	gtk_container_add(GTK_CONTAINER(devVboxPIC),GTK_WIDGET(WriteCalib12));
 	devFrameOsc = gtk_frame_new(strings[I_OSCW]);	//"Write OscCal"
-	gtk_table_attach(GTK_TABLE(table_PIC),devFrameOsc,0,1,1,2,GTK_FILL,0,5,0);
+	
+	gtk_grid_attach(GTK_GRID(table_PIC),devFrameOsc,0,1,1,1);
 	GtkWidget * devVboxOsc = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	gtk_container_add(GTK_CONTAINER(devFrameOsc),GTK_WIDGET(devVboxOsc));
 	UseOSCCAL = gtk_radio_button_new_with_label(NULL,strings[I_OSC]);	//"OSCCal"
@@ -2295,7 +2300,8 @@ int main( int argc, char *argv[])
 	gtk_container_add(GTK_CONTAINER(devVboxOsc),GTK_WIDGET(UseBKOSCCAL));
 	gtk_container_add(GTK_CONTAINER(devVboxOsc),GTK_WIDGET(UseFileCal));
 	devFrameICD = gtk_frame_new("ICD");
-	gtk_table_attach(GTK_TABLE(table_PIC),devFrameICD,0,2,2,3,GTK_FILL,0,5,5);
+	gtk_grid_attach(GTK_GRID(table_PIC),devFrameICD,0,2,2,1);
+
 	GtkWidget * devVboxICD = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,25);
 	gtk_container_add(GTK_CONTAINER(devFrameICD),GTK_WIDGET(devVboxICD));
 	ICD_check = gtk_check_button_new_with_label(strings[I_ICD_ENABLE]);	//"Enable ICD"
@@ -2308,11 +2314,12 @@ int main( int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(devHboxICD),GTK_WIDGET(ICD_addr_entry),0,0,2);
 	gtk_container_add(GTK_CONTAINER(devVboxICD),GTK_WIDGET(devHboxICD));
 	devFrameConfigW = gtk_frame_new("Config Word");
-	gtk_table_attach(GTK_TABLE(table_PIC),devFrameConfigW,1,2,0,2,0,GTK_FILL,5,0);
-	GtkWidget * table_devCW = gtk_table_new(2,2,FALSE);
-	gtk_container_add(GTK_CONTAINER(devFrameConfigW),GTK_WIDGET(table_devCW));
+	
+	gtk_grid_attach(GTK_GRID(table_PIC),devFrameConfigW,1,0,1,2);
+	GtkWidget * cwGrid = gtk_grid_new();
+	gtk_container_add(GTK_CONTAINER(devFrameConfigW),GTK_WIDGET(cwGrid));
 	ConfigForce = gtk_check_button_new_with_label(strings[I_PIC_FORCECW]); //"force config word"
-	gtk_table_attach(GTK_TABLE(table_devCW),ConfigForce,0,2,0,1,0,0,0,0);
+	gtk_grid_attach(GTK_GRID(cwGrid),ConfigForce,0,0,2,1);
 #define CWX(y) 	devPIC_CW##y = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);\
 				label = gtk_label_new("CW"#y);\
 				gtk_box_pack_start(GTK_BOX(devPIC_CW##y),GTK_WIDGET(label),0,0,1);\
@@ -2326,82 +2333,83 @@ int main( int argc, char *argv[])
 	CWX(5);
 	CWX(6);
 	CWX(7);
-	gtk_table_attach(GTK_TABLE(table_devCW),devPIC_CW1,0,1,1,2,0,0,0,0);
-	gtk_table_attach(GTK_TABLE(table_devCW),devPIC_CW2,1,2,1,2,0,0,0,0);
-	gtk_table_attach(GTK_TABLE(table_devCW),devPIC_CW3,0,1,2,3,0,0,0,0);
-	gtk_table_attach(GTK_TABLE(table_devCW),devPIC_CW4,1,2,2,3,0,0,0,0);
-	gtk_table_attach(GTK_TABLE(table_devCW),devPIC_CW5,0,1,3,4,0,0,0,0);
-	gtk_table_attach(GTK_TABLE(table_devCW),devPIC_CW6,1,2,3,4,0,0,0,0);
-	gtk_table_attach(GTK_TABLE(table_devCW),devPIC_CW7,0,1,4,5,0,0,0,0);
-//	devFrameAVR = gtk_frame_new(strings[I_AT_CONFIG]);	//"Atmel configuration"
+	gtk_grid_attach(GTK_GRID(cwGrid),devPIC_CW1,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(cwGrid),devPIC_CW2,1,1,1,1);
+	gtk_grid_attach(GTK_GRID(cwGrid),devPIC_CW3,0,2,1,1);
+	gtk_grid_attach(GTK_GRID(cwGrid),devPIC_CW4,1,2,1,1);
+	gtk_grid_attach(GTK_GRID(cwGrid),devPIC_CW5,0,3,1,1);
+	gtk_grid_attach(GTK_GRID(cwGrid),devPIC_CW6,1,3,1,1);
+	gtk_grid_attach(GTK_GRID(cwGrid),devPIC_CW7,0,4,1,1);
 	devFrameAVR = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);	//Atmel configuration
-	gtk_table_attach(GTK_TABLE(table_dev),devFrameAVR,0,1,3,4,4,0,0,0);
-	GtkWidget * devTableAVR = gtk_table_new(2,2,FALSE);
-//	gtk_container_add(GTK_CONTAINER(devFrameAVR),devTableAVR);
-	gtk_box_pack_start(GTK_BOX(devFrameAVR),devTableAVR,FALSE,TRUE,0);
+	
+	gtk_grid_attach(GTK_GRID(devGrid),devFrameAVR,0,3,1,1);
+	GtkWidget * avrGrid = gtk_grid_new();
+	gtk_grid_set_column_spacing(GTK_GRID(avrGrid), 5);
+	gtk_grid_set_row_spacing(GTK_GRID(avrGrid), 2);
+
+	gtk_box_pack_start(GTK_BOX(devFrameAVR),avrGrid,FALSE,TRUE,0);
 	AVR_FuseLow = gtk_entry_new();
 	gtk_entry_set_width_chars(GTK_ENTRY(AVR_FuseLow),4);
-	gtk_table_attach(GTK_TABLE(devTableAVR),AVR_FuseLow,0,1,1,2,4,0,5,2);
+	gtk_grid_attach(GTK_GRID(avrGrid),AVR_FuseLow,0,1,1,1);
 	AVR_FuseLowWrite = gtk_check_button_new_with_label(strings[I_AT_FUSE]);	//"Write Fuse Low"
-	gtk_table_attach(GTK_TABLE(devTableAVR),AVR_FuseLowWrite,1,2,1,2,4,0,5,0);
+	gtk_grid_attach(GTK_GRID(avrGrid),AVR_FuseLowWrite,1,1,1,1);
 	AVR_FuseHigh = gtk_entry_new();
 	gtk_entry_set_width_chars(GTK_ENTRY(AVR_FuseHigh),4);
-	gtk_table_attach(GTK_TABLE(devTableAVR),AVR_FuseHigh,0,1,2,3,4,0,5,2);
+	gtk_grid_attach(GTK_GRID(avrGrid),AVR_FuseHigh,0,2,1,1);
 	AVR_FuseHighWrite = gtk_check_button_new_with_label(strings[I_AT_FUSEH]);	//"Write Fuse High"
-	gtk_table_attach(GTK_TABLE(devTableAVR),AVR_FuseHighWrite,1,2,2,3,4,0,5,0);
+	gtk_grid_attach(GTK_GRID(avrGrid),AVR_FuseHighWrite,1,2,1,1);
 	AVR_FuseExt = gtk_entry_new();
 	gtk_entry_set_width_chars(GTK_ENTRY(AVR_FuseExt),4);
-	gtk_table_attach(GTK_TABLE(devTableAVR),AVR_FuseExt,0,1,3,4,4,0,5,2);
+	gtk_grid_attach(GTK_GRID(avrGrid),AVR_FuseExt,0,3,1,1);
 	AVR_FuseExtWrite = gtk_check_button_new_with_label(strings[I_AT_FUSEX]);	//"Write Extended Fuse"
-	gtk_table_attach(GTK_TABLE(devTableAVR),AVR_FuseExtWrite,1,2,3,4,4,0,5,0);
+	gtk_grid_attach(GTK_GRID(avrGrid),AVR_FuseExtWrite,1,3,1,1);
 	AVR_Lock = gtk_entry_new();
 	gtk_entry_set_width_chars(GTK_ENTRY(AVR_Lock),4);
-	gtk_table_attach(GTK_TABLE(devTableAVR),AVR_Lock,0,1,4,5,4,0,5,2);
+	gtk_grid_attach(GTK_GRID(avrGrid),AVR_Lock,0,4,1,1);
 	AVR_LockWrite = gtk_check_button_new_with_label(strings[I_AT_LOCK]);	//"Write Lock"
-	gtk_table_attach(GTK_TABLE(devTableAVR),AVR_LockWrite,1,2,4,5,4,0,5,0);
+	gtk_grid_attach(GTK_GRID(avrGrid),AVR_LockWrite,1,4,1,1);
 	b_WfuseLF = gtk_button_new_with_label(strings[I_AT_FUSELF]);		//"Write Fuse Low @3kHz"
-	gtk_table_attach(GTK_TABLE(devTableAVR),b_WfuseLF,0,2,5,6,4,0,5,5);
+	gtk_grid_attach(GTK_GRID(avrGrid),b_WfuseLF,0,5,1,1);
 //------options tab-------------
-	label = gtk_label_new(strings[I_Opt]);	//"Options"
-	GtkWidget * optTable = gtk_table_new(6,2,FALSE);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),optTable,label);
+	GtkWidget * optGrid = gtk_grid_new();
+	gtk_grid_set_column_spacing(GTK_GRID(optGrid), 5);
+	gtk_grid_set_row_spacing(GTK_GRID(optGrid), 5);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),optGrid,gtk_label_new(strings[I_Opt])); //"Options"
 	b_connect = gtk_button_new_with_label(strings[I_CONN]);	//"Reconnect"
-	gtk_table_attach(GTK_TABLE(optTable),b_connect,0,1,0,1,GTK_FILL,0,5,5);
-	b_testhw = gtk_button_new_with_label(strings[I_TestHWB]);	//"Hardware test"
-	gtk_table_attach(GTK_TABLE(optTable),b_testhw,0,1,2,3,GTK_FILL,0,5,5);
+	gtk_grid_attach(GTK_GRID(optGrid),b_connect,0,0,1,1);
 	GtkWidget * optHboxVid = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
-	gtk_table_attach(GTK_TABLE(optTable),optHboxVid,0,1,1,2,GTK_FILL,0,5,5);
-	label = gtk_label_new("Vid");
-	gtk_box_pack_start(GTK_BOX(optHboxVid),label,FALSE,TRUE,0);
+	gtk_grid_attach(GTK_GRID(optGrid),optHboxVid,0,1,1,1);
+	gtk_box_pack_start(GTK_BOX(optHboxVid),gtk_label_new("VID:"),FALSE,TRUE,0);
 	VID_entry = gtk_entry_new();
 	gtk_entry_set_width_chars(GTK_ENTRY(VID_entry),4);
 	gtk_box_pack_start(GTK_BOX(optHboxVid),VID_entry,FALSE,TRUE,0);
 	GtkWidget * optHboxPid = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
-	gtk_table_attach(GTK_TABLE(optTable),optHboxPid,1,2,1,2,GTK_FILL,0,5,5);
-	label = gtk_label_new("Pid");
-	gtk_box_pack_start(GTK_BOX(optHboxPid),label,FALSE,TRUE,0);
+	gtk_grid_attach(GTK_GRID(optGrid),optHboxPid,1,1,1,1);
+	gtk_box_pack_start(GTK_BOX(optHboxPid),gtk_label_new("PID:"),FALSE,TRUE,0);
 	PID_entry = gtk_entry_new();
 	gtk_entry_set_width_chars(GTK_ENTRY(PID_entry),4);
 	gtk_box_pack_start(GTK_BOX(optHboxPid),PID_entry,FALSE,TRUE,0);
+
+	b_testhw = gtk_button_new_with_label(strings[I_TestHWB]);	//"Hardware test"
+	gtk_grid_attach(GTK_GRID(optGrid),b_testhw,0,2,1,1);
 	b_log = gtk_check_button_new_with_label(strings[I_LOG]);	//"Log activity"
-	gtk_table_attach(GTK_TABLE(optTable),b_log,0,2,6,7,GTK_FILL,0,5,5);
+	gtk_grid_attach(GTK_GRID(optGrid),b_log,0,6,2,1);
 	b_V33check = gtk_check_button_new_with_label(strings[I_CK_V33]);	//"Don't check for 3.3V regulator"
-	gtk_table_attach(GTK_TABLE(optTable),b_V33check,0,2,7,8,GTK_FILL,0,5,5);
+	gtk_grid_attach(GTK_GRID(optGrid),b_V33check,0,7,2,1);
 	b_WaitS1 = gtk_check_button_new_with_label(strings[I_WAITS1]);	//"Wait for S1 before read/write"
-	gtk_table_attach(GTK_TABLE(optTable),b_WaitS1,0,2,8,9,GTK_FILL,0,5,5);
+	gtk_grid_attach(GTK_GRID(optGrid),b_WaitS1,0,8,2,1);
 	GtkWidget * optHboxErr = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
-	gtk_table_attach(GTK_TABLE(optTable),optHboxErr,0,2,9,10,GTK_FILL,0,5,5);
-	label = gtk_label_new(strings[I_MAXERR]);	//"Max errors"
-	gtk_container_add(GTK_CONTAINER(optHboxErr),label);
+	gtk_grid_attach(GTK_GRID(optGrid),optHboxErr,0,9,2,1);
+	gtk_container_add(GTK_CONTAINER(optHboxErr),gtk_label_new(strings[I_MAXERR])); //"Max errors"
 	Errors_entry = gtk_entry_new();
 	gtk_entry_set_width_chars(GTK_ENTRY(Errors_entry),6);
 	gtk_container_add(GTK_CONTAINER(optHboxErr),GTK_WIDGET(Errors_entry));
 //------I2C tab-------------
-	label = gtk_label_new("I2C/SPI");
-	GtkWidget * i2cTable = gtk_table_new(4,2,FALSE);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),i2cTable,label);
+	GtkWidget * i2cGrid = gtk_grid_new();
+	gtk_grid_set_column_spacing(GTK_GRID(i2cGrid),5);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),i2cGrid,gtk_label_new("I2C/SPI"));
 	GtkWidget * i2cModeFrame = gtk_frame_new(strings[I_I2CMode]);	//"Mode"
-	gtk_table_attach(GTK_TABLE(i2cTable),i2cModeFrame,0,1,0,5,GTK_FILL,0,5,0);
+	gtk_grid_attach(GTK_GRID(i2cGrid),i2cModeFrame,0,0,1,5);
 	GtkWidget * i2cVboxMode = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
 	gtk_container_add(GTK_CONTAINER(i2cModeFrame),i2cVboxMode);
 	I2C8bit = gtk_radio_button_new_with_label(NULL,"I2C 8 Bit");
@@ -2417,19 +2425,19 @@ int main( int argc, char *argv[])
 		gtk_radio_button_get_group(GTK_RADIO_BUTTON(I2C8bit)),"SPI(11)");
 	gtk_container_add(GTK_CONTAINER(i2cVboxMode),GTK_WIDGET(I2C8bit));
 	gtk_container_add(GTK_CONTAINER(i2cVboxMode),GTK_WIDGET(I2C16bit));
-	gtk_container_add(GTK_CONTAINER(i2cVboxMode),gtk_hseparator_new());
+	gtk_container_add(GTK_CONTAINER(i2cVboxMode),gtk_separator_new(GTK_ORIENTATION_HORIZONTAL));
 	gtk_container_add(GTK_CONTAINER(i2cVboxMode),GTK_WIDGET(SPI00));
 	gtk_container_add(GTK_CONTAINER(i2cVboxMode),GTK_WIDGET(SPI01));
 	gtk_container_add(GTK_CONTAINER(i2cVboxMode),GTK_WIDGET(SPI10));
 	gtk_container_add(GTK_CONTAINER(i2cVboxMode),GTK_WIDGET(SPI11));
 	GtkWidget * i2cVboxTX = gtk_box_new(GTK_ORIENTATION_VERTICAL,2);
-	gtk_table_attach(GTK_TABLE(i2cTable),i2cVboxTX,1,3,3,4,GTK_FILL,0,5,0);
+	gtk_grid_attach(GTK_GRID(i2cGrid),i2cVboxTX,1,3,2,1);
 	label = gtk_label_new(strings[I_I2CDATAOUT]);	//"Data to send"
 	gtk_container_add(GTK_CONTAINER(i2cVboxTX),label);
 	I2CDataSend = gtk_entry_new();
 	gtk_container_add(GTK_CONTAINER(i2cVboxTX),GTK_WIDGET(I2CDataSend));
 	GtkWidget * i2cVboxRX = gtk_box_new(GTK_ORIENTATION_VERTICAL,2);
-	gtk_table_attach(GTK_TABLE(i2cTable),i2cVboxRX,1,3,4,5,GTK_FILL,0,5,0);
+	gtk_grid_attach(GTK_GRID(i2cGrid),i2cVboxRX,1,4,2,1);
 	label = gtk_label_new(strings[I_I2CDATATR]);	//"Data transferred"
 	gtk_container_add(GTK_CONTAINER(i2cVboxRX),label);
 	I2CDataReceive = gtk_text_view_new();
@@ -2437,13 +2445,13 @@ int main( int argc, char *argv[])
 	gtk_container_add(GTK_CONTAINER(i2cVboxRX),GTK_WIDGET(I2CDataReceive));
 	gtk_widget_set_size_request(I2CDataReceive,100,60);
 	GtkWidget * i2cHboxNB = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
-	gtk_table_attach(GTK_TABLE(i2cTable),i2cHboxNB,1,3,0,1,GTK_FILL,0,5,0);
+	gtk_grid_attach(GTK_GRID(i2cGrid),i2cHboxNB,1,0,2,1);
 	label = gtk_label_new(strings[I_I2C_NB]);	//"Byes to read/write"
 	gtk_container_add(GTK_CONTAINER(i2cHboxNB),label);
 	I2CNbyte = 	gtk_spin_button_new_with_range(0,64,1);
 	gtk_container_add(GTK_CONTAINER(i2cHboxNB),GTK_WIDGET(I2CNbyte));
 	GtkWidget * i2cHboxSpeed = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
-	gtk_table_attach(GTK_TABLE(i2cTable),i2cHboxSpeed,1,3,1,2,GTK_FILL,0,5,0);
+	gtk_grid_attach(GTK_GRID(i2cGrid),i2cHboxSpeed,1,1,2,1);
 	label = gtk_label_new(strings[I_Speed]);	//"Speed"
 	gtk_container_add(GTK_CONTAINER(i2cHboxSpeed),label);
 	I2CSpeed = gtk_combo_box_text_new();
@@ -2454,9 +2462,9 @@ int main( int argc, char *argv[])
 	gtk_combo_box_set_active(GTK_COMBO_BOX(I2CSpeed),0);
 	gtk_container_add(GTK_CONTAINER(i2cHboxSpeed),GTK_WIDGET(I2CSpeed));
 	I2CSendBtn = gtk_button_new_with_label(strings[I_I2CSend]);	//"Send"
-	gtk_table_attach(GTK_TABLE(i2cTable),I2CSendBtn,1,2,2,3,GTK_FILL,0,5,0);
+	gtk_grid_attach(GTK_GRID(i2cGrid),I2CSendBtn,1,2,1,1);
 	I2CReceiveBtn = gtk_button_new_with_label(strings[I_I2CReceive]);	//"Receive"
-	gtk_table_attach(GTK_TABLE(i2cTable),I2CReceiveBtn,2,3,2,3,GTK_FILL,0,5,0);
+	gtk_grid_attach(GTK_GRID(i2cGrid),I2CReceiveBtn,2,2,1,1);
 //------ICD tab-------------
 	label = gtk_label_new("ICD");
 	icdVbox1 = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
@@ -2543,7 +2551,7 @@ int main( int argc, char *argv[])
 	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),gtk_separator_tool_item_new(),-1);
 	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnHELP,-1);
 
-	GtkWidget *hpaned = gtk_hpaned_new ();
+	GtkWidget *hpaned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_box_pack_start(GTK_BOX(icdVbox1),hpaned,TRUE,TRUE,0);
 	gint width,height;
 	gtk_window_get_size(GTK_WINDOW(window),&width,&height);
@@ -2559,7 +2567,7 @@ int main( int argc, char *argv[])
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(sourceTxt),FALSE);
 	gtk_container_add(GTK_CONTAINER(sourceScroll),sourceTxt);
 	font_desc = pango_font_description_from_string ("monospace 8");
-	gtk_widget_modify_font (sourceTxt, font_desc);
+	gtk_widget_override_font(sourceTxt, font_desc);
 	pango_font_description_free (font_desc);
 	gtk_box_pack_start(GTK_BOX(icdVbox2),sourceScroll,TRUE,TRUE,0);
 	//status
@@ -2577,7 +2585,7 @@ int main( int argc, char *argv[])
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(statusTxt),FALSE);
 	gtk_container_add(GTK_CONTAINER(statusScroll),statusTxt);
 	font_desc = pango_font_description_from_string ("monospace 8");
-	gtk_widget_modify_font (statusTxt, font_desc);
+	gtk_widget_override_font(statusTxt, font_desc);
 	pango_font_description_free (font_desc);
 	gtk_box_pack_start(GTK_BOX(icdVbox3),statusScroll,TRUE,TRUE,0);
 //------IO tab-------------
@@ -2586,11 +2594,12 @@ int main( int argc, char *argv[])
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),ioVbox1,label);
 	GtkWidget * ioFrameIO = gtk_frame_new("I/O");
 	gtk_box_pack_start(GTK_BOX(ioVbox1),ioFrameIO,FALSE,FALSE,0);
-	GtkWidget * ioTable = gtk_table_new(9,2,FALSE);
-	gtk_container_add(GTK_CONTAINER(ioFrameIO),GTK_WIDGET(ioTable));
+	GtkWidget * ioGrid = gtk_grid_new();
+	gtk_grid_set_column_spacing(GTK_GRID(ioGrid),20);
+	
+	gtk_container_add(GTK_CONTAINER(ioFrameIO),GTK_WIDGET(ioGrid));
 	b_io_active = gtk_check_button_new_with_label(strings[I_IO_Enable]);	//"Enable IO"
-	gtk_table_attach(GTK_TABLE(ioTable),b_io_active,0,1,0,1,GTK_FILL,0,5,5);
-	gtk_table_set_col_spacings(GTK_TABLE(ioTable),20);
+	gtk_grid_attach(GTK_GRID(ioGrid),b_io_active,0,0,1,1);
 	int ii;
 	for(ii=0;ii<=7;ii++){
 		char ss[16];
@@ -2616,7 +2625,7 @@ int main( int argc, char *argv[])
 	ioButtons[12].y=5;
 	for(ii=0;ii<sizeof(ioButtons)/sizeof(ioButtons[0]);ii++){
 		GtkWidget * ioBoxRBx = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
-		gtk_table_attach(GTK_TABLE(ioTable),ioBoxRBx,ioButtons[ii].x,ioButtons[ii].x+1,ioButtons[ii].y,ioButtons[ii].y+1,GTK_FILL,0,0,0);
+		gtk_grid_attach(GTK_GRID(ioGrid),ioBoxRBx,ioButtons[ii].x,ioButtons[ii].y,1,1);
 		label = gtk_label_new(ioButtons[ii].name);
 		gtk_box_pack_start(GTK_BOX(ioBoxRBx),label,FALSE,TRUE,0);
 		ioButtons[ii].r_0 = gtk_radio_button_new_with_label(NULL,"0");
@@ -2643,20 +2652,18 @@ int main( int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(ioBoxDCDC),VPP_ON,FALSE,TRUE,2);
 	DCDC_ON = gtk_check_button_new_with_label("DCDC");	//""
 	gtk_box_pack_start(GTK_BOX(ioBoxDCDC),DCDC_ON,FALSE,TRUE,2);
-	DCDC_voltage=gtk_hscale_new_with_range(5,15,0.1);
+	DCDC_voltage=gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,5,15,0.1);
 	gtk_box_pack_start(GTK_BOX(ioBoxDCDC),DCDC_voltage,TRUE,TRUE,2);
 //------Utility tab-------------
-	label = gtk_label_new("Utility");
 	GtkWidget * utVbox1 = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),utVbox1,label);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),utVbox1,gtk_label_new("Utility"));
 	GtkWidget * utFrameH2D = gtk_frame_new("HEX -> DATA");
 	gtk_box_pack_start(GTK_BOX(utVbox1),utFrameH2D,FALSE,FALSE,5);
 	GtkWidget * utVboxHex = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	gtk_container_add(GTK_CONTAINER(utFrameH2D),utVboxHex);
 	GtkWidget * utHboxHex = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	gtk_container_add(GTK_CONTAINER(utVboxHex),utHboxHex);
-	label = gtk_label_new("Hex");	//
-	gtk_box_pack_start(GTK_BOX(utHboxHex),label,FALSE,TRUE,5);
+	gtk_box_pack_start(GTK_BOX(utHboxHex),gtk_label_new("Hex"),FALSE,TRUE,5);
 	Hex_entry = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(utHboxHex),Hex_entry,TRUE,TRUE,5);
 	Hex_data = gtk_entry_new();
@@ -2664,23 +2671,22 @@ int main( int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(utVboxHex),Hex_data,TRUE,TRUE,5);
 	GtkWidget * utFrameD2H = gtk_frame_new("DATA -> HEX");
 	gtk_box_pack_start(GTK_BOX(utVbox1),utFrameD2H,FALSE,FALSE,5);
-	GtkWidget * utTable1 = gtk_table_new(2,2,FALSE);
-	gtk_container_add(GTK_CONTAINER(utFrameD2H),utTable1);
-	label = gtk_label_new(strings[I_ADDR]);	//"Address"
-	gtk_table_attach(GTK_TABLE(utTable1),label,0,1,0,1,GTK_SHRINK,0,5,5);
+	GtkWidget * utGrid = gtk_grid_new();
+	gtk_grid_set_column_spacing(GTK_GRID(utGrid),5);
+	gtk_grid_set_row_spacing(GTK_GRID(utGrid),5);
+	gtk_container_add(GTK_CONTAINER(utFrameD2H),utGrid);
+	gtk_grid_attach(GTK_GRID(utGrid),gtk_label_new(strings[I_ADDR]),0,0,1,1); //"Address"
 	Address_entry = gtk_entry_new();
-	gtk_table_attach(GTK_TABLE(utTable1),Address_entry,1,2,0,1,GTK_EXPAND,0,5,5);
-	label = gtk_label_new(strings[I_Data]);	//Data
-	gtk_table_attach(GTK_TABLE(utTable1),label,0,1,1,2,GTK_SHRINK,0,5,5);
+	gtk_grid_attach(GTK_GRID(utGrid),Address_entry,1,0,1,1);
+	gtk_grid_attach(GTK_GRID(utGrid),gtk_label_new(strings[I_Data]),0,1,1,1); //Data
 	Data_entry = gtk_entry_new();
-	gtk_table_attach(GTK_TABLE(utTable1),Data_entry,1,2,1,2,GTK_FILL,0,5,5);
-	label = gtk_label_new("Hex");	//
-	gtk_table_attach(GTK_TABLE(utTable1),label,0,1,2,3,GTK_SHRINK,0,5,5);
+	gtk_grid_attach(GTK_GRID(utGrid),Data_entry,1,1,1,1);
+	gtk_grid_attach(GTK_GRID(utGrid),gtk_label_new("Hex"),0,2,1,1);
 	Hex_data2 = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(Hex_data2),0);
-	gtk_table_attach(GTK_TABLE(utTable1),Hex_data2,1,2,2,3,GTK_FILL,0,5,5);
+	gtk_grid_attach(GTK_GRID(utGrid),Hex_data2,1,2,1,1);
 	GtkWidget * b_hexsave = gtk_button_new_with_label(strings[I_Fsave]);
-	gtk_table_attach(GTK_TABLE(utTable1),b_hexsave,0,1,3,4,GTK_FILL,0,5,5);
+	gtk_grid_attach(GTK_GRID(utGrid),b_hexsave,0,3,1,1);
 //------status bar-------------
 	status_bar = gtk_statusbar_new();
 	gtk_box_pack_start(GTK_BOX(vbox),status_bar,FALSE,TRUE,0);
