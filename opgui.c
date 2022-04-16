@@ -195,7 +195,7 @@ GtkWidget * devPIC_CW5;
 GtkWidget * devPIC_CW6;
 GtkWidget * devPIC_CW7;
 GtkWidget * devinfo;
-GtkWidget* stopBtn;
+GtkWidget* btnStop;
 ///array of radio buttons for IO manual control
 struct io_btn {	char * name;
 				int x;
@@ -305,7 +305,7 @@ void getOptions()
 	waitS1=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(b_WaitS1));
 	int i=sscanf(gtk_entry_get_text(GTK_ENTRY(ICD_addr_entry)),"%x",&ICDaddr);
 	if(i!=1||ICDaddr<0||ICDaddr>0xFFFF) ICDaddr=0x1FF0;
-	char *str=gtk_combo_box_get_active_text(GTK_COMBO_BOX(devCombo));
+	char *str=gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(devCombo));
 	if(str) strncpy(dev,str,sizeof(dev)-1);
 	g_free(str);
 	AVRfuse=AVRfuse_h=AVRfuse_x=AVRlock=0x100;
@@ -407,7 +407,7 @@ void getOptions()
 ///Choose a file to open and call Load()
 void Fopen(GtkWidget *widget,GtkWidget *window)
 {
-	char *str=gtk_combo_box_get_active_text(GTK_COMBO_BOX(devCombo));
+	char *str=gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(devCombo));
 	if(progress) return;
 	progress=1;
 	if(str) strncpy(dev,str,sizeof(dev)-1);
@@ -526,21 +526,21 @@ void DevWrite(GtkWidget *widget,GtkWidget *window)
 		}
 		PrintMessage(strings[S_NL]); //"\n"
 		if(!progress&&S1){
-			gtk_widget_set_sensitive(stopBtn,TRUE);
+			gtk_widget_set_sensitive(btnStop,TRUE);
 			progress=1;
 			Write(dev,ee);	//choose the right function
 			progress=0;
-			gtk_widget_set_sensitive(stopBtn,FALSE);
+			gtk_widget_set_sensitive(btnStop,FALSE);
 		}
 		waitingS1=0;
 	}
 	else if(waitingS1) waitingS1=0;
 	else if(!progress){
-		gtk_widget_set_sensitive(stopBtn,TRUE);
+		gtk_widget_set_sensitive(btnStop,TRUE);
 		progress=1;
 		Write(dev,ee);	//choose the right function
 		progress=0;
-		gtk_widget_set_sensitive(stopBtn,FALSE);
+		gtk_widget_set_sensitive(btnStop,FALSE);
 	}
 }
 ///
@@ -567,21 +567,21 @@ void DevRead(GtkWidget *widget,GtkWidget *window)
 		}
 		PrintMessage(strings[S_NL]); //"\n"
 		if(!progress&&S1){
-			gtk_widget_set_sensitive(stopBtn,TRUE);
+			gtk_widget_set_sensitive(btnStop,TRUE);
 			progress=1;
 			Read(dev,ee,readRes);	//choose the right function
 			progress=0;
-			gtk_widget_set_sensitive(stopBtn,FALSE);
+			gtk_widget_set_sensitive(btnStop,FALSE);
 		}
 		waitingS1=0;
 	}
 	else if(waitingS1) waitingS1=0;
 	else if(!progress){
-		gtk_widget_set_sensitive(stopBtn,TRUE);
+		gtk_widget_set_sensitive(btnStop,TRUE);
 		progress=1;
 		Read(dev,ee,readRes);	//choose the right function
 		progress=0;
-		gtk_widget_set_sensitive(stopBtn,FALSE);
+		gtk_widget_set_sensitive(btnStop,FALSE);
 	}
 }
 ///
@@ -605,7 +605,7 @@ void DeviceChanged(GtkWidget *widget,GtkWidget *window)
 	struct DevInfo info;
 	char str2[256],str3[64],strF[32];
 	double x;
-	char *str=gtk_combo_box_get_active_text(GTK_COMBO_BOX(devCombo));
+	char *str=gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(devCombo));
 	if(str) strncpy(dev,str,sizeof(dev)-1);
 	else return;
 	g_free(str);
@@ -707,47 +707,47 @@ void DeviceChanged(GtkWidget *widget,GtkWidget *window)
 	//printf("%s=%d\n",dev,GetDevType(dev));fflush(stdout);
 	if(devType==PIC12||devType==PIC16||devType==PIC18||devType==PIC24){
 		gtk_widget_show_all(GTK_WIDGET(devFramePIC));
-		gtk_widget_hide_all(GTK_WIDGET(devFrameAVR));
+		gtk_widget_hide(GTK_WIDGET(devFrameAVR));
 		gtk_widget_show_all(GTK_WIDGET(EEPROM_RW));
 	}
 	else if(devType==AVR){	//ATMEL
-		gtk_widget_hide_all(GTK_WIDGET(devFramePIC));
+		gtk_widget_hide(GTK_WIDGET(devFramePIC));
 		gtk_widget_show_all(GTK_WIDGET(devFrameAVR));
 		gtk_widget_show_all(GTK_WIDGET(EEPROM_RW));
 	}
 	else{
-		gtk_widget_hide_all(GTK_WIDGET(devFramePIC));
-		gtk_widget_hide_all(GTK_WIDGET(devFrameAVR));
-		gtk_widget_hide_all(GTK_WIDGET(EEPROM_RW));
+		gtk_widget_hide(GTK_WIDGET(devFramePIC));
+		gtk_widget_hide(GTK_WIDGET(devFrameAVR));
+		gtk_widget_hide(GTK_WIDGET(EEPROM_RW));
 	}
 	if(devType==PIC16)		//ICD
 		gtk_widget_show_all(GTK_WIDGET(devFrameICD));
-	else gtk_widget_hide_all(GTK_WIDGET(devFrameICD));
+	else gtk_widget_hide(GTK_WIDGET(devFrameICD));
 	if(devType==PIC12||devType==PIC16)	//Osc options
 		gtk_widget_show_all(GTK_WIDGET(devFrameOsc));
-	else gtk_widget_hide_all(GTK_WIDGET(devFrameOsc));
+	else gtk_widget_hide(GTK_WIDGET(devFrameOsc));
 	if(devType==PIC12||devType==PIC16||devType==PIC18)	//program ID
 		gtk_widget_show_all(GTK_WIDGET(Write_ID_BKCal));
-	else gtk_widget_hide_all(GTK_WIDGET(Write_ID_BKCal));
+	else gtk_widget_hide(GTK_WIDGET(Write_ID_BKCal));
 	if(devType==PIC16)	//Program Calib
 		gtk_widget_show_all(GTK_WIDGET(WriteCalib12));
-	else gtk_widget_hide_all(GTK_WIDGET(WriteCalib12));
+	else gtk_widget_hide(GTK_WIDGET(WriteCalib12));
 	if(devType==PIC12||devType==PIC16||devType==PIC18){	//Force config
 		//gtk_widget_set_sensitive(GTK_WIDGET(devFrameConfigW),TRUE);
 		gtk_widget_show_all(GTK_WIDGET(devFrameConfigW));
 		//gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW1),TRUE);
 		//gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW2),FALSE);
-		gtk_widget_hide_all(GTK_WIDGET(devPIC_CW2));
+		gtk_widget_hide(GTK_WIDGET(devPIC_CW2));
 		//gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW3),FALSE);
-		gtk_widget_hide_all(GTK_WIDGET(devPIC_CW3));
+		gtk_widget_hide(GTK_WIDGET(devPIC_CW3));
 		//gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW4),FALSE);
-		gtk_widget_hide_all(GTK_WIDGET(devPIC_CW4));
+		gtk_widget_hide(GTK_WIDGET(devPIC_CW4));
 		//gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW5),FALSE);
-		gtk_widget_hide_all(GTK_WIDGET(devPIC_CW5));
+		gtk_widget_hide(GTK_WIDGET(devPIC_CW5));
 		//gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW6),FALSE);
-		gtk_widget_hide_all(GTK_WIDGET(devPIC_CW6));
+		gtk_widget_hide(GTK_WIDGET(devPIC_CW6));
 		//gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW7),FALSE);
-		gtk_widget_hide_all(GTK_WIDGET(devPIC_CW7));
+		gtk_widget_hide(GTK_WIDGET(devPIC_CW7));
 		//gtk_widget_set_sensitive(GTK_WIDGET(devFrameOsc),FALSE);
 		if(devType==PIC16){
 			//gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW2),TRUE);
@@ -769,7 +769,7 @@ void DeviceChanged(GtkWidget *widget,GtkWidget *window)
 		}
 	}
 	else{
-		gtk_widget_hide_all(GTK_WIDGET(devFrameConfigW));
+		gtk_widget_hide(GTK_WIDGET(devFrameConfigW));
 		//gtk_widget_set_sensitive(GTK_WIDGET(devFrameConfigW),FALSE);
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ConfigForce),FALSE);
 	}
@@ -787,36 +787,36 @@ void FilterDevType(GtkWidget *widget,GtkWidget *window)
 	switch(i){
 		case 1:		//10F 12F
 			for(i=0;i<Ndevices;i++) if(!strncmp(devices[i],"10F",3)||!strncmp(devices[i],"12F",3))
-				gtk_combo_box_append_text(GTK_COMBO_BOX(devCombo),devices[i]);
+				gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
 		break;
 		case 2:		//16F
-			for(i=0;i<Ndevices;i++) if(!strncmp(devices[i],"16F",3)) gtk_combo_box_append_text(GTK_COMBO_BOX(devCombo),devices[i]);
+			for(i=0;i<Ndevices;i++) if(!strncmp(devices[i],"16F",3)) gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
 		break;
 		case 3: 	//18F
-			for(i=0;i<Ndevices;i++) if(!strncmp(devices[i],"18F",3)) gtk_combo_box_append_text(GTK_COMBO_BOX(devCombo),devices[i]);
+			for(i=0;i<Ndevices;i++) if(!strncmp(devices[i],"18F",3)) gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
 		break;
 		case 4:		//24F
 			for(i=0;i<Ndevices;i++) if(!strncmp(devices[i],"24F",3)||!strncmp(devices[i],"24H",3)||!strncmp(devices[i],"24E",3))
-				gtk_combo_box_append_text(GTK_COMBO_BOX(devCombo),devices[i]);
+				gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
 		break;
 		case 5:		//30F 33F
 			for(i=0;i<Ndevices;i++) if(!strncmp(devices[i],"30F",3)||!strncmp(devices[i],"33F",3)||!strncmp(devices[i],"33E",3))
-				gtk_combo_box_append_text(GTK_COMBO_BOX(devCombo),devices[i]);
+				gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
 		break;
 		case 6:		//ATMEL
-			for(i=0;i<Ndevices;i++) if(!strncmp(devices[i],"AT",2)) gtk_combo_box_append_text(GTK_COMBO_BOX(devCombo),devices[i]);
+			for(i=0;i<Ndevices;i++) if(!strncmp(devices[i],"AT",2)) gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
 		break;
 		case 7:		//24 25 93 DS 11
 			for(i=0;i<Ndevices;i++) if( (strncmp(devices[i],"24F",3)&&strncmp(devices[i],"24H",3)&&strncmp(devices[i],"24E",3))&&\
 				(!strncmp(devices[i],"24",2)||!strncmp(devices[i],"25",2)||!strncmp(devices[i],"93",2)|| \
 				 !strncmp(devices[i],"11",2)||!strncmp(devices[i],"DS",2))) \
-				gtk_combo_box_append_text(GTK_COMBO_BOX(devCombo),devices[i]);
+				gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
 		break;
 		default:
-			for(i=0;i<Ndevices;i++) gtk_combo_box_append_text(GTK_COMBO_BOX(devCombo),devices[i]);
+			for(i=0;i<Ndevices;i++) gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(devCombo),0);
-	for(i=0;(str=gtk_combo_box_get_active_text(GTK_COMBO_BOX(devCombo)))&&strcmp(str,dev)&&i<10000;i++){
+	for(i=0;(str=gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(devCombo)))&&strcmp(str,dev)&&i<10000;i++){
 		gtk_combo_box_set_active(GTK_COMBO_BOX(devCombo),i);	//need to set item to parse all items
 		g_free(str);
 	}
@@ -2031,7 +2031,7 @@ void Stop(GtkWidget *widget,GtkWidget *window)
 ///
 ///Close program
 void Xclose(){
-	char *str=gtk_combo_box_get_active_text(GTK_COMBO_BOX(devCombo));
+	char *str=gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(devCombo));
 	if(str) strncpy(dev,str,sizeof(dev)-1);
 	gtk_main_quit();
 }
@@ -2181,23 +2181,53 @@ int main( int argc, char *argv[])
 	gtk_container_add(GTK_CONTAINER(window),vbox);
 	PangoFontDescription    *font_desc;
 //------toolbar-------------
+
+	GtkWidget* iconOpen = gtk_image_new_from_icon_name("document-open", GTK_ICON_SIZE_BUTTON);
+	GtkToolItem* btnOpen = gtk_tool_button_new(iconOpen, strings[I_Fopen]);
+	g_signal_connect(G_OBJECT(btnOpen), "clicked", G_CALLBACK(Fopen),NULL);
+
+	GtkWidget* iconSave = gtk_image_new_from_icon_name("document-save", GTK_ICON_SIZE_BUTTON);
+	GtkToolItem* btnSave = gtk_tool_button_new(iconSave, strings[I_Fsave]);
+	g_signal_connect(G_OBJECT(btnSave), "clicked", G_CALLBACK(Fsave),NULL);
+
+	pixbuf = gdk_pixbuf_new_from_inline (-1, read_icon, FALSE, NULL);
+	GtkWidget* iconRead = gtk_image_new_from_pixbuf(pixbuf);
+	GtkToolItem* btnRead = gtk_tool_button_new(iconRead, strings[I_DevR]);
+	g_signal_connect(G_OBJECT(btnRead), "clicked", G_CALLBACK(DevRead),NULL);
+
+	pixbuf = gdk_pixbuf_new_from_inline (-1, write_icon, FALSE, NULL);
+	GtkWidget* iconWrite = gtk_image_new_from_pixbuf(pixbuf);
+	GtkToolItem* btnWrite = gtk_tool_button_new(iconWrite, strings[I_DevW]);
+	g_signal_connect(G_OBJECT(btnWrite), "clicked", G_CALLBACK(DevWrite),NULL);
+
+	GtkWidget* iconStop = gtk_image_new_from_icon_name("process-stop", GTK_ICON_SIZE_BUTTON);
+	GtkToolItem* btnStop = gtk_tool_button_new(iconStop, strings[I_ICD_STOP]);
+	g_signal_connect(G_OBJECT(btnStop), "clicked", G_CALLBACK(Stop),NULL);
+
+	GtkWidget* iconConnect = gtk_image_new_from_icon_name("network-wired", GTK_ICON_SIZE_BUTTON);
+	GtkToolItem* btnConnect = gtk_tool_button_new(iconConnect, strings[I_CONN]);
+	g_signal_connect(G_OBJECT(btnConnect), "clicked", G_CALLBACK(Connect),NULL);
+
+	GtkWidget* iconInfo = gtk_image_new_from_icon_name("dialog-information", GTK_ICON_SIZE_BUTTON);
+	GtkToolItem* btnInfo = gtk_tool_button_new(iconInfo, strings[I_Info]);
+	g_signal_connect(G_OBJECT(btnInfo), "clicked", G_CALLBACK(info),NULL);
+
 	toolbar = gtk_toolbar_new();
 	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_ICONS);
 	gtk_box_pack_start(GTK_BOX(vbox),toolbar,FALSE,FALSE,0);
-	pixbuf = gdk_pixbuf_new_from_inline (-1, read_icon, FALSE, NULL);
-	GtkWidget* iconRead = gtk_image_new_from_pixbuf(pixbuf);
-	pixbuf = gdk_pixbuf_new_from_inline (-1, write_icon, FALSE, NULL);
-	GtkWidget* iconWrite = gtk_image_new_from_pixbuf(pixbuf);
-	gtk_toolbar_insert_stock(GTK_TOOLBAR(toolbar),GTK_STOCK_OPEN,strings[I_Fopen],"",G_CALLBACK(Fopen),0,-1);//"Open File"
-	gtk_toolbar_insert_stock(GTK_TOOLBAR(toolbar),GTK_STOCK_SAVE,strings[I_Fsave],"",G_CALLBACK(Fsave),0,-1);//"Save File"
-	gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
-	gtk_toolbar_append_item(GTK_TOOLBAR(toolbar),"",strings[I_DevR],"",iconRead,G_CALLBACK(DevRead),NULL);//"Read device"
-	gtk_toolbar_append_item(GTK_TOOLBAR(toolbar),"",strings[I_DevW],"",iconWrite,G_CALLBACK(DevWrite),NULL);//"Write device"
-	gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
-	stopBtn = gtk_toolbar_insert_stock(GTK_TOOLBAR(toolbar),GTK_STOCK_STOP,strings[I_ICD_STOP],"",G_CALLBACK(Stop),0,-1);//"Stop"
-	gtk_widget_set_sensitive(stopBtn,FALSE);
-	gtk_toolbar_insert_stock(GTK_TOOLBAR(toolbar),GTK_STOCK_CONNECT,strings[I_CONN],"",G_CALLBACK(Connect),0,-1);//"Reconnect"
-	gtk_toolbar_insert_stock(GTK_TOOLBAR(toolbar),GTK_STOCK_INFO,strings[I_Info],"",G_CALLBACK(info),0,-1);//"Info"
+
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), btnOpen, -1);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), btnSave, -1);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), gtk_separator_tool_item_new(), -1);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), btnRead, -1);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), btnWrite, -1);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), gtk_separator_tool_item_new(), -1);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), btnStop, -1);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), btnConnect, -1);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), btnInfo, -1);
+
+	gtk_widget_set_sensitive(GTK_WIDGET(btnStop), FALSE);
+
 //------tab widget-------------
 	notebook = gtk_notebook_new();
 	gtk_box_pack_start(GTK_BOX(vbox),notebook,TRUE,TRUE,0);
@@ -2220,13 +2250,13 @@ int main( int argc, char *argv[])
 	gtk_table_attach(GTK_TABLE(table_dev),devHbox1,0,2,0,1,4,0,5,5);
 	label = gtk_label_new(strings[I_Type]);	//"Type"
 	gtk_box_pack_start(GTK_BOX(devHbox1),label,FALSE,TRUE,0);
-	devTypeCombo = gtk_combo_box_new_text();
+	devTypeCombo = gtk_combo_box_text_new();
 	gtk_box_pack_start(GTK_BOX(devHbox1),devTypeCombo,FALSE,TRUE,0);
 	label = gtk_label_new("   ");
 	gtk_box_pack_start(GTK_BOX(devHbox1),label,FALSE,TRUE,0);
 	label = gtk_label_new(strings[I_Dev]);	//"Device"
 	gtk_box_pack_start(GTK_BOX(devHbox1),label,FALSE,TRUE,0);
-	devCombo = gtk_combo_box_new_text();
+	devCombo = gtk_combo_box_text_new();
 	gtk_box_pack_start(GTK_BOX(devHbox1),devCombo,FALSE,TRUE,0);
 	GtkWidget * devHbox2 = gtk_hbox_new(FALSE,10);
 	gtk_table_attach(GTK_TABLE(table_dev),devHbox2,0,2,1,2,4,0,5,5);
@@ -2416,11 +2446,11 @@ int main( int argc, char *argv[])
 	gtk_table_attach(GTK_TABLE(i2cTable),i2cHboxSpeed,1,3,1,2,GTK_FILL,0,5,0);
 	label = gtk_label_new(strings[I_Speed]);	//"Speed"
 	gtk_container_add(GTK_CONTAINER(i2cHboxSpeed),label);
-	I2CSpeed = gtk_combo_box_new_text();
-	gtk_combo_box_append_text(GTK_COMBO_BOX(I2CSpeed),"100 kbps");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(I2CSpeed),"200 kbps");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(I2CSpeed),"300/400 kbps");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(I2CSpeed),"500/800 kbps");
+	I2CSpeed = gtk_combo_box_text_new();
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(I2CSpeed),"100 kbps");
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(I2CSpeed),"200 kbps");
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(I2CSpeed),"300/400 kbps");
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(I2CSpeed),"500/800 kbps");
 	gtk_combo_box_set_active(GTK_COMBO_BOX(I2CSpeed),0);
 	gtk_container_add(GTK_CONTAINER(i2cHboxSpeed),GTK_WIDGET(I2CSpeed));
 	I2CSendBtn = gtk_button_new_with_label(strings[I_I2CSend]);	//"Send"
@@ -2431,7 +2461,6 @@ int main( int argc, char *argv[])
 	label = gtk_label_new("ICD");
 	icdVbox1 = gtk_vbox_new(FALSE,5);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),icdVbox1,label);
-	GtkWidget * loadCoffBtn = gtk_button_new_with_label(strings[I_LOAD_COFF]); //"load COFF file..."
 	//menu
 	GtkWidget * icdMenuBar = gtk_menu_bar_new ();
 	GtkWidget * icdRootMenu = gtk_menu_item_new_with_label(strings[I_Opt]); //"Options";
@@ -2457,32 +2486,63 @@ int main( int argc, char *argv[])
 	//toolbar
 	pixbuf = gdk_pixbuf_new_from_inline (-1, go_icon, FALSE, NULL);
 	GtkWidget* iconGO = gtk_image_new_from_pixbuf(pixbuf);
+	GtkToolItem* btnGO = gtk_tool_button_new(iconGO, strings[I_ICD_RUN]);
+	g_signal_connect(G_OBJECT(btnGO), "clicked", G_CALLBACK(icdRun),NULL);
+
 	pixbuf = gdk_pixbuf_new_from_inline (-1, halt_icon, FALSE, NULL);
 	GtkWidget* iconHALT = gtk_image_new_from_pixbuf(pixbuf);
+	GtkToolItem* btnHALT = gtk_tool_button_new(iconHALT, strings[I_ICD_HALT]);
+	g_signal_connect(G_OBJECT(btnHALT), "clicked", G_CALLBACK(icdHalt),NULL);
+
 	pixbuf = gdk_pixbuf_new_from_inline (-1, step_icon, FALSE, NULL);
 	GtkWidget* iconSTEP = gtk_image_new_from_pixbuf(pixbuf);
+	GtkToolItem* btnSTEP = gtk_tool_button_new(iconSTEP, strings[I_ICD_STEP]);
+	g_signal_connect(G_OBJECT(btnSTEP), "clicked", G_CALLBACK(icdStep),NULL);
+
 	pixbuf = gdk_pixbuf_new_from_inline (-1, stepover_icon, FALSE, NULL);
 	GtkWidget* iconSTEPOVER = gtk_image_new_from_pixbuf(pixbuf);
+	GtkToolItem* btnSTEPOVER = gtk_tool_button_new(iconSTEPOVER, strings[I_ICD_STEPOVER]);
+	g_signal_connect(G_OBJECT(btnSTEPOVER), "clicked", G_CALLBACK(icdStepOver),NULL);
+
 	pixbuf = gdk_pixbuf_new_from_inline (-1, stop_icon, FALSE, NULL);
 	GtkWidget* iconSTOP = gtk_image_new_from_pixbuf(pixbuf);
+	GtkToolItem* btnSTOP = gtk_tool_button_new(iconSTOP, strings[I_ICD_STOP]);
+	g_signal_connect(G_OBJECT(btnSTOP), "clicked", G_CALLBACK(icdStop),NULL);
+
+	GtkWidget* iconREFRESH = gtk_image_new_from_icon_name("view-refresh", GTK_ICON_SIZE_BUTTON);
+	GtkToolItem* btnREFRESH = gtk_tool_button_new(iconREFRESH, strings[I_ICD_REFRESH]);
+	g_signal_connect(G_OBJECT(btnREFRESH), "clicked", G_CALLBACK(icdRefresh),NULL);
+
+	GtkToolItem* btnLoadCOFF = gtk_tool_button_new(NULL, strings[I_LOAD_COFF]); //"load COFF file..."
+	g_signal_connect(G_OBJECT(btnLoadCOFF), "clicked", G_CALLBACK(loadCoff),window);
+
+	GtkToolItem* itemCMD = gtk_tool_item_new();
+	icdCommand = gtk_entry_new();
+	gtk_widget_set_tooltip_text(icdCommand, strings[I_ICD_CMD]);
+	gtk_container_add(GTK_CONTAINER(itemCMD), icdCommand);
+
+	GtkWidget* iconHELP = gtk_image_new_from_icon_name("system-help", GTK_ICON_SIZE_BUTTON);
+	GtkToolItem* btnHELP = gtk_tool_button_new(iconHELP, strings[I_ICD_HELP]);
+	g_signal_connect(G_OBJECT(btnHELP), "clicked", G_CALLBACK(ICDHelp),NULL);
+
 	GtkWidget * icdtoolbar = gtk_toolbar_new();
 	gtk_toolbar_set_style(GTK_TOOLBAR(icdtoolbar),GTK_TOOLBAR_ICONS);
 	gtk_box_pack_start(GTK_BOX(icdVbox1),icdtoolbar,FALSE,FALSE,0);
-	gtk_toolbar_append_item(GTK_TOOLBAR(icdtoolbar),"",strings[I_ICD_RUN],"",iconGO,G_CALLBACK(icdRun),0);
-	gtk_toolbar_append_item(GTK_TOOLBAR(icdtoolbar),"",strings[I_ICD_HALT],"",iconHALT,G_CALLBACK(icdHalt),0);
-	gtk_toolbar_append_item(GTK_TOOLBAR(icdtoolbar),"",strings[I_ICD_STEP],"",iconSTEP,G_CALLBACK(icdStep),0);
-	gtk_toolbar_append_item(GTK_TOOLBAR(icdtoolbar),"",strings[I_ICD_STEPOVER],"",iconSTEPOVER,G_CALLBACK(icdStepOver),0);
-	gtk_toolbar_append_space(GTK_TOOLBAR(icdtoolbar));
-	gtk_toolbar_append_item(GTK_TOOLBAR(icdtoolbar),"",strings[I_ICD_STOP],"",iconSTOP,G_CALLBACK(icdStop),0);
-	gtk_toolbar_append_space(GTK_TOOLBAR(icdtoolbar));
-	gtk_toolbar_insert_stock(GTK_TOOLBAR(icdtoolbar),GTK_STOCK_REFRESH,strings[I_ICD_REFRESH],"",G_CALLBACK(icdRefresh),0,-1);//"refresh"
-	gtk_toolbar_append_space(GTK_TOOLBAR(icdtoolbar));
-	gtk_toolbar_insert_widget(GTK_TOOLBAR(icdtoolbar),loadCoffBtn,strings[I_LOAD_COFF],"",-1);//"load COFF"
-	gtk_toolbar_append_space(GTK_TOOLBAR(icdtoolbar));
-	icdCommand = gtk_entry_new();
-	gtk_toolbar_insert_widget(GTK_TOOLBAR(icdtoolbar),icdCommand,strings[I_ICD_CMD],"",-1);//"command-line"
-	gtk_toolbar_append_space(GTK_TOOLBAR(icdtoolbar));
-	gtk_toolbar_insert_stock(GTK_TOOLBAR(icdtoolbar),GTK_STOCK_HELP,strings[I_ICD_HELP],"",G_CALLBACK(ICDHelp),0,-1);//"help"
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnGO,-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnHALT,-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnSTEP,-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnSTEPOVER,-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),gtk_separator_tool_item_new(),-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnSTOP,-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),gtk_separator_tool_item_new(),-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnREFRESH,-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),gtk_separator_tool_item_new(),-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnLoadCOFF,-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),gtk_separator_tool_item_new(),-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),itemCMD,-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),gtk_separator_tool_item_new(),-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnHELP,-1);
+
 	GtkWidget *hpaned = gtk_hpaned_new ();
 	gtk_box_pack_start(GTK_BOX(icdVbox1),hpaned,TRUE,TRUE,0);
 	gint width,height;
@@ -2567,7 +2627,7 @@ int main( int argc, char *argv[])
 		gtk_box_pack_start(GTK_BOX(ioBoxRBx),ioButtons[ii].r_I,FALSE,TRUE,0);
 		ioButtons[ii].e_I = gtk_entry_new();
 		gtk_entry_set_width_chars(GTK_ENTRY(ioButtons[ii].e_I),1);
-		gtk_entry_set_editable(GTK_ENTRY(ioButtons[ii].e_I),FALSE);
+		gtk_editable_set_editable(GTK_EDITABLE(ioButtons[ii].e_I),FALSE);
 		gtk_entry_set_has_frame(GTK_ENTRY(ioButtons[ii].e_I),FALSE);
 		gtk_box_pack_start(GTK_BOX(ioBoxRBx),ioButtons[ii].e_I,FALSE,TRUE,0);
 		g_signal_connect(G_OBJECT(ioButtons[ii].r_0),"toggled",G_CALLBACK(IOchanged),NULL);
@@ -2599,7 +2659,7 @@ int main( int argc, char *argv[])
 	Hex_entry = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(utHboxHex),Hex_entry,TRUE,TRUE,5);
 	Hex_data = gtk_entry_new();
-	gtk_entry_set_editable(GTK_ENTRY(Hex_data),0);
+	gtk_editable_set_editable(GTK_EDITABLE(Hex_data),0);
 	gtk_box_pack_start(GTK_BOX(utVboxHex),Hex_data,TRUE,TRUE,5);
 	GtkWidget * utFrameD2H = gtk_frame_new("DATA -> HEX");
 	gtk_box_pack_start(GTK_BOX(utVbox1),utFrameD2H,FALSE,FALSE,5);
@@ -2616,7 +2676,7 @@ int main( int argc, char *argv[])
 	label = gtk_label_new("Hex");	//
 	gtk_table_attach(GTK_TABLE(utTable1),label,0,1,2,3,GTK_SHRINK,0,5,5);
 	Hex_data2 = gtk_entry_new();
-	gtk_entry_set_editable(GTK_ENTRY(Hex_data2),0);
+	gtk_editable_set_editable(GTK_EDITABLE(Hex_data2),0);
 	gtk_table_attach(GTK_TABLE(utTable1),Hex_data2,1,2,2,3,GTK_FILL,0,5,5);
 	GtkWidget * b_hexsave = gtk_button_new_with_label(strings[I_Fsave]);
 	gtk_table_attach(GTK_TABLE(utTable1),b_hexsave,0,1,3,4,GTK_FILL,0,5,5);
@@ -2628,7 +2688,6 @@ int main( int argc, char *argv[])
 	g_signal_connect(G_OBJECT(b_connect),"clicked",G_CALLBACK(Connect),window);
 	g_signal_connect(G_OBJECT(I2CReceiveBtn),"clicked",G_CALLBACK(I2cspiR),window);
 	g_signal_connect(G_OBJECT(I2CSendBtn),"clicked",G_CALLBACK(I2cspiS),window);
-	g_signal_connect(G_OBJECT(loadCoffBtn),"clicked",G_CALLBACK(loadCoff),window);
 	g_signal_connect(G_OBJECT(sourceTxt),"button_press_event",G_CALLBACK(source_mouse_event),NULL);
 	g_signal_connect(G_OBJECT(statusTxt),"button_press_event",G_CALLBACK(icdStatus_mouse_event),NULL);
 	g_signal_connect(G_OBJECT(icdCommand),"key_press_event",G_CALLBACK(icdCommand_key_event),NULL);
@@ -2659,14 +2718,14 @@ int main( int argc, char *argv[])
 	initVar();
 	for(i=0;i<0x8400;i++) memCODE_W[i]=0x3fff;
 	strncpy(LogFileName,strings[S_LogFile],sizeof(LogFileName));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(devTypeCombo),"*");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(devTypeCombo),"PIC10/12");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(devTypeCombo),"PIC16");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(devTypeCombo),"PIC18");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(devTypeCombo),"PIC24");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(devTypeCombo),"PIC30/33");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(devTypeCombo),"ATMEL AVR");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(devTypeCombo),"EEPROM");
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devTypeCombo),"*");
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devTypeCombo),"PIC10/12");
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devTypeCombo),"PIC16");
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devTypeCombo),"PIC18");
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devTypeCombo),"PIC24");
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devTypeCombo),"PIC30/33");
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devTypeCombo),"ATMEL AVR");
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devTypeCombo),"EEPROM");
 	gtk_combo_box_set_wrap_width(GTK_COMBO_BOX(devCombo),6);
 	int tt=0;
 	if(!strncmp(dev,"10F",3)||!strncmp(dev,"12F",3)) tt=1;	//10F 12F
