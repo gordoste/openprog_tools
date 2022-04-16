@@ -606,7 +606,7 @@ void DisplayEE(){
 			if(memEE[j]<0xff) valid=1;
 		}
 		if(valid){
-			PrintMessage("%04X: %s %s\r\n",i,s,v);
+			PrintMessage3("%04X: %s %s\r\n",i,s,v);
 			empty=0;
 		}
 		s[0]=0;
@@ -1346,7 +1346,7 @@ int FindDevice(int vid,int pid){
 	return MyDeviceDetected;
 }
 
-void PrintMessage(str) { puts(str); }
+void PrintMessage(const char *str) { puts(str); }
 
 void PrintStatus(char *s,  uint16_t p1, uint16_t p2) { printf("\b\b\b\b%3d%",p1); fflush(stdout); }
 void PrintStatusSetup() { printf("    "); }
