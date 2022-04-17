@@ -53,6 +53,9 @@ dkms.conf
 
 # Auto-generated files
 icons.c
+icons.h
+style.c
+style.h
 
 # Binaries
 op

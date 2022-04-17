@@ -196,6 +196,8 @@ GtkWidget * devPIC_CW6;
 GtkWidget * devPIC_CW7;
 GtkWidget * devinfo;
 GtkWidget* btnStop;
+GtkStyleContext *styleCtx;
+
 ///array of radio buttons for IO manual control
 struct io_btn {	char * name;
 				int x;
@@ -416,8 +418,8 @@ void Fopen(GtkWidget *widget,GtkWidget *window)
 	dialog = (GtkFileChooser*) gtk_file_chooser_dialog_new ("Open File",
 				      GTK_WINDOW(window),
 				      GTK_FILE_CHOOSER_ACTION_OPEN,
-				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+				      "_Cancel", GTK_RESPONSE_CANCEL,
+				      "_Open", GTK_RESPONSE_ACCEPT,
 				      NULL);
 	if(cur_path) gtk_file_chooser_set_current_folder(dialog,cur_path);
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT){
@@ -432,8 +434,8 @@ void Fopen(GtkWidget *widget,GtkWidget *window)
 			dialog2 = (GtkFileChooser*) gtk_file_chooser_dialog_new (strings[S_openEEfile],
 						      GTK_WINDOW(window),
 						      GTK_FILE_CHOOSER_ACTION_OPEN,
-						      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-						      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+						      "_Cancel", GTK_RESPONSE_CANCEL,
+						      "_Open", GTK_RESPONSE_ACCEPT,
 						      NULL);
 			if(!cur_pathEE) cur_pathEE = gtk_file_chooser_get_current_folder(dialog);
 			if(cur_pathEE) gtk_file_chooser_set_current_folder(dialog2,cur_pathEE);
@@ -462,8 +464,8 @@ void Fsave(GtkWidget *widget,GtkWidget *window)
 	dialog = (GtkFileChooser*) gtk_file_chooser_dialog_new ("Save File",
 				      GTK_WINDOW(window),
 				      GTK_FILE_CHOOSER_ACTION_SAVE,
-				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+				      "_Cancel", GTK_RESPONSE_CANCEL,
+				      "_Save", GTK_RESPONSE_ACCEPT,
 				      NULL);
 	if(cur_path) gtk_file_chooser_set_current_folder(dialog,cur_path);
 	gtk_file_chooser_set_do_overwrite_confirmation(dialog,TRUE);
@@ -481,8 +483,8 @@ void Fsave(GtkWidget *widget,GtkWidget *window)
 			dialog2 = (GtkFileChooser*) gtk_file_chooser_dialog_new (strings[S_saveEEfile],
 						      GTK_WINDOW(window),
 						      GTK_FILE_CHOOSER_ACTION_SAVE,
-						      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-						      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+						      "_Cancel", GTK_RESPONSE_CANCEL,
+							  "_Save", GTK_RESPONSE_ACCEPT,
 						      NULL);
 			if(!cur_pathEE) cur_pathEE = gtk_file_chooser_get_current_folder(dialog);
 			if(cur_pathEE) gtk_file_chooser_set_current_folder(dialog2,cur_pathEE);
@@ -902,8 +904,8 @@ void loadCoff(GtkWidget *widget,GtkWidget *window)
 	dialog = (GtkFileChooser*) gtk_file_chooser_dialog_new ("Open Coff File",
 				      GTK_WINDOW(window),
 				      GTK_FILE_CHOOSER_ACTION_OPEN,
-				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+				      "_Cancel", GTK_RESPONSE_CANCEL,
+				      "_Open", GTK_RESPONSE_ACCEPT,
 				      NULL);
 	if(cur_path) gtk_file_chooser_set_current_folder(dialog,cur_path);
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT){
@@ -1996,8 +1998,8 @@ void HexSave(GtkWidget *widget,GtkWidget *window)
 	dialog = (GtkFileChooser*) gtk_file_chooser_dialog_new ("Save File",
 				      GTK_WINDOW(window),
 				      GTK_FILE_CHOOSER_ACTION_SAVE,
-				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+				      "_Cancel", GTK_RESPONSE_CANCEL,
+				      "_Save", GTK_RESPONSE_ACCEPT,
 				      NULL);
 	if(cur_path) gtk_file_chooser_set_current_folder(dialog,cur_path);
 	gtk_file_chooser_set_do_overwrite_confirmation(dialog,TRUE);
@@ -2178,7 +2180,11 @@ int main( int argc, char *argv[])
 	gtk_window_set_icon(GTK_WINDOW(window),gdk_pixbuf_new_from_resource("/openprog/icons/system.png", NULL));
 	GtkWidget * vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	gtk_container_add(GTK_CONTAINER(window),vbox);
-	PangoFontDescription    *font_desc;
+
+	GtkCssProvider *cssProv = gtk_css_provider_new();
+	gtk_css_provider_load_from_resource(cssProv, "/openprog/css/style.css");
+	gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), GTK_STYLE_PROVIDER(cssProv), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
 //------toolbar-------------
 
 	GtkWidget* iconOpen = gtk_image_new_from_icon_name("document-open", GTK_ICON_SIZE_BUTTON);
@@ -2235,18 +2241,19 @@ int main( int argc, char *argv[])
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(data),FALSE);
 	gtk_container_add(GTK_CONTAINER(data_scroll),data);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),data_scroll,gtk_label_new(strings[I_Data])); //"Data"
-	font_desc = pango_font_description_from_string ("monospace 8");
-	gtk_widget_override_font(data, font_desc);
-	pango_font_description_free (font_desc);
+
+	styleCtx = gtk_widget_get_style_context(GTK_WIDGET(data));
+	gtk_style_context_add_class(styleCtx, "mono");
+
 //------device tab-------------
 	label = gtk_label_new(strings[I_Dev]);	//"Device"
 	GtkWidget * devGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(devGrid), 5);
 	gtk_grid_set_row_spacing(GTK_GRID(devGrid), 5);
-	
+
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),devGrid,label);
 	GtkWidget * devHbox1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
-	
+
 	gtk_grid_attach(GTK_GRID(devGrid),devHbox1,0,0,2,1);
 	gtk_box_pack_start(GTK_BOX(devHbox1),gtk_label_new(strings[I_Type]),FALSE,TRUE,0); //"Type"
 	devTypeCombo = gtk_combo_box_text_new();
@@ -2256,27 +2263,27 @@ int main( int argc, char *argv[])
 	devCombo = gtk_combo_box_text_new();
 	gtk_box_pack_start(GTK_BOX(devHbox1),devCombo,FALSE,TRUE,0);
 	GtkWidget * devHbox2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
-	
+
 	gtk_grid_attach(GTK_GRID(devGrid),devHbox2,0,1,2,1);
 	gtk_box_pack_start(GTK_BOX(devHbox2),gtk_label_new("info: "),FALSE,FALSE,0);
 	devinfo = gtk_label_new("i");
 	gtk_box_pack_start(GTK_BOX(devHbox2),devinfo,FALSE,FALSE,0);
 	EEPROM_RW = gtk_check_button_new_with_label(strings[I_EE]);	//"Read and write EEPROM"
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EEPROM_RW),TRUE);
-	
+
 	gtk_grid_attach(GTK_GRID(devGrid),EEPROM_RW,0,2,1,1);
 	devFramePIC = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);//gtk_frame_new(NULL);	//"PIC configuration"
-	
+
 	gtk_grid_attach(GTK_GRID(devGrid),devFramePIC,0,3,1,1);
-	
+
 	GtkWidget * table_PIC = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(table_PIC), 5);
 	gtk_grid_set_row_spacing(GTK_GRID(table_PIC), 5);
-	
+
 	gtk_box_pack_start(GTK_BOX(devFramePIC),table_PIC,FALSE,TRUE,0);
 	GtkWidget * devVboxPIC = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	gtk_grid_attach(GTK_GRID(table_PIC),devVboxPIC,0,0,1,1);
-	
+
 	ReadReserved = gtk_check_button_new_with_label(strings[I_ReadRes]);	//"Read reserved area"
 	gtk_container_add(GTK_CONTAINER(devVboxPIC),GTK_WIDGET(ReadReserved));
 	Write_ID_BKCal = gtk_check_button_new_with_label(strings[I_ID_BKo_W]);	//"Write ID and BKOscCal"
@@ -2284,7 +2291,7 @@ int main( int argc, char *argv[])
 	WriteCalib12 = gtk_check_button_new_with_label(strings[I_CalW]);	//"Write Calib 1 and 2"
 	gtk_container_add(GTK_CONTAINER(devVboxPIC),GTK_WIDGET(WriteCalib12));
 	devFrameOsc = gtk_frame_new(strings[I_OSCW]);	//"Write OscCal"
-	
+
 	gtk_grid_attach(GTK_GRID(table_PIC),devFrameOsc,0,1,1,1);
 	GtkWidget * devVboxOsc = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	gtk_container_add(GTK_CONTAINER(devFrameOsc),GTK_WIDGET(devVboxOsc));
@@ -2311,7 +2318,7 @@ int main( int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(devHboxICD),GTK_WIDGET(ICD_addr_entry),0,0,2);
 	gtk_container_add(GTK_CONTAINER(devVboxICD),GTK_WIDGET(devHboxICD));
 	devFrameConfigW = gtk_frame_new("Config Word");
-	
+
 	gtk_grid_attach(GTK_GRID(table_PIC),devFrameConfigW,1,0,1,2);
 	GtkWidget * cwGrid = gtk_grid_new();
 	gtk_container_add(GTK_CONTAINER(devFrameConfigW),GTK_WIDGET(cwGrid));
@@ -2338,7 +2345,7 @@ int main( int argc, char *argv[])
 	gtk_grid_attach(GTK_GRID(cwGrid),devPIC_CW6,1,3,1,1);
 	gtk_grid_attach(GTK_GRID(cwGrid),devPIC_CW7,0,4,1,1);
 	devFrameAVR = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);	//Atmel configuration
-	
+
 	gtk_grid_attach(GTK_GRID(devGrid),devFrameAVR,0,3,1,1);
 	GtkWidget * avrGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(avrGrid), 5);
@@ -2558,9 +2565,10 @@ int main( int argc, char *argv[])
 	sourceBuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(sourceTxt));
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(sourceTxt),FALSE);
 	gtk_container_add(GTK_CONTAINER(sourceScroll),sourceTxt);
-	font_desc = pango_font_description_from_string ("monospace 8");
-	gtk_widget_override_font(sourceTxt, font_desc);
-	pango_font_description_free (font_desc);
+
+	styleCtx = gtk_widget_get_style_context(GTK_WIDGET(sourceTxt));
+	gtk_style_context_add_class(styleCtx, "mono");
+
 	gtk_box_pack_start(GTK_BOX(icdVbox2),sourceScroll,TRUE,TRUE,0);
 	//status
 	GtkWidget * icdVbox3 = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
@@ -2576,9 +2584,10 @@ int main( int argc, char *argv[])
 	statusBuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(statusTxt));
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(statusTxt),FALSE);
 	gtk_container_add(GTK_CONTAINER(statusScroll),statusTxt);
-	font_desc = pango_font_description_from_string ("monospace 8");
-	gtk_widget_override_font(statusTxt, font_desc);
-	pango_font_description_free (font_desc);
+
+	styleCtx = gtk_widget_get_style_context(GTK_WIDGET(statusTxt));
+	gtk_style_context_add_class(styleCtx, "mono");
+
 	gtk_box_pack_start(GTK_BOX(icdVbox3),statusScroll,TRUE,TRUE,0);
 //------IO tab-------------
 	label = gtk_label_new("I/O");
@@ -2588,7 +2597,7 @@ int main( int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(ioVbox1),ioFrameIO,FALSE,FALSE,0);
 	GtkWidget * ioGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(ioGrid),20);
-	
+
 	gtk_container_add(GTK_CONTAINER(ioFrameIO),GTK_WIDGET(ioGrid));
 	b_io_active = gtk_check_button_new_with_label(strings[I_IO_Enable]);	//"Enable IO"
 	gtk_grid_attach(GTK_GRID(ioGrid),b_io_active,0,0,1,1);

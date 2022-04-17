@@ -48,7 +48,8 @@ OBJECTS_SHARED = deviceRW.o \
 OBJECTS_OPGUI = opgui.o \
 	coff.o \
 	icd.o \
-	icons.o
+	icons.o \
+	style.o
 
 OBJECTS_HIDTEST = hid_test.o
 
@@ -74,7 +75,7 @@ op: $(OBJECTS_OP) $(OBJECTS_SHARED)
 hid_test: $(OBJECTS_HIDTEST)
 	$(CC) -o $@ $(OBJECTS_HIDTEST) $(LDFLAGS_HIDTEST)
 
-opgui.o: opgui.c icons.h
+opgui.o: opgui.c icons.h style.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 icons.c: $(ICONS) icons.xml
@@ -82,6 +83,12 @@ icons.c: $(ICONS) icons.xml
 
 icons.h: $(ICONS) icons.xml
 	glib-compile-resources icons.xml --generate-header
+
+style.c: style.css style.xml
+	glib-compile-resources style.xml --generate-source
+
+style.h: style.css style.xml
+	glib-compile-resources style.xml --generate-header
 
 clean:
 	rm -f $(targets) $(OBJECTS) icons.c icons.h
