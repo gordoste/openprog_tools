@@ -14,6 +14,8 @@ else
 	HIDAPI_PKG = hidapi-hidraw
 endif
 
+ICONS = go.png halt.png read.png step.png stepover.png stop.png sys.png write.png
+
 CFLAGS_GTK2 = `pkg-config --cflags gtk+-2.0`
 LDFLAGS_GTK2 = `pkg-config --libs gtk+-2.0`
 
@@ -28,6 +30,8 @@ CFLAGS += -Os -s #size
 #CFLAGS += -O3 -s #speed
 #CFLAGS += -g #debug
 
+CFLAGS += -DGTK_DISABLE_SINGLE_INCLUDES -DGSEAL_ENABLE
+#-DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED
 CFLAGS += $(CFLAGS_GTK3) $(CFLAGS_HIDAPI)
 
 OBJECTS_SHARED = deviceRW.o \
@@ -70,14 +74,17 @@ op: $(OBJECTS_OP) $(OBJECTS_SHARED)
 hid_test: $(OBJECTS_HIDTEST)
 	$(CC) -o $@ $(OBJECTS_HIDTEST) $(LDFLAGS_HIDTEST)
 
-icons.c : write.png read.png sys.png
-	echo "#include <gtk/gtk.h>" > icons.c
-	gdk-pixbuf-csource --extern --build-list write_icon write.png read_icon read.png \
-	system_icon sys.png go_icon go.png halt_icon halt.png step_icon step.png \
-	stepover_icon stepover.png stop_icon stop.png >> icons.c
+opgui.o: opgui.c icons.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+icons.c: $(ICONS) icons.xml
+	glib-compile-resources icons.xml --generate-source
+
+icons.h: $(ICONS) icons.xml
+	glib-compile-resources icons.xml --generate-header
 
 clean:
-	rm -f $(targets) $(OBJECTS) icons.c
+	rm -f $(targets) $(OBJECTS) icons.c icons.h
 	
 install: all
 	#test -d $(prefix) || mkdir $(prefix)

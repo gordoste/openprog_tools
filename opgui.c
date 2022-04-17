@@ -2175,8 +2175,7 @@ int main( int argc, char *argv[])
 	gtk_window_set_default_size(GTK_WINDOW(window), 750, 250);
 	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
 	g_signal_connect(GTK_WINDOW(window), "destroy",G_CALLBACK(Xclose),NULL);
-	GdkPixbuf* pixbuf = gdk_pixbuf_new_from_inline (-1, system_icon, FALSE, NULL);
-	gtk_window_set_icon(GTK_WINDOW(window),pixbuf);
+	gtk_window_set_icon(GTK_WINDOW(window),gdk_pixbuf_new_from_resource("/openprog/icons/system.png", NULL));
 	GtkWidget * vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	gtk_container_add(GTK_CONTAINER(window),vbox);
 	PangoFontDescription    *font_desc;
@@ -2190,13 +2189,11 @@ int main( int argc, char *argv[])
 	GtkToolItem* btnSave = gtk_tool_button_new(iconSave, strings[I_Fsave]);
 	g_signal_connect(G_OBJECT(btnSave), "clicked", G_CALLBACK(Fsave),NULL);
 
-	pixbuf = gdk_pixbuf_new_from_inline (-1, read_icon, FALSE, NULL);
-	GtkWidget* iconRead = gtk_image_new_from_pixbuf(pixbuf);
+	GtkWidget* iconRead = gtk_image_new_from_resource("/openprog/icons/read.png");
 	GtkToolItem* btnRead = gtk_tool_button_new(iconRead, strings[I_DevR]);
 	g_signal_connect(G_OBJECT(btnRead), "clicked", G_CALLBACK(DevRead),NULL);
 
-	pixbuf = gdk_pixbuf_new_from_inline (-1, write_icon, FALSE, NULL);
-	GtkWidget* iconWrite = gtk_image_new_from_pixbuf(pixbuf);
+	GtkWidget* iconWrite = gtk_image_new_from_resource("/openprog/icons/write.png");
 	GtkToolItem* btnWrite = gtk_tool_button_new(iconWrite, strings[I_DevW]);
 	g_signal_connect(G_OBJECT(btnWrite), "clicked", G_CALLBACK(DevWrite),NULL);
 
@@ -2492,28 +2489,23 @@ int main( int argc, char *argv[])
 	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdMenuBank3);
 	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdMenuEE);
 	//toolbar
-	pixbuf = gdk_pixbuf_new_from_inline (-1, go_icon, FALSE, NULL);
-	GtkWidget* iconGO = gtk_image_new_from_pixbuf(pixbuf);
+	GtkWidget* iconGO = gtk_image_new_from_resource("/openprog/icons/go.png");
 	GtkToolItem* btnGO = gtk_tool_button_new(iconGO, strings[I_ICD_RUN]);
 	g_signal_connect(G_OBJECT(btnGO), "clicked", G_CALLBACK(icdRun),NULL);
 
-	pixbuf = gdk_pixbuf_new_from_inline (-1, halt_icon, FALSE, NULL);
-	GtkWidget* iconHALT = gtk_image_new_from_pixbuf(pixbuf);
+	GtkWidget* iconHALT = gtk_image_new_from_resource("/openprog/icons/halt.png");
 	GtkToolItem* btnHALT = gtk_tool_button_new(iconHALT, strings[I_ICD_HALT]);
 	g_signal_connect(G_OBJECT(btnHALT), "clicked", G_CALLBACK(icdHalt),NULL);
 
-	pixbuf = gdk_pixbuf_new_from_inline (-1, step_icon, FALSE, NULL);
-	GtkWidget* iconSTEP = gtk_image_new_from_pixbuf(pixbuf);
+	GtkWidget* iconSTEP = gtk_image_new_from_resource("/openprog/icons/step.png");
 	GtkToolItem* btnSTEP = gtk_tool_button_new(iconSTEP, strings[I_ICD_STEP]);
 	g_signal_connect(G_OBJECT(btnSTEP), "clicked", G_CALLBACK(icdStep),NULL);
 
-	pixbuf = gdk_pixbuf_new_from_inline (-1, stepover_icon, FALSE, NULL);
-	GtkWidget* iconSTEPOVER = gtk_image_new_from_pixbuf(pixbuf);
+	GtkWidget* iconSTEPOVER = gtk_image_new_from_resource("/openprog/icons/stepover.png");
 	GtkToolItem* btnSTEPOVER = gtk_tool_button_new(iconSTEPOVER, strings[I_ICD_STEPOVER]);
 	g_signal_connect(G_OBJECT(btnSTEPOVER), "clicked", G_CALLBACK(icdStepOver),NULL);
 
-	pixbuf = gdk_pixbuf_new_from_inline (-1, stop_icon, FALSE, NULL);
-	GtkWidget* iconSTOP = gtk_image_new_from_pixbuf(pixbuf);
+	GtkWidget* iconSTOP = gtk_image_new_from_resource("/openprog/icons/stop.png");
 	GtkToolItem* btnSTOP = gtk_tool_button_new(iconSTOP, strings[I_ICD_STOP]);
 	g_signal_connect(G_OBJECT(btnSTOP), "clicked", G_CALLBACK(icdStop),NULL);
 
