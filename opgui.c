@@ -195,7 +195,7 @@ GtkWidget * devPIC_CW5;
 GtkWidget * devPIC_CW6;
 GtkWidget * devPIC_CW7;
 GtkWidget * devinfo;
-GtkWidget* btnStop;
+GtkToolItem* btnStop;
 GtkStyleContext *styleCtx;
 
 ///array of radio buttons for IO manual control
@@ -528,21 +528,21 @@ void DevWrite(GtkWidget *widget,GtkWidget *window)
 		}
 		PrintMessage(strings[S_NL]); //"\n"
 		if(!progress&&S1){
-			gtk_widget_set_sensitive(btnStop,TRUE);
+			gtk_widget_set_sensitive(GTK_WIDGET(btnStop),TRUE);
 			progress=1;
 			Write(dev,ee);	//choose the right function
 			progress=0;
-			gtk_widget_set_sensitive(btnStop,FALSE);
+			gtk_widget_set_sensitive(GTK_WIDGET(btnStop),FALSE);
 		}
 		waitingS1=0;
 	}
 	else if(waitingS1) waitingS1=0;
 	else if(!progress){
-		gtk_widget_set_sensitive(btnStop,TRUE);
+		gtk_widget_set_sensitive(GTK_WIDGET(btnStop),TRUE);
 		progress=1;
 		Write(dev,ee);	//choose the right function
 		progress=0;
-		gtk_widget_set_sensitive(btnStop,FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(btnStop),FALSE);
 	}
 }
 ///
@@ -569,21 +569,21 @@ void DevRead(GtkWidget *widget,GtkWidget *window)
 		}
 		PrintMessage(strings[S_NL]); //"\n"
 		if(!progress&&S1){
-			gtk_widget_set_sensitive(btnStop,TRUE);
+			gtk_widget_set_sensitive(GTK_WIDGET(btnStop),TRUE);
 			progress=1;
 			Read(dev,ee,readRes);	//choose the right function
 			progress=0;
-			gtk_widget_set_sensitive(btnStop,FALSE);
+			gtk_widget_set_sensitive(GTK_WIDGET(btnStop),FALSE);
 		}
 		waitingS1=0;
 	}
 	else if(waitingS1) waitingS1=0;
 	else if(!progress){
-		gtk_widget_set_sensitive(btnStop,TRUE);
+		gtk_widget_set_sensitive(GTK_WIDGET(btnStop),TRUE);
 		progress=1;
 		Read(dev,ee,readRes);	//choose the right function
 		progress=0;
-		gtk_widget_set_sensitive(btnStop,FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(btnStop),FALSE);
 	}
 }
 ///
@@ -2208,7 +2208,7 @@ int main( int argc, char *argv[])
 	g_signal_connect(G_OBJECT(btnWrite), "clicked", G_CALLBACK(DevWrite),NULL);
 
 	GtkWidget* iconStop = gtk_image_new_from_icon_name("process-stop", GTK_ICON_SIZE_BUTTON);
-	GtkToolItem* btnStop = gtk_tool_button_new(iconStop, strings[I_ICD_STOP]);
+	btnStop = gtk_tool_button_new(iconStop, strings[I_ICD_STOP]);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(btnStop), strings[I_ICD_STOP]);
 	g_signal_connect(G_OBJECT(btnStop), "clicked", G_CALLBACK(Stop),NULL);
 
@@ -2504,65 +2504,65 @@ int main( int argc, char *argv[])
 	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdMenuEE);
 	//toolbar
 	GtkWidget* iconGO = gtk_image_new_from_resource("/openprog/icons/go.png");
-	GtkToolItem* btnGO = gtk_tool_button_new(iconGO, strings[I_ICD_RUN]);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(btnGO), strings[I_ICD_RUN]);
-	g_signal_connect(G_OBJECT(btnGO), "clicked", G_CALLBACK(icdRun),NULL);
+	GtkToolItem* btnICDGo = gtk_tool_button_new(iconGO, strings[I_ICD_RUN]);
+	gtk_widget_set_tooltip_text(GTK_WIDGET(btnICDGo), strings[I_ICD_RUN]);
+	g_signal_connect(G_OBJECT(btnICDGo), "clicked", G_CALLBACK(icdRun),NULL);
 
 	GtkWidget* iconHALT = gtk_image_new_from_resource("/openprog/icons/halt.png");
-	GtkToolItem* btnHALT = gtk_tool_button_new(iconHALT, strings[I_ICD_HALT]);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(btnHALT), strings[I_ICD_HALT]);
-	g_signal_connect(G_OBJECT(btnHALT), "clicked", G_CALLBACK(icdHalt),NULL);
+	GtkToolItem* btnICDHalt = gtk_tool_button_new(iconHALT, strings[I_ICD_HALT]);
+	gtk_widget_set_tooltip_text(GTK_WIDGET(btnICDHalt), strings[I_ICD_HALT]);
+	g_signal_connect(G_OBJECT(btnICDHalt), "clicked", G_CALLBACK(icdHalt),NULL);
 
 	GtkWidget* iconSTEP = gtk_image_new_from_resource("/openprog/icons/step.png");
-	GtkToolItem* btnSTEP = gtk_tool_button_new(iconSTEP, strings[I_ICD_STEP]);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(btnSTEP), strings[I_ICD_STEP]);
-	g_signal_connect(G_OBJECT(btnSTEP), "clicked", G_CALLBACK(icdStep),NULL);
+	GtkToolItem* btnICDStep = gtk_tool_button_new(iconSTEP, strings[I_ICD_STEP]);
+	gtk_widget_set_tooltip_text(GTK_WIDGET(btnICDStep), strings[I_ICD_STEP]);
+	g_signal_connect(G_OBJECT(btnICDStep), "clicked", G_CALLBACK(icdStep),NULL);
 
 	GtkWidget* iconSTEPOVER = gtk_image_new_from_resource("/openprog/icons/stepover.png");
-	GtkToolItem* btnSTEPOVER = gtk_tool_button_new(iconSTEPOVER, strings[I_ICD_STEPOVER]);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(btnSTEPOVER), strings[I_ICD_STEPOVER]);
-	g_signal_connect(G_OBJECT(btnSTEPOVER), "clicked", G_CALLBACK(icdStepOver),NULL);
+	GtkToolItem* btnICDStepover = gtk_tool_button_new(iconSTEPOVER, strings[I_ICD_STEPOVER]);
+	gtk_widget_set_tooltip_text(GTK_WIDGET(btnICDStepover), strings[I_ICD_STEPOVER]);
+	g_signal_connect(G_OBJECT(btnICDStepover), "clicked", G_CALLBACK(icdStepOver),NULL);
 
 	GtkWidget* iconSTOP = gtk_image_new_from_resource("/openprog/icons/stop.png");
-	GtkToolItem* btnSTOP = gtk_tool_button_new(iconSTOP, strings[I_ICD_STOP]);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(btnSTOP), strings[I_ICD_STOP]);
-	g_signal_connect(G_OBJECT(btnSTOP), "clicked", G_CALLBACK(icdStop),NULL);
+	GtkToolItem* btnICDStop = gtk_tool_button_new(iconSTOP, strings[I_ICD_STOP]);
+	gtk_widget_set_tooltip_text(GTK_WIDGET(btnICDStop), strings[I_ICD_STOP]);
+	g_signal_connect(G_OBJECT(btnICDStop), "clicked", G_CALLBACK(icdStop),NULL);
 
 	GtkWidget* iconREFRESH = gtk_image_new_from_icon_name("view-refresh", GTK_ICON_SIZE_BUTTON);
-	GtkToolItem* btnREFRESH = gtk_tool_button_new(iconREFRESH, strings[I_ICD_REFRESH]);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(btnREFRESH), strings[I_ICD_REFRESH]);
-	g_signal_connect(G_OBJECT(btnREFRESH), "clicked", G_CALLBACK(icdRefresh),NULL);
+	GtkToolItem* btnICDRefresh = gtk_tool_button_new(iconREFRESH, strings[I_ICD_REFRESH]);
+	gtk_widget_set_tooltip_text(GTK_WIDGET(btnICDRefresh), strings[I_ICD_REFRESH]);
+	g_signal_connect(G_OBJECT(btnICDRefresh), "clicked", G_CALLBACK(icdRefresh),NULL);
 
-	GtkToolItem* btnLoadCOFF = gtk_tool_button_new(NULL, strings[I_LOAD_COFF]); //"load COFF file..."
-	g_signal_connect(G_OBJECT(btnLoadCOFF), "clicked", G_CALLBACK(loadCoff),window);
+	GtkToolItem* btnICDLoadCOFF = gtk_tool_button_new(NULL, strings[I_LOAD_COFF]); //"load COFF file..."
+	g_signal_connect(G_OBJECT(btnICDLoadCOFF), "clicked", G_CALLBACK(loadCoff),window);
 
-	GtkToolItem* itemCMD = gtk_tool_item_new();
+	GtkToolItem* itemICDCommand = gtk_tool_item_new();
 	icdCommand = gtk_entry_new();
 	gtk_widget_set_tooltip_text(icdCommand, strings[I_ICD_CMD]);
-	gtk_container_add(GTK_CONTAINER(itemCMD), icdCommand);
+	gtk_container_add(GTK_CONTAINER(itemICDCommand), icdCommand);
 
 	GtkWidget* iconHELP = gtk_image_new_from_icon_name("system-help", GTK_ICON_SIZE_BUTTON);
-	GtkToolItem* btnHELP = gtk_tool_button_new(iconHELP, strings[I_ICD_HELP]);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(btnHELP), strings[I_ICD_HELP]);
-	g_signal_connect(G_OBJECT(btnHELP), "clicked", G_CALLBACK(ICDHelp),NULL);
+	GtkToolItem* btnICDHelp = gtk_tool_button_new(iconHELP, strings[I_ICD_HELP]);
+	gtk_widget_set_tooltip_text(GTK_WIDGET(btnICDHelp), strings[I_ICD_HELP]);
+	g_signal_connect(G_OBJECT(btnICDHelp), "clicked", G_CALLBACK(ICDHelp),NULL);
 
 	GtkWidget * icdtoolbar = gtk_toolbar_new();
 	gtk_toolbar_set_style(GTK_TOOLBAR(icdtoolbar),GTK_TOOLBAR_ICONS);
 	gtk_box_pack_start(GTK_BOX(icdVbox1),icdtoolbar,FALSE,FALSE,0);
-	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnGO,-1);
-	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnHALT,-1);
-	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnSTEP,-1);
-	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnSTEPOVER,-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnICDGo,-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnICDHalt,-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnICDStep,-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnICDStepover,-1);
 	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),gtk_separator_tool_item_new(),-1);
-	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnSTOP,-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnICDStop,-1);
 	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),gtk_separator_tool_item_new(),-1);
-	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnREFRESH,-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnICDRefresh,-1);
 	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),gtk_separator_tool_item_new(),-1);
-	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnLoadCOFF,-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnICDLoadCOFF,-1);
 	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),gtk_separator_tool_item_new(),-1);
-	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),itemCMD,-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),itemICDCommand,-1);
 	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),gtk_separator_tool_item_new(),-1);
-	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnHELP,-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnICDHelp,-1);
 
 	GtkWidget *hpaned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_box_pack_start(GTK_BOX(icdVbox1),hpaned,TRUE,TRUE,0);
