@@ -1352,3 +1352,5 @@ void PrintStatus(char *s,  uint16_t p1, uint16_t p2) { printf("\b\b\b\b%3d%",p1)
 void PrintStatusSetup() { printf("    "); }
 void PrintStatusEnd() { printf("\b\b\b\b"); }
 void PrintStatusClear() {}
+
+void StrcatConvert(char *dst, const char *src) { strcat(dst, src); }

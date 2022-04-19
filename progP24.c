@@ -398,9 +398,6 @@ void DisplayEE24F(){
 	char s[256],t[256],v[256],*aux;
 	int valid=0,empty=1;
 	int i,j;
-#ifdef __GTK_H__
-	char *g	;
-#endif
 	s[0]=0;
 	v[0]=0;
 	aux=(char*)malloc(0x1000/COL*(16+COL*5));
@@ -411,22 +408,10 @@ void DisplayEE24F(){
 			sprintf(t,"%02X %02X ",memEE[j],memEE[j+1]);
 			strcat(s,t);
 			sprintf(t,"%c",isprint(memEE[j])&&(memEE[j]<0xFF)?memEE[j]:'.');
-#ifdef __GTK_H__
-			g=g_locale_to_utf8(t,-1,NULL,NULL,NULL);
-			if(g) strcat(v,g);
-			g_free(g);
-#else
-			strcat(v,t);
-#endif
+			StrcatConvert(v,t);
 			if(memEE[j]<0xff) valid=1;
 			sprintf(t,"%c",isprint(memEE[j+1])&&(memEE[j+1]<0xFF)?memEE[j+1]:'.');
-#ifdef __GTK_H__
-			g=g_locale_to_utf8(t,-1,NULL,NULL,NULL);
-			if(g) strcat(v,g);
-			g_free(g);
-#else
-			strcat(v,t);
-#endif
+			StrcatConvert(v,t);
 			if(memEE[j+1]<0xff) valid=1;
 		}
 		if(valid){

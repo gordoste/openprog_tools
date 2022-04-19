@@ -418,9 +418,6 @@ void DisplayEE16F(int size){
 	char s[256]="",t[256]="",v[256]="";
 	char* aux=(char*)malloc((size/COL+1)*(16+COL*5));
 	aux[0]=0;
-#ifdef __GTK_H__
-	char *g;
-#endif
 	empty=1;
 	v[0]=0;
 	for(i=0x2100;i<0x2100+size&&i<sizeW;i+=COL){
@@ -429,13 +426,7 @@ void DisplayEE16F(int size){
 			sprintf(t,"%02X ",memCODE_W[j]&0xff);
 			strcat(s,t);
 			sprintf(t,"%c",isprint(memCODE_W[j]&0xFF)&&(memCODE_W[j]&0xFF)<0xFF?memCODE_W[j]&0xFF:'.');
-#ifdef __GTK_H__
-			g=g_locale_to_utf8(t,-1,NULL,NULL,NULL);
-			if(g) strcat(v,g);
-			g_free(g);
-#else
-			strcat(v,t);
-#endif
+			StrcatConvert(v,t);
 			if((memCODE_W[j]&0xFF)<0xff) valid=1;/**/
 		}
 		if(valid){

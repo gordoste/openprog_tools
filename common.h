@@ -110,6 +110,9 @@ void PrintStatusClear();
 
 void PrintMessage(const char *msg);
 
+// Convert src to correct encoding for output and concatenate to dst
+void StrcatConvert(char *dst, const char *src);
+
 int StartHVReg(double V);
 void msDelay(double delay);
 void DisplayEE();

@@ -3649,3 +3649,9 @@ void PrintStatusEnd() {}
 void PrintStatusClear() {
 	gtk_statusbar_push(GTK_STATUSBAR(status_bar), statusID,"");
 }
+
+void StrcatConvert(char *dst, const char *src) {
+	char *g = g_locale_to_utf8(src,-1,NULL,NULL,NULL);
+	if(g) strcat(dst,g);
+	g_free(g);
+}
