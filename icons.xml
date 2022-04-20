@@ -3,6 +3,7 @@
   <gresource prefix="/openprog/icons">
     <file>go.png</file>
     <file>halt.png</file>
+    <file>opgui.svg</file>
     <file>read.png</file>
     <file>step.png</file>
     <file>stepover.png</file>

@@ -14,7 +14,7 @@ else
 	HIDAPI_PKG = hidapi-hidraw
 endif
 
-ICONS = go.png halt.png read.png step.png stepover.png stop.png sys.png write.png
+ICONS = go.png halt.png opgui.svg read.png step.png stepover.png stop.png sys.png write.png
 
 CFLAGS_GTK2 = `pkg-config --cflags gtk+-2.0`
 LDFLAGS_GTK2 = `pkg-config --libs gtk+-2.0`

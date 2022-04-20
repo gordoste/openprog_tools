@@ -1041,6 +1041,8 @@ void info(GtkWidget *widget,GtkWidget *window)
     "License along with the Gnome Library; see the file COPYING.LIB.  If not,\n"
     "write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,\n"
     "Boston, MA 02111-1307, USA.\n";
+	GdkPixbuf *logo = gdk_pixbuf_new_from_resource_at_scale("/openprog/icons/opgui.svg",
+			200,-1,TRUE,NULL);
 	gtk_show_about_dialog (NULL,
 		//"artists"                  GStrv*                : Read / Write
 		//"authors"                  GStrv*                : Read / Write
@@ -1056,7 +1058,7 @@ void info(GtkWidget *widget,GtkWidget *window)
 		"(at your option) any later version.",
 		//"documenters"              GStrv*                : Read / Write
 		"license",license,
-		//  "logo"                     GdkPixbuf*            : Read / Write
+		"logo",logo,
 		//  "logo-icon-name"           gchar*                : Read / Write
 		"program-name", "OPGUI",
 		//  "translator-credits"       gchar*                : Read / Write
