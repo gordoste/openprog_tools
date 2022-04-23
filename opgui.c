@@ -32,6 +32,7 @@
 #include "fileIO.h"
 #include "icons.h"
 #include "progAVR.h"
+
 #define MAXLINES 600
 #define  CONFIG_FILE "opgui.ini"
 #define  CONFIG_DIR ".opgui"
@@ -41,7 +42,6 @@ void Connect(GtkWidget *widget,GtkWidget *window);
 void I2cspiR();
 void I2cspiS();
 void ProgID();
-void PrintMessageI2C(const char *msg);
 void ShowContext();
 int FindDevice(int vid,int pid);
 void TestHw();
@@ -3656,4 +3656,10 @@ void StrcatConvert(char *dst, const char *src) {
 	char *g = g_locale_to_utf8(src,-1,NULL,NULL,NULL);
 	if(g) strcat(dst,g);
 	g_free(g);
+}
+
+//Add all devices to the appropriate structure
+void AddDevices() {
+	int i;
+	for(i=0;i<Ndevices;i++) gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
 }

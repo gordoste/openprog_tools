@@ -4,4 +4,6 @@
 #define _APPNAME "OP"
 #define _CMD
 
+void AddDevices(char *list);
+
 #endif

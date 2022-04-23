@@ -1346,7 +1346,23 @@ int FindDevice(int vid,int pid){
 	return MyDeviceDetected;
 }
 
+void AddDevices(char *list){		//make sure list is long enough
+	int i;
+	static char last[8]="";
+	for(i=0;i<Ndevices;i++){
+		if(last[0]) strcat(list,", ");
+		if(strncmp(devices[i],last,2)){
+			strcat(list,"\n");
+			last[0]=devices[i][0];
+			last[1]=devices[i][1];
+			last[2]=0;
+		}
+		strcat(list,devices[i]);
+	}
+}
+
 void PrintMessage(const char *str) { puts(str); }
+void PrintMessageI2C(const char *str) { puts(str); }
 
 void PrintStatus(char *s,  uint16_t p1, uint16_t p2) { printf("\b\b\b\b%3d%",p1); fflush(stdout); }
 void PrintStatusSetup() { printf("    "); }

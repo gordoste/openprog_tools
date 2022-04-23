@@ -109,6 +109,7 @@ void PrintStatusEnd();
 void PrintStatusClear();
 
 void PrintMessage(const char *msg);
+void PrintMessageI2C(const char *msg);
 
 // Convert src to correct encoding for output and concatenate to dst
 void StrcatConvert(char *dst, const char *src);
@@ -116,7 +117,6 @@ void StrcatConvert(char *dst, const char *src);
 int StartHVReg(double V);
 void msDelay(double delay);
 void DisplayEE();
-void PrintMessageI2C(const char *msg);
 int CheckV33Regulator(void);
 void OpenLogFile(void);
 void WriteLogIO();

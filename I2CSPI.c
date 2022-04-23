@@ -21,16 +21,6 @@
 
 //configure for GUI or command-line
 #include "common.h"
-#ifdef __GTK_H__
-#define _GTKGUI
-#endif
-
-
-#ifdef _GTKGUI
-	#define printM(id) PrintMessageI2C(id);
-#else
-	#define printM(id) printf(id);
-#endif
 
 #define CS 8
 #define HLD 16
@@ -110,10 +100,10 @@ void I2CReceive(int mode,int speed,int N,BYTE *buffer)
 	}
 	if(bufferI[1]==I2C_READ||bufferI[1]==I2C_READ2||bufferI[1]==SPI_READ){
 		if(bufferI[2]==0xFD){
-			printM(strings[S_I2CAckErr]); //"acknowledge error"
+			PrintMessageI2C(strings[S_I2CAckErr]); //"acknowledge error"
 		}
 		else if(bufferI[2]>0xFA){
-			printM(strings[S_InsErr]); //"unknown instruction"
+			PrintMessageI2C(strings[S_InsErr]); //"unknown instruction"
 		}
 		else{
 			char str[1024];
@@ -130,11 +120,11 @@ void I2CReceive(int mode,int speed,int N,BYTE *buffer)
 				}
 			}
 			strcat(str,"\r\n");
-			printM(str);
+			PrintMessageI2C(str);
 			fflush(stdout);
 		}
 	}
-	else printM(strings[S_ComErr]);
+	else PrintMessageI2C(strings[S_ComErr]);
 }
 
 void I2CSend(int mode,int speed,int N,BYTE *buffer)
@@ -215,10 +205,10 @@ void I2CSend(int mode,int speed,int N,BYTE *buffer)
 	}
 	if(bufferI[1]==I2C_WRITE||bufferI[1]==SPI_WRITE){
 		if(bufferI[2]==0xFD){
-			printM(strings[S_I2CAckErr]); //"acknowledge error"
+			PrintMessageI2C(strings[S_I2CAckErr]); //"acknowledge error"
 		}
 		else if(bufferI[2]>0xFA){
-			printM(strings[S_InsErr]); //"unknown instruction"
+			PrintMessageI2C(strings[S_InsErr]); //"unknown instruction"
 		}
 		else{
 			char str[1024];
@@ -235,9 +225,9 @@ void I2CSend(int mode,int speed,int N,BYTE *buffer)
 				}
 			}
 			strcat(str,"\r\n");
-			printM(str);
+			PrintMessageI2C(str);
 		}
 	}
-	else printM(strings[S_ComErr]);	//"communication error \r\n"
+	else PrintMessageI2C(strings[S_ComErr]);	//"communication error \r\n"
 }
 

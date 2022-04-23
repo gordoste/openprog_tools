@@ -28,10 +28,6 @@
 #include "progAVR.h"
 //#include "progP32.h"
 
-#ifdef __GTK_H__
-#define _GTKGUI
-#endif
-
 #include "deviceRW.h"
 
 char* devices[]={
@@ -848,30 +844,6 @@ struct DEVICES{
 	{"11160",
 		UNIOEE,-1,0,Read11xx,{0x800},0,Write11xx,{0x800,16},0}		//2k
 };
-
-//Add all devices to the appropriate structure
-#ifdef _GTKGUI
-extern	GtkWidget * devCombo;
-void AddDevices(){
-	int i;
-	for(i=0;i<sizeof(devices)/sizeof(char*);i++) gtk_combo_box_append_text(GTK_COMBO_BOX(devCombo),devices[i]);
-}
-#else
-void AddDevices(char *list){		//make sure list is long enough
-	int i;
-	static char last[8]="";
-	for(i=0;i<sizeof(devices)/sizeof(char*);i++){
-		if(last[0]) strcat(list,", ");
-		if(strncmp(devices[i],last,2)){
-			strcat(list,"\n");
-			last[0]=devices[i][0];
-			last[1]=devices[i][1];
-			last[2]=0;
-		}
-		strcat(list,devices[i]);
-	}
-}
-#endif
 
 //Make a list of all supported devices (insert \n between types)
 char* ListDevices(){

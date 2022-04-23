@@ -8,4 +8,6 @@
 extern int StatusID;
 extern GtkWidget *status_bar;
 
+void AddDevices();
+
 #endif
