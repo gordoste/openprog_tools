@@ -38,14 +38,6 @@
 #define  CONFIG_DIR ".opgui"
 #define MinDly 0
 
-void Connect(GtkWidget *widget,GtkWidget *window);
-void I2cspiR();
-void I2cspiS();
-void ProgID();
-void ShowContext();
-int FindDevice(int vid,int pid);
-void TestHw();
-int CheckS1();
 char** strings;	//!localized strings
 int cmdline=0;
 int saveLog=0,programID=0,load_osccal=0,load_BKosccal=0;
@@ -74,7 +66,6 @@ struct srcfile *s_files;
 struct symbol *sym;
 int nsym=0;
 char* Slabel[LMAX],*Sulabel[ULMAX];
-//struct var{	char* name;	int display;} variables[0x200];
 struct symbol *watch;
 int nwatch=0;
 unsigned short coff_data[DATA_MAX];
@@ -96,106 +87,29 @@ int forceConfig=0;
 	unsigned short dataDebug=0;
 	unsigned short statusDebug=0x3FFF;
 #endif
+
 //List of gtk controls
 GtkTextBuffer * dataBuf;
-GtkWidget * data;
-GtkWidget * data_scroll;
-GtkWidget * window;
-GtkWidget * toolbar;
-GtkWidget * button;
-GtkWidget * b_open;
-GtkWidget * b_save;
-GtkWidget * b_read;
-GtkWidget * b_write;
-GtkWidget * notebook;
-GtkWidget * label;
-GtkWidget * status_bar;
-GtkWidget * img;
-GtkWidget * devCombo;
-GtkWidget * devTypeCombo;
-GtkWidget * devFramePIC;
-GtkWidget * ICD_check;
-GtkWidget * ICD_addr_entry;
-GtkWidget * EEPROM_RW;
-GtkWidget * ReadReserved;
-GtkWidget * Write_ID_BKCal;
-GtkWidget * WriteCalib12;
-GtkWidget * UseOSCCAL;
-GtkWidget * UseBKOSCCAL;
-GtkWidget * UseFileCal;
-GtkWidget * devFrameAVR;
-GtkWidget * AVR_FuseLow;
-GtkWidget * AVR_FuseLowWrite;
-GtkWidget * AVR_FuseHigh;
-GtkWidget * AVR_FuseHighWrite;
-GtkWidget * AVR_FuseExt;
-GtkWidget * AVR_FuseExtWrite;
-GtkWidget * AVR_Lock;
-GtkWidget * AVR_LockWrite;
-GtkWidget * b_WfuseLF;
-GtkWidget * b_connect;
-GtkWidget * b_testhw;
-GtkWidget * b_log;
-GtkWidget * VID_entry;
-GtkWidget * PID_entry;
-GtkWidget * Errors_entry;
-GtkWidget * I2C8bit;
-GtkWidget * I2C16bit;
-GtkWidget * SPI00;
-GtkWidget * SPI01;
-GtkWidget * SPI10;
-GtkWidget * SPI11;
-GtkWidget * I2CDataSend;
-GtkWidget * I2CDataReceive;
-GtkWidget * I2CSendBtn;
-GtkWidget * I2CReceiveBtn;
-GtkWidget * I2CNbyte;
-GtkWidget * I2CSpeed;
-GtkWidget * statusTxt;
-GtkTextBuffer * statusBuf;
-GtkWidget * sourceTxt;
-GtkTextBuffer * sourceBuf;
-GtkWidget * icdVbox1;
-GtkWidget * icdMenuPC;
-GtkWidget * icdMenuSTAT;
-GtkWidget * icdMenuBank0;
-GtkWidget * icdMenuBank1;
-GtkWidget * icdMenuBank2;
-GtkWidget * icdMenuBank3;
-GtkWidget * icdMenuEE;
-GtkWidget * icdCommand;
-GtkWidget * DCDC_ON;
-GtkWidget * DCDC_voltage;
-GtkWidget * VPP_ON;
-GtkWidget * VDD_ON;
-GtkWidget * b_io_active;
-GtkWidget * b_V33check;
-GtkWidget * Hex_entry;
-GtkWidget * Address_entry;
-GtkWidget * Data_entry;
-GtkWidget * Hex_data;
-GtkWidget * Hex_data2;
-GtkWidget * CW1_entry;
-GtkWidget * CW2_entry;
-GtkWidget * CW3_entry;
-GtkWidget * CW4_entry;
-GtkWidget * CW5_entry;
-GtkWidget * CW6_entry;
-GtkWidget * CW7_entry;
-GtkWidget * ConfigForce;
-GtkWidget * b_WaitS1;
-GtkWidget * devFrameConfigW;
-GtkWidget * devFrameICD;
-GtkWidget * devFrameOsc;
-GtkWidget * devPIC_CW1;
-GtkWidget * devPIC_CW2;
-GtkWidget * devPIC_CW3;
-GtkWidget * devPIC_CW4;
-GtkWidget * devPIC_CW5;
-GtkWidget * devPIC_CW6;
-GtkWidget * devPIC_CW7;
-GtkWidget * devinfo;
-GtkToolItem* btnStop;
+GtkWidget *data, *data_scroll;
+GtkWidget *window, *toolbar, *button, *notebook, *status_bar;
+GtkToolItem *openToolItem, *saveToolItem, *readToolItem, *writeToolItem, *connectToolItem, *stopToolItem, *infoToolItem;
+GtkWidget *devCombo, *devTypeCombo, *picOptsBox, *avrOptsBox, *configWOptsBox, *icdOptsBox, *oscOptsBox, *devInfoLabel;
+GtkWidget *icdCheckToggle, *icdAddrEntry;
+GtkWidget *eepromRWToggle, *readReservedToggle, *writeIDBKCalToggle, *writeCalib12Toggle, *useOSCCALToggle, *useBKOSCCALToggle, *useFileCalToggle;
+GtkWidget *avrFuseLowEntry, *avrFuseLowWriteToggle, *avrFuseHighEntry, *avrFuseHighWriteToggle, *avrFuseExtEntry, *avrFuseExtWriteToggle, *avrLockEntry, *avrLockWriteToggle;
+GtkWidget *wFuseLFBtn, *connectBtn, *testHWBtn, *logBtn;
+GtkWidget *vidEntry, *pidEntry, *errorsEntry;
+GtkWidget *I2C8bit, *I2C16bit, *SPI00, *SPI01, *SPI10, *SPI11;
+GtkWidget *i2cDataSendEntry, *i2cDataRcvEntry, *i2cSendBtn, *i2cRcvBtn, *i2cNbyteSpinBtn, *i2cSpeedCombo;
+GtkWidget *statusTextView, *sourceTextView;
+GtkTextBuffer *statusBuf, *sourceBuf;
+GtkWidget *icdVBox, *icdPC_CheckMenuItem, *icdSTAT_CheckMenuItem, *icdBank0_CheckMenuItem, *icdBank1_CheckMenuItem, *icdBank2_CheckMenuItem, *icdBank3_CheckMenuItem, *icdEE_CheckMenuItem, *icdCommandEntry;
+GtkWidget *dcdcOnToggle, *dcdcVoltageRange, *vppOnToggle, *vddOnToggle;
+GtkWidget *ioActiveToggle, *V33CheckToggle, *waitS1Toggle;
+GtkWidget *hexEntry, *addressEntry, *dataEntry, *hexDataEntry, *hexDataEntry2;
+GtkWidget *CW1Entry, *CW2Entry, *CW3Entry, *CW4Entry, *CW5Entry, *CW6Entry, *CW7Entry;
+GtkWidget *CW1Box, *CW2Box, *CW3Box, *CW4Box, *CW5Box, *CW6Box, *CW7Box;
+GtkWidget *configForceToggle;
 GtkStyleContext *styleCtx;
 
 ///array of radio buttons for IO manual control
@@ -261,83 +175,81 @@ void PrintMessage(const char *msg){
 ///Print a message on the I2C data field
 void PrintMessageI2C(const char *msg){
 	GtkTextIter iter;
-	GtkTextBuffer * dataBuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(I2CDataReceive));
+	GtkTextBuffer * dataBuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(i2cDataRcvEntry));
 	gtk_text_buffer_set_text(dataBuf,msg,-1);
 	gtk_text_buffer_get_end_iter(dataBuf,&iter);
-	gtk_text_view_scroll_to_iter(GTK_TEXT_VIEW(I2CDataReceive),&iter,0.0,FALSE,0,0);
+	gtk_text_view_scroll_to_iter(GTK_TEXT_VIEW(i2cDataRcvEntry),&iter,0.0,FALSE,0,0);
 	while (gtk_events_pending ()) gtk_main_iteration();
 }
 ///
 ///Print a message on the ICD data field
 void PrintMessageICD(const char *msg){
 	GtkTextIter iter;
-	//GtkWidget * dataBuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(statusTxt));
 	gtk_text_buffer_set_text(statusBuf,msg,-1);
 	gtk_text_buffer_get_start_iter(statusBuf,&iter);
-	gtk_text_view_scroll_to_iter(GTK_TEXT_VIEW(statusTxt),&iter,0.0,FALSE,0,0);
+	gtk_text_view_scroll_to_iter(GTK_TEXT_VIEW(statusTextView),&iter,0.0,FALSE,0,0);
 	while (gtk_events_pending ()) gtk_main_iteration();
 }
 ///
 ///Append a message on the ICD data field
 void AppendMessageICD(const char *msg){
 	GtkTextIter iter;
-	//GtkWidget * dataBuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(statusTxt));
 	gtk_text_buffer_get_end_iter(statusBuf,&iter);
 	gtk_text_buffer_insert(statusBuf,&iter,msg,-1);
 	gtk_text_buffer_get_start_iter(statusBuf,&iter);
-	gtk_text_view_scroll_to_iter(GTK_TEXT_VIEW(statusTxt),&iter,0.0,FALSE,0,0);
+	gtk_text_view_scroll_to_iter(GTK_TEXT_VIEW(statusTextView),&iter,0.0,FALSE,0,0);
 	while (gtk_events_pending ()) gtk_main_iteration();
 }
 ///
 ///Update option variables according to actual control values
 void getOptions()
 {
-	vid=htoi(gtk_entry_get_text(GTK_ENTRY(VID_entry)),4);
-	pid=htoi(gtk_entry_get_text(GTK_ENTRY(PID_entry)),4);
-	saveLog = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(b_log));
-	ee = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(EEPROM_RW))?0xFFFF:0;
-	programID = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(Write_ID_BKCal));
-	max_err=atoi(gtk_entry_get_text(GTK_ENTRY(Errors_entry)));
-	load_calibword= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(WriteCalib12));
-	load_osccal= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(UseOSCCAL));
-	load_BKosccal= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(UseBKOSCCAL));
-	ICDenable= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ICD_check));
-	readRes= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ReadReserved));
-	skipV33check=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(b_V33check));
-	waitS1=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(b_WaitS1));
-	int i=sscanf(gtk_entry_get_text(GTK_ENTRY(ICD_addr_entry)),"%x",&ICDaddr);
+	vid=htoi(gtk_entry_get_text(GTK_ENTRY(vidEntry)),4);
+	pid=htoi(gtk_entry_get_text(GTK_ENTRY(pidEntry)),4);
+	saveLog = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(logBtn));
+	ee = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(eepromRWToggle))?0xFFFF:0;
+	programID = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(writeIDBKCalToggle));
+	max_err=atoi(gtk_entry_get_text(GTK_ENTRY(errorsEntry)));
+	load_calibword= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(writeCalib12Toggle));
+	load_osccal= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(useOSCCALToggle));
+	load_BKosccal= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(useBKOSCCALToggle));
+	ICDenable= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(icdCheckToggle));
+	readRes= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(readReservedToggle));
+	skipV33check=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(V33CheckToggle));
+	waitS1=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(waitS1Toggle));
+	int i=sscanf(gtk_entry_get_text(GTK_ENTRY(icdAddrEntry)),"%x",&ICDaddr);
 	if(i!=1||ICDaddr<0||ICDaddr>0xFFFF) ICDaddr=0x1FF0;
 	char *str=gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(devCombo));
 	if(str) strncpy(dev,str,sizeof(dev)-1);
 	g_free(str);
 	AVRfuse=AVRfuse_h=AVRfuse_x=AVRlock=0x100;
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(AVR_FuseLowWrite))){
-		i=sscanf(gtk_entry_get_text(GTK_ENTRY(AVR_FuseLow)),"%x",&AVRfuse);
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(avrFuseLowWriteToggle))){
+		i=sscanf(gtk_entry_get_text(GTK_ENTRY(avrFuseLowEntry)),"%x",&AVRfuse);
 		if(i!=1||AVRfuse<0||AVRfuse>0xFF) AVRfuse=0x100;
 	}
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(AVR_FuseHighWrite))){
-		i=sscanf(gtk_entry_get_text(GTK_ENTRY(AVR_FuseHigh)),"%x",&AVRfuse_h);
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(avrFuseHighWriteToggle))){
+		i=sscanf(gtk_entry_get_text(GTK_ENTRY(avrFuseHighEntry)),"%x",&AVRfuse_h);
 		if(i!=1||AVRfuse_h<0||AVRfuse_h>0xFF) AVRfuse_h=0x100;
 	}
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(AVR_FuseExtWrite))){
-		i=sscanf(gtk_entry_get_text(GTK_ENTRY(AVR_FuseExt)),"%x",&AVRfuse_x);
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(avrFuseExtWriteToggle))){
+		i=sscanf(gtk_entry_get_text(GTK_ENTRY(avrFuseExtEntry)),"%x",&AVRfuse_x);
 		if(i!=1||AVRfuse_x<0||AVRfuse_x>0xFF) AVRfuse_x=0x100;
 	}
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(AVR_LockWrite))){
-		i=sscanf(gtk_entry_get_text(GTK_ENTRY(AVR_Lock)),"%x",&AVRlock);
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(avrLockWriteToggle))){
+		i=sscanf(gtk_entry_get_text(GTK_ENTRY(avrLockEntry)),"%x",&AVRlock);
 		if(i!=1||AVRlock<0||AVRlock>0xFF) AVRlock=0x100;
 	}
 	str=malloc(128);
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ConfigForce))){
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(configForceToggle))){
 		int cw1,cw2,cw3,cw4,cw5,cw6,cw7;
 		cw1=cw2=cw3=cw4=cw5=cw6=cw7=0x10000;
-		i=sscanf(gtk_entry_get_text(GTK_ENTRY(CW1_entry)),"%x",&cw1);
-		i=sscanf(gtk_entry_get_text(GTK_ENTRY(CW2_entry)),"%x",&cw2);
-		i=sscanf(gtk_entry_get_text(GTK_ENTRY(CW3_entry)),"%x",&cw3);
-		i=sscanf(gtk_entry_get_text(GTK_ENTRY(CW4_entry)),"%x",&cw4);
-		i=sscanf(gtk_entry_get_text(GTK_ENTRY(CW5_entry)),"%x",&cw5);
-		i=sscanf(gtk_entry_get_text(GTK_ENTRY(CW6_entry)),"%x",&cw6);
-		i=sscanf(gtk_entry_get_text(GTK_ENTRY(CW7_entry)),"%x",&cw7);
+		i=sscanf(gtk_entry_get_text(GTK_ENTRY(CW1Entry)),"%x",&cw1);
+		i=sscanf(gtk_entry_get_text(GTK_ENTRY(CW2Entry)),"%x",&cw2);
+		i=sscanf(gtk_entry_get_text(GTK_ENTRY(CW3Entry)),"%x",&cw3);
+		i=sscanf(gtk_entry_get_text(GTK_ENTRY(CW4Entry)),"%x",&cw4);
+		i=sscanf(gtk_entry_get_text(GTK_ENTRY(CW5Entry)),"%x",&cw5);
+		i=sscanf(gtk_entry_get_text(GTK_ENTRY(CW6Entry)),"%x",&cw6);
+		i=sscanf(gtk_entry_get_text(GTK_ENTRY(CW7Entry)),"%x",&cw7);
 		if(devType==PIC16){
 			if((!strncmp(dev,"16F1",4)||!strncmp(dev,"12F1",4))&&sizeW>0x8008){		//16F1xxx
 				if(cw1<=0x3FFF){
@@ -444,7 +356,6 @@ void Fopen(GtkWidget *widget,GtkWidget *window)
 			    filename2 = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog2));
 				if(cur_pathEE) free(cur_pathEE);
 				cur_pathEE = gtk_file_chooser_get_current_folder(dialog2);
-			//CFileDialog dlgA(TRUE,"hex",NULL,OFN_HIDEREADONLY,strings[S_fileEEP]);	//"File Hex8 (*.hex;.eep ..."
 				LoadEE(dev,filename2);
 				g_free (filename2);
 			}
@@ -528,21 +439,21 @@ void DevWrite(GtkWidget *widget,GtkWidget *window)
 		}
 		PrintMessage(strings[S_NL]); //"\n"
 		if(!progress&&S1){
-			gtk_widget_set_sensitive(GTK_WIDGET(btnStop),TRUE);
+			gtk_widget_set_sensitive(GTK_WIDGET(stopToolItem),TRUE);
 			progress=1;
 			Write(dev,ee);	//choose the right function
 			progress=0;
-			gtk_widget_set_sensitive(GTK_WIDGET(btnStop),FALSE);
+			gtk_widget_set_sensitive(GTK_WIDGET(stopToolItem),FALSE);
 		}
 		waitingS1=0;
 	}
 	else if(waitingS1) waitingS1=0;
 	else if(!progress){
-		gtk_widget_set_sensitive(GTK_WIDGET(btnStop),TRUE);
+		gtk_widget_set_sensitive(GTK_WIDGET(stopToolItem),TRUE);
 		progress=1;
 		Write(dev,ee);	//choose the right function
 		progress=0;
-		gtk_widget_set_sensitive(GTK_WIDGET(btnStop),FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(stopToolItem),FALSE);
 	}
 }
 ///
@@ -569,21 +480,21 @@ void DevRead(GtkWidget *widget,GtkWidget *window)
 		}
 		PrintMessage(strings[S_NL]); //"\n"
 		if(!progress&&S1){
-			gtk_widget_set_sensitive(GTK_WIDGET(btnStop),TRUE);
+			gtk_widget_set_sensitive(GTK_WIDGET(stopToolItem),TRUE);
 			progress=1;
 			Read(dev,ee,readRes);	//choose the right function
 			progress=0;
-			gtk_widget_set_sensitive(GTK_WIDGET(btnStop),FALSE);
+			gtk_widget_set_sensitive(GTK_WIDGET(stopToolItem),FALSE);
 		}
 		waitingS1=0;
 	}
 	else if(waitingS1) waitingS1=0;
 	else if(!progress){
-		gtk_widget_set_sensitive(GTK_WIDGET(btnStop),TRUE);
+		gtk_widget_set_sensitive(GTK_WIDGET(stopToolItem),TRUE);
 		progress=1;
 		Read(dev,ee,readRes);	//choose the right function
 		progress=0;
-		gtk_widget_set_sensitive(GTK_WIDGET(btnStop),FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(stopToolItem),FALSE);
 	}
 }
 ///
@@ -594,7 +505,7 @@ void WriteATfuseLowLF(GtkWidget *widget,GtkWidget *window){
 #endif
 	if(progress) return;
 	getOptions();
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(AVR_FuseLowWrite))){
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(avrFuseLowWriteToggle))){
 		progress=1;
 		if(AVRfuse<0x100) WriteATfuseSlow(AVRfuse);
 		progress=0;
@@ -613,167 +524,57 @@ void DeviceChanged(GtkWidget *widget,GtkWidget *window)
 	g_free(str);
 	info=GetDevInfo(dev);
 	devType=info.type;
-/*	str2[0]=0;
-	x=info.size/1024.0;
-	if(x-(int)x) sprintf(strF,"%.1f",x);
-	else sprintf(strF,"%d",(int)x);
-	switch(info.type){
-	case -1:
-		sprintf(str2,"?? ");
-		break;
-	case PIC12:
-		sprintf(str2,"PIC12, ");
-		if(info.size<1024) sprintf(str3,"%dW FLASH",info.size);
-		else sprintf(str3,"%sKW FLASH",strF);
-		strcat(str2,str3);
-		break;
-	case PIC16:
-		sprintf(str2,"PIC16, ");
-		if(info.size<1024) sprintf(str3,"%dW FLASH",info.size);
-		else sprintf(str3,"%sKW FLASH",strF);
-		strcat(str2,str3);
-		if(info.sizeEE){
-			int ee=info.sizeEE;
-			if(ee<0) ee=-ee;
-			sprintf(str3," + %dB EEPROM",ee);
-			strcat(str2,str3);
-		}
-		break;
-	case PIC18:
-		sprintf(str2,"PIC18, ");
-		if(info.size<1024) sprintf(str3,"%dB FLASH ",info.size);
-		else sprintf(str3,"%sKB FLASH ",strF);
-		strcat(str2,str3);
-		if(info.sizeEE){
-			sprintf(str3,"+ %dB EEPROM ",info.sizeEE);
-			strcat(str2,str3);
-		}
-		break;
-	case PIC24:
-		sprintf(str2,"PIC24, ");
-		if(info.size<1024) sprintf(str3,"%dW FLASH",info.size);
-		else sprintf(str3,"%sKW FLASH",strF);
-		strcat(str2,str3);
-		if(info.sizeEE){
-			sprintf(str3," + %dB EEPROM",info.sizeEE);
-			strcat(str2,str3);
-		}
-		break;
-	case PIC32:
-		sprintf(str2,"PIC32, ");
-		sprintf(str3,"%sKB FLASH",strF);
-		strcat(str2,str3);
-		break;
-	case AVR:
-		sprintf(str2,"AVR, ");
-		if(info.size<1024) sprintf(str3,"%dB FLASH",info.size);
-		else sprintf(str3,"%sKB FLASH",strF);
-		strcat(str2,str3);
-		if(info.sizeEE){
-			sprintf(str3," + %dB EEPROM",info.sizeEE);
-			strcat(str2,str3);
-		}
-		break;
-	case I2CEE:
-		if(info.size<1024) sprintf(str2,"%s, %dB",strings[I_I2CMEM],info.size); //I2C Memory
-		else sprintf(str2,"%s, %sKB",strings[I_I2CMEM],strF); //I2C Memory
-		break;
-	case SPIEE:
-		if(info.size<1024) sprintf(str2,"%s, %dB",strings[I_SPIMEM],info.size); //SPI Memory
-		else sprintf(str2,"%s, %sKB",strings[I_SPIMEM],strF); //SPI Memory
-		break;
-	case UWEE:
-		if(info.size<1024) sprintf(str2,"%s, %dB",strings[I_UWMEM],info.size); //Microwire Memory
-		else sprintf(str2,"%s,%sKB",strings[I_UWMEM],strF);
-		break;
-	case OWEE:
-		if(info.size<0) sprintf(str2,strings[I_OWDEV]); //OneWire device
-		else if(info.size<1024) sprintf(str2,"%s, %dB",strings[I_OWMEM],info.size); //OneWire Memory
-		else sprintf(str2,"%s, %sKB",strings[I_OWMEM],strF);
-		break;
-	case UNIOEE:
-		if(info.size<1024) sprintf(str2,"%s, %dB",strings[I_UNIOMEM],info.size); //UNI/O Memory
-		else sprintf(str2,"%s, %sKB",strings[I_UNIOMEM],strF);
-		break;
-	}
-	if(info.HV>0){
-		sprintf(str3,", %.1fV",info.HV);
-		strcat(str2,str3);
-	}
-	if(info.V33){
-		strcat(str2,", ");
-		strcat(str2,strings[I_3V3REQUIRED]); // 3.3V adapter
-	}*/
-//	gtk_label_set_text(GTK_LABEL(devinfo),str2);
-	gtk_label_set_text(GTK_LABEL(devinfo),info.features);
-	//printf("%s=%d\n",dev,GetDevType(dev));fflush(stdout);
+	gtk_label_set_text(GTK_LABEL(devInfoLabel),info.features);
 	if(devType==PIC12||devType==PIC16||devType==PIC18||devType==PIC24){
-		gtk_widget_show_all(GTK_WIDGET(devFramePIC));
-		gtk_widget_hide(GTK_WIDGET(devFrameAVR));
-		gtk_widget_show_all(GTK_WIDGET(EEPROM_RW));
+		gtk_widget_show_all(GTK_WIDGET(picOptsBox));
+		gtk_widget_hide(GTK_WIDGET(avrOptsBox));
+		gtk_widget_show_all(GTK_WIDGET(eepromRWToggle));
 	}
 	else if(devType==AVR){	//ATMEL
-		gtk_widget_hide(GTK_WIDGET(devFramePIC));
-		gtk_widget_show_all(GTK_WIDGET(devFrameAVR));
-		gtk_widget_show_all(GTK_WIDGET(EEPROM_RW));
+		gtk_widget_hide(GTK_WIDGET(picOptsBox));
+		gtk_widget_show_all(GTK_WIDGET(avrOptsBox));
+		gtk_widget_show_all(GTK_WIDGET(eepromRWToggle));
 	}
 	else{
-		gtk_widget_hide(GTK_WIDGET(devFramePIC));
-		gtk_widget_hide(GTK_WIDGET(devFrameAVR));
-		gtk_widget_hide(GTK_WIDGET(EEPROM_RW));
+		gtk_widget_hide(GTK_WIDGET(picOptsBox));
+		gtk_widget_hide(GTK_WIDGET(avrOptsBox));
+		gtk_widget_hide(GTK_WIDGET(eepromRWToggle));
 	}
 	if(devType==PIC16)		//ICD
-		gtk_widget_show_all(GTK_WIDGET(devFrameICD));
-	else gtk_widget_hide(GTK_WIDGET(devFrameICD));
+		gtk_widget_show_all(GTK_WIDGET(icdOptsBox));
+	else gtk_widget_hide(GTK_WIDGET(icdOptsBox));
 	if(devType==PIC12||devType==PIC16)	//Osc options
-		gtk_widget_show_all(GTK_WIDGET(devFrameOsc));
-	else gtk_widget_hide(GTK_WIDGET(devFrameOsc));
+		gtk_widget_show_all(GTK_WIDGET(oscOptsBox));
+	else gtk_widget_hide(GTK_WIDGET(oscOptsBox));
 	if(devType==PIC12||devType==PIC16||devType==PIC18)	//program ID
-		gtk_widget_show_all(GTK_WIDGET(Write_ID_BKCal));
-	else gtk_widget_hide(GTK_WIDGET(Write_ID_BKCal));
+		gtk_widget_show_all(GTK_WIDGET(writeIDBKCalToggle));
+	else gtk_widget_hide(GTK_WIDGET(writeIDBKCalToggle));
 	if(devType==PIC16)	//Program Calib
-		gtk_widget_show_all(GTK_WIDGET(WriteCalib12));
-	else gtk_widget_hide(GTK_WIDGET(WriteCalib12));
+		gtk_widget_show_all(GTK_WIDGET(writeCalib12Toggle));
+	else gtk_widget_hide(GTK_WIDGET(writeCalib12Toggle));
 	if(devType==PIC12||devType==PIC16||devType==PIC18){	//Force config
-		//gtk_widget_set_sensitive(GTK_WIDGET(devFrameConfigW),TRUE);
-		gtk_widget_show_all(GTK_WIDGET(devFrameConfigW));
-		//gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW1),TRUE);
-		//gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW2),FALSE);
-		gtk_widget_hide(GTK_WIDGET(devPIC_CW2));
-		//gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW3),FALSE);
-		gtk_widget_hide(GTK_WIDGET(devPIC_CW3));
-		//gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW4),FALSE);
-		gtk_widget_hide(GTK_WIDGET(devPIC_CW4));
-		//gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW5),FALSE);
-		gtk_widget_hide(GTK_WIDGET(devPIC_CW5));
-		//gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW6),FALSE);
-		gtk_widget_hide(GTK_WIDGET(devPIC_CW6));
-		//gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW7),FALSE);
-		gtk_widget_hide(GTK_WIDGET(devPIC_CW7));
-		//gtk_widget_set_sensitive(GTK_WIDGET(devFrameOsc),FALSE);
+		gtk_widget_show_all(GTK_WIDGET(configWOptsBox));
+		gtk_widget_hide(GTK_WIDGET(CW2Box));
+		gtk_widget_hide(GTK_WIDGET(CW3Box));
+		gtk_widget_hide(GTK_WIDGET(CW4Box));
+		gtk_widget_hide(GTK_WIDGET(CW5Box));
+		gtk_widget_hide(GTK_WIDGET(CW6Box));
+		gtk_widget_hide(GTK_WIDGET(CW7Box));
 		if(devType==PIC16){
-			//gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW2),TRUE);
-			gtk_widget_show_all(GTK_WIDGET(devPIC_CW2));
+			gtk_widget_show_all(GTK_WIDGET(CW2Box));
 		}
 		else if(devType==PIC18){
-			/*gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW2),TRUE);
-			gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW3),TRUE);
-			gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW4),TRUE);
-			gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW5),TRUE);
-			gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW6),TRUE);
-			gtk_widget_set_sensitive(GTK_WIDGET(devPIC_CW7),TRUE);*/
-			gtk_widget_show_all(GTK_WIDGET(devPIC_CW2));
-			gtk_widget_show_all(GTK_WIDGET(devPIC_CW3));
-			gtk_widget_show_all(GTK_WIDGET(devPIC_CW4));
-			gtk_widget_show_all(GTK_WIDGET(devPIC_CW5));
-			gtk_widget_show_all(GTK_WIDGET(devPIC_CW6));
-			gtk_widget_show_all(GTK_WIDGET(devPIC_CW7));
+			gtk_widget_show_all(GTK_WIDGET(CW2Box));
+			gtk_widget_show_all(GTK_WIDGET(CW3Box));
+			gtk_widget_show_all(GTK_WIDGET(CW4Box));
+			gtk_widget_show_all(GTK_WIDGET(CW5Box));
+			gtk_widget_show_all(GTK_WIDGET(CW6Box));
+			gtk_widget_show_all(GTK_WIDGET(CW7Box));
 		}
 	}
 	else{
-		gtk_widget_hide(GTK_WIDGET(devFrameConfigW));
-		//gtk_widget_set_sensitive(GTK_WIDGET(devFrameConfigW),FALSE);
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ConfigForce),FALSE);
+		gtk_widget_hide(GTK_WIDGET(configWOptsBox));
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(configForceToggle),FALSE);
 	}
 	gtk_statusbar_push(GTK_STATUSBAR(status_bar),statusID,dev);
 }
@@ -823,7 +624,6 @@ void FilterDevType(GtkWidget *widget,GtkWidget *window)
 		gtk_combo_box_set_active(GTK_COMBO_BOX(devCombo),i);	//need to set item to parse all items
 		g_free(str);
 	}
-//	printf("i=%d str=%p\n",i,str);fflush(stdout);
 	if(i>=10000||!str)gtk_combo_box_set_active(GTK_COMBO_BOX(devCombo),0);
 	gtk_combo_box_set_wrap_width(GTK_COMBO_BOX(devCombo),6);
 	g_signal_connect(G_OBJECT(devCombo),"changed",G_CALLBACK(DeviceChanged),NULL);	//enable callback
@@ -847,7 +647,7 @@ void scrollToLine(int line)
 	}
 	gtk_text_buffer_select_range(sourceBuf,&iter,&iter2);
 	while (gtk_events_pending ()) gtk_main_iteration();
-	gtk_text_view_scroll_to_iter(GTK_TEXT_VIEW(sourceTxt),&iter,0.0,TRUE,0,0.5);
+	gtk_text_view_scroll_to_iter(GTK_TEXT_VIEW(sourceTextView),&iter,0.0,TRUE,0,0.5);
 }
 ///
 ///Hilight line in source code
@@ -1105,7 +905,7 @@ void icdRun(GtkWidget *widget,GtkWidget *window)
 	if(DeviceDetected!=1) return;
 #endif
 	if(!icdConnected){
-		saveLog = (int) gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(b_log));
+		saveLog = (int) gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(logBtn));
 		if(saveLog){
 			OpenLogFile();	//"Log.txt"
 			fprintf(logfile,"ICD start\n");
@@ -1189,7 +989,6 @@ void icdStop(GtkWidget *widget,GtkWidget *window)
 		g_source_remove(icdTimer);
 		Halt();
 	}
-//	bufferU[0]=0;
 	int j=0;
 	bufferU[j++]=EN_VPP_VCC;		// reset target
 	bufferU[j++]=0x0;
@@ -1248,17 +1047,16 @@ void ShowContext(){
 	data=ReadProgMem(addr);
 	s=ReadRegister(status_temp);
 	s=(s>>4)+((s<<4)&0xF0);		//STATUS is swapped
-//	printf("addr %X, status %X, data %X\n",addr,s,data);
 #ifdef DEBUG
 	addr=addrDebug;
 	s=statusDebug;
 	if(UseCoff) data=coff_data[addr];
 #endif
-	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(icdMenuPC))){
+	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(icdPC_CheckMenuItem))){
 		sprintf(temp,"%s: %s (0x%04X) \nPC=0x%04X\n",strings[S_NextIns],decodeCmd(data,cmd,(s&0x60)<<2),data,addr); //"Next instruction"
 		strcat(status,temp);
 	}
-	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(icdMenuSTAT))){
+	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(icdSTAT_CheckMenuItem))){
 		sprintf(temp,"STATUS=0x%02X (",s);
 		strcat(status,temp);
 		sprintf(temp,"%s ",s&0x80?"IRP":"   ");
@@ -1280,10 +1078,10 @@ void ShowContext(){
 		sprintf(temp,"W=0x%02X PCLATH=0x%02X FSR=0x%02X\n",ReadRegister(w_temp),ReadRegister(pclath_temp),ReadRegister(fsr_temp));
 		strcat(status,temp);
 	}
-	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(icdMenuBank0))) ShowBank(0,status);
-	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(icdMenuBank1))) ShowBank(1,status);
-	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(icdMenuBank2))) ShowBank(2,status);
-	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(icdMenuBank3))) ShowBank(3,status);
+	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(icdBank0_CheckMenuItem))) ShowBank(0,status);
+	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(icdBank1_CheckMenuItem))) ShowBank(1,status);
+	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(icdBank2_CheckMenuItem))) ShowBank(2,status);
+	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(icdBank3_CheckMenuItem))) ShowBank(3,status);
 	int rawsource=0;
 	if(UseCoff){	//hilight corresponding source line
 		if(data!=coff_data[addr]){
@@ -1294,7 +1092,6 @@ void ShowContext(){
 #ifndef DEBUG
 		else{
 #endif
-//			printf("addr %d, file %d, line %d, current %d, ptr %X\n",addr,source_info[addr].src_file,source_info[addr].src_line,currentSource,s_files[source_info[addr].src_file].ptr);
 			if(source_info[addr].src_file!=-1){
 				if(currentSource==source_info[addr].src_file)	scrollToLine(source_info[addr].src_line);
 				else if(loadSource(s_files[source_info[addr].src_file].ptr)){
@@ -1333,7 +1130,7 @@ void ShowContext(){
 		strcat(status,temp);
 	}
 	PrintMessageICD(status);
-	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(icdMenuEE))){
+	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(icdEE_CheckMenuItem))){
 		unsigned char data[256];
 		str[0]=0;
 		char s[64],t[9],*g;
@@ -1432,7 +1229,6 @@ int executeCommand(char *command){
 				sprintf(t2,"0x%04X: %s (0x%04X)\n",i+addr,decodeCmd(progmem[i],cmd,0),progmem[i]);
 				strcat(tmp,t2);
 			}
-			//printf(tmp);
 			AppendMessageICD(tmp);
 		}
 	}
@@ -1473,7 +1269,6 @@ int executeCommand(char *command){
 				}
 			}
 			strcat(str,"\n");
-			//printf("EEPROM:\n");fflush(stdout);
 			AppendMessageICD(str);
 		}
 		else if(sscanf(command,"print ee %x",&addr)==1||sscanf(command,"p ee %x",&addr)==1){ //single EE address
@@ -1655,7 +1450,6 @@ gint source_mouse_event(GtkWidget *widget, GdkEventButton *event, gpointer func_
 		GtkTextIter iter,iter2,itx;
 		gtk_text_view_window_to_buffer_coords(GTK_TEXT_VIEW(widget),GTK_TEXT_WINDOW_WIDGET,event->x,event->y,&x,&y);
 		gtk_text_view_get_iter_at_location(GTK_TEXT_VIEW(widget),&iter,x,y);
-//		printf("x %d y %d\n",x,y);
 		iter2=iter;
 		char c;
 		for(itx=iter2,c=gtk_text_iter_get_char(&itx);isalnum(c)||c=='_';iter2=itx){
@@ -1676,7 +1470,6 @@ gint source_mouse_event(GtkWidget *widget, GdkEventButton *event, gpointer func_
 		else{	//set breakpoint
 			int line=gtk_text_iter_get_line(&iter)+1;
 			for(i=0;i<LMAX;i++) if(source_info[i].src_line==line){
-				//if(UseCoff && i>0 && (coff_data[i-1]>>11)!=4) i--; //if not a call break at previous address;
 				break_addr=i;
 				sprintf(str,"break at address 0x%x\n",i);
 				AppendMessageICD(str);
@@ -1720,17 +1513,15 @@ gint icdCommand_key_event(GtkWidget *widget, GdkEventButton *event, gpointer fun
 {
 	if(event->type==GDK_KEY_PRESS&&((GdkEventKey*)event)->keyval==0xFF0D){	//enter
 		char s[64];
-		strncpy(s,gtk_entry_get_text(GTK_ENTRY(icdCommand)),63);
+		strncpy(s,gtk_entry_get_text(GTK_ENTRY(icdCommandEntry)),63);
 		if(!strlen(s)){
 			strcpy(s,lastCmd);
-			gtk_entry_set_text(GTK_ENTRY(icdCommand),s);	//briefly flash last command
+			gtk_entry_set_text(GTK_ENTRY(icdCommandEntry),s);	//briefly flash last command
 			while (gtk_events_pending ()) gtk_main_iteration();
 			msDelay(60);
 		}
 		else strcpy(lastCmd,s);
-		if(executeCommand(s)) gtk_entry_set_text(GTK_ENTRY(icdCommand),"");
-//		sprintf(s,"k=%X\n",((GdkEventKey*)event)->keyval);
-//		AppendMessageICD(gtk_entry_get_text(icdCommand));
+		if(executeCommand(s)) gtk_entry_set_text(GTK_ENTRY(icdCommandEntry),"");
 	}
 	return FALSE;
 }
@@ -1757,9 +1548,6 @@ gint icd_key_event(GtkWidget *widget, GdkEventButton *event, gpointer func_data)
 				icdRun(NULL,NULL);	//F9 = run
 				break;
 		}
-//		char s[64];
-//		sprintf(s,"k=%X\n",((GdkEventKey*)event)->keyval);
-//		AppendMessageICD(s);
 	}
 	return FALSE;
 }
@@ -1771,19 +1559,14 @@ gboolean IOchanged(GtkWidget *widget,GtkWidget *window)
 #ifndef DEBUG
 	if(DeviceDetected!=1) return G_SOURCE_CONTINUE;
 #endif
-	if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(b_io_active))) return G_SOURCE_CONTINUE;
+	if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ioActiveToggle))) return G_SOURCE_CONTINUE;
 	int i,j=0;
 	int trisa=1,trisb=0,trisc=0x30,latac=0,latb=0;
 	int port=0,z;
-	//char str[128]="IO:";
 	char s2[64];
 	str[0]=0;
 	for(i=0;i<sizeof(ioButtons)/sizeof(ioButtons[0]);i++){
-		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ioButtons[i].r_0))){
-			//strcat(str,"0");
-		}
-		else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ioButtons[i].r_1))){
-			//strcat(str,"1");
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ioButtons[i].r_1))){
 			if(i<8) latb|=1<<i;
 			else if(i==8) latac|=0x80; //RC7
 			else if(i==9) latac|=0x40; //RC6
@@ -1792,7 +1575,6 @@ gboolean IOchanged(GtkWidget *widget,GtkWidget *window)
 			else if(i==12) latac|=0x08; //RA3
 		}
 		else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ioButtons[i].r_I))){
-			//strcat(str,"I");
 			if(i<8)	trisb|=1<<i;
 			else if(i==8) trisc|=0x80; //RC7
 			else if(i==9) trisc|=0x40; //RC6
@@ -1801,9 +1583,6 @@ gboolean IOchanged(GtkWidget *widget,GtkWidget *window)
 			else if(i==12) trisa|=0x8; //RA3
 		}
 	}
-	//sprintf(s2," trisb=%02X latb=%02X trisc=%02X trisa=%02X latac=%02X",trisb,latb,trisc,trisa,latac);
-	//strcat(str,s2);
-	//gtk_statusbar_push(GTK_STATUSBAR(status_bar),statusID,str);
 	bufferU[j++]=READ_RAM;
 	bufferU[j++]=0x0F;
 	bufferU[j++]=0x80;	//PORTA
@@ -1834,9 +1613,6 @@ gboolean IOchanged(GtkWidget *widget,GtkWidget *window)
 	PacketIO(2);
 	for(z=0;z<DIMBUF-3&&bufferI[z]!=READ_RAM;z++);
 	port=bufferI[z+3];	//PORTA
-	//sprintf(s2," porta=%02X",port);
-	//strcat(str,s2);
-	//gtk_statusbar_push(GTK_STATUSBAR(status_bar),statusID,str);
 	gtk_entry_set_text(GTK_ENTRY(ioButtons[10].e_I),(port&0x20)?"1":"0");
 	gtk_entry_set_text(GTK_ENTRY(ioButtons[11].e_I),(port&0x10)?"1":"0");
 	gtk_entry_set_text(GTK_ENTRY(ioButtons[12].e_I),(port&0x8)?"1":"0");
@@ -1857,7 +1633,7 @@ gboolean IOchanged(GtkWidget *widget,GtkWidget *window)
 /// Start/stop timer to check for IO status
 void IOactive(GtkWidget *widget,GtkWidget *window)
 {
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(b_io_active))&&!icdTimer){
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ioActiveToggle))&&!icdTimer){
 		IOTimer=g_timeout_add(100,(GSourceFunc)IOchanged,NULL);
 	}
 	else if(IOTimer){
@@ -1873,11 +1649,11 @@ void VPPVDDactive(GtkWidget *widget,GtkWidget *window)
 #endif
 	int j=0,vdd_vpp=0;
 	char str[16]="";
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(VPP_ON))){
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(vppOnToggle))){
 		vdd_vpp+=4;
 		strcat(str,"VPP ");
 	}
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(VDD_ON))){
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(vddOnToggle))){
 		vdd_vpp+=1;
 		strcat(str,"VDD ");
 	}
@@ -1895,10 +1671,10 @@ void DCDCactive(GtkWidget *widget,GtkWidget *window)
 #ifndef DEBUG
 	if(DeviceDetected!=1) return;
 #endif
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(DCDC_ON))){
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(dcdcOnToggle))){
 		int j=0,vreg=0;
 		char str[16];
-		double voltage=gtk_range_get_value(GTK_RANGE(DCDC_voltage));
+		double voltage=gtk_range_get_value(GTK_RANGE(dcdcVoltageRange));
 		vreg=voltage*10.0;
 		sprintf(str,"DCDC %.1fV",voltage);
 		gtk_statusbar_push(GTK_STATUSBAR(status_bar),statusID,str);
@@ -1923,17 +1699,17 @@ void HexConvert(GtkWidget *widget,GtkWidget *window)
 {
 	char hex[256],str[256],s2[32];
 	int i,address,length,sum=0;
-	strncpy(hex,(const char *)gtk_entry_get_text(GTK_ENTRY(Hex_entry)),sizeof(hex));
+	strncpy(hex,(const char *)gtk_entry_get_text(GTK_ENTRY(hexEntry)),sizeof(hex));
 	if(strlen(hex)>0){
 		if(hex[0]==':'&&strlen(hex)>8){
 			length=htoi(hex+1,2);
 			address=htoi(hex+3,4);
-			if(strlen(hex)<11+length*2) gtk_entry_set_text(GTK_ENTRY(Hex_data),"__line too short");
+			if(strlen(hex)<11+length*2) gtk_entry_set_text(GTK_ENTRY(hexDataEntry),"__line too short");
 			else{
 				for (i=1;i<=length*2+9;i+=2) sum += htoi(hex+i,2);
 				if ((sum & 0xff)!=0){
 					sprintf(str,"__checksum error, expected 0x%02X",(-sum+htoi(hex+9+length*2,2))&0xFF);
-					gtk_entry_set_text(GTK_ENTRY(Hex_data),str);
+					gtk_entry_set_text(GTK_ENTRY(hexDataEntry),str);
 				}
 				else{
 					switch(htoi(hex+7,2)){
@@ -1944,24 +1720,24 @@ void HexConvert(GtkWidget *widget,GtkWidget *window)
 								sprintf(s2,"%02X",htoi(hex+9+i*2,2));
 								strcat(str,s2);
 							}
-							gtk_entry_set_text(GTK_ENTRY(Hex_data),str);
+							gtk_entry_set_text(GTK_ENTRY(hexDataEntry),str);
 							break;
 						case 4:		//extended linear address record
 							if(strlen(hex)>14){
 								sprintf(str,"extended linear address = %04X",htoi(hex+9,4));
-								gtk_entry_set_text(GTK_ENTRY(Hex_data),str);
+								gtk_entry_set_text(GTK_ENTRY(hexDataEntry),str);
 							}
 							break;
 						default:
-							gtk_entry_set_text(GTK_ENTRY(Hex_data),"__unknown record type");
+							gtk_entry_set_text(GTK_ENTRY(hexDataEntry),"__unknown record type");
 							break;
 					}
 				}
 			}
 		}
-		else gtk_entry_set_text(GTK_ENTRY(Hex_data),"__invalid line");
+		else gtk_entry_set_text(GTK_ENTRY(hexDataEntry),"__invalid line");
 	}
-	else gtk_entry_set_text(GTK_ENTRY(Hex_entry),"");
+	else gtk_entry_set_text(GTK_ENTRY(hexEntry),"");
 }
 ///
 /// convert address & data to hex line
@@ -1969,16 +1745,15 @@ void DataToHexConvert(GtkWidget *widget,GtkWidget *window)
 {
 	char hex[256],str[256],s2[32];
 	int i,address,length,sum=0,x;
-	i=sscanf(gtk_entry_get_text(GTK_ENTRY(Address_entry)),"%x",&address);
+	i=sscanf(gtk_entry_get_text(GTK_ENTRY(addressEntry)),"%x",&address);
 	if(i!=1) address=0;
-	strncpy(hex,(const char *)gtk_entry_get_text(GTK_ENTRY(Data_entry)),sizeof(hex));
+	strncpy(hex,(const char *)gtk_entry_get_text(GTK_ENTRY(dataEntry)),sizeof(hex));
 	length=strlen(hex);
 	length&=0xFF;
 	if(length>0){
 		sprintf(str,":--%04X00",address&0xFFFF);
 		for(i=0;i+1<length;i+=2){
 			x=htoi(hex+i,2);
-			//x&=0xFF;
 			sum+=x;
 			sprintf(s2,"%02X",x);
 			strcat(str,s2);
@@ -1990,7 +1765,7 @@ void DataToHexConvert(GtkWidget *widget,GtkWidget *window)
 		sum+=i/2+(address&0xff)+((address>>8)&0xff);
 		sprintf(s2,"%02X",(-sum)&0xFF);
 		strcat(str,s2);
-		gtk_entry_set_text(GTK_ENTRY(Hex_data2),str);
+		gtk_entry_set_text(GTK_ENTRY(hexDataEntry2),str);
 	}
 }
 ///
@@ -1998,7 +1773,7 @@ void DataToHexConvert(GtkWidget *widget,GtkWidget *window)
 void HexSave(GtkWidget *widget,GtkWidget *window)
 {
 	GtkFileChooser *dialog;
-	if(strlen((const char *)gtk_entry_get_text(GTK_ENTRY(Hex_data2)))<11) return;
+	if(strlen((const char *)gtk_entry_get_text(GTK_ENTRY(hexDataEntry2)))<11) return;
 	dialog = (GtkFileChooser*) gtk_file_chooser_dialog_new ("Save File",
 				      GTK_WINDOW(window),
 				      GTK_FILE_CHOOSER_ACTION_SAVE,
@@ -2015,7 +1790,7 @@ void HexSave(GtkWidget *widget,GtkWidget *window)
 		cur_path = gtk_file_chooser_get_current_folder(dialog);
 		FILE* f=fopen(filename,"w");
 		if(f){
-			fprintf(f,(const char *)gtk_entry_get_text(GTK_ENTRY(Hex_data2)));
+			fprintf(f,(const char *)gtk_entry_get_text(GTK_ENTRY(hexDataEntry2)));
 			fclose(f);
 		}
 	    g_free (filename);
@@ -2130,7 +1905,6 @@ int main( int argc, char *argv[])
 		int n=GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SISO639LANGNAME,langid,9);
 		langid[n-1] = '-';
 		GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SISO3166CTRYNAME,langid+n, 9);
-		//printf("%d >%s<\n",n,langid);
 		#else
 		langid=getenv("LANG");
 		#endif
@@ -2192,55 +1966,55 @@ int main( int argc, char *argv[])
 //------toolbar-------------
 
 	GtkWidget* iconOpen = gtk_image_new_from_icon_name("document-open", GTK_ICON_SIZE_BUTTON);
-	GtkToolItem* btnOpen = gtk_tool_button_new(iconOpen, strings[I_Fopen]);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(btnOpen), strings[I_Fopen]);
-	g_signal_connect(G_OBJECT(btnOpen), "clicked", G_CALLBACK(Fopen),NULL);
+	openToolItem = gtk_tool_button_new(iconOpen, strings[I_Fopen]);
+	gtk_widget_set_tooltip_text(GTK_WIDGET(openToolItem), strings[I_Fopen]);
+	g_signal_connect(G_OBJECT(openToolItem), "clicked", G_CALLBACK(Fopen),NULL);
 
 	GtkWidget* iconSave = gtk_image_new_from_icon_name("document-save", GTK_ICON_SIZE_BUTTON);
-	GtkToolItem* btnSave = gtk_tool_button_new(iconSave, strings[I_Fsave]);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(btnSave), strings[I_Fsave]);
-	g_signal_connect(G_OBJECT(btnSave), "clicked", G_CALLBACK(Fsave),NULL);
+	saveToolItem = gtk_tool_button_new(iconSave, strings[I_Fsave]);
+	gtk_widget_set_tooltip_text(GTK_WIDGET(saveToolItem), strings[I_Fsave]);
+	g_signal_connect(G_OBJECT(saveToolItem), "clicked", G_CALLBACK(Fsave),NULL);
 
 	GtkWidget* iconRead = gtk_image_new_from_resource("/openprog/icons/read.png");
-	GtkToolItem* btnRead = gtk_tool_button_new(iconRead, strings[I_DevR]);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(btnRead), strings[I_DevR]);
-	g_signal_connect(G_OBJECT(btnRead), "clicked", G_CALLBACK(DevRead),NULL);
+	readToolItem = gtk_tool_button_new(iconRead, strings[I_DevR]);
+	gtk_widget_set_tooltip_text(GTK_WIDGET(readToolItem), strings[I_DevR]);
+	g_signal_connect(G_OBJECT(readToolItem), "clicked", G_CALLBACK(DevRead),NULL);
 
 	GtkWidget* iconWrite = gtk_image_new_from_resource("/openprog/icons/write.png");
-	GtkToolItem* btnWrite = gtk_tool_button_new(iconWrite, strings[I_DevW]);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(btnWrite), strings[I_DevW]);
-	g_signal_connect(G_OBJECT(btnWrite), "clicked", G_CALLBACK(DevWrite),NULL);
+	writeToolItem = gtk_tool_button_new(iconWrite, strings[I_DevW]);
+	gtk_widget_set_tooltip_text(GTK_WIDGET(writeToolItem), strings[I_DevW]);
+	g_signal_connect(G_OBJECT(writeToolItem), "clicked", G_CALLBACK(DevWrite),NULL);
 
 	GtkWidget* iconStop = gtk_image_new_from_icon_name("process-stop", GTK_ICON_SIZE_BUTTON);
-	btnStop = gtk_tool_button_new(iconStop, strings[I_ICD_STOP]);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(btnStop), strings[I_ICD_STOP]);
-	g_signal_connect(G_OBJECT(btnStop), "clicked", G_CALLBACK(Stop),NULL);
+	stopToolItem = gtk_tool_button_new(iconStop, strings[I_ICD_STOP]);
+	gtk_widget_set_tooltip_text(GTK_WIDGET(stopToolItem), strings[I_ICD_STOP]);
+	g_signal_connect(G_OBJECT(stopToolItem), "clicked", G_CALLBACK(Stop),NULL);
 
 	GtkWidget* iconConnect = gtk_image_new_from_icon_name("network-wired", GTK_ICON_SIZE_BUTTON);
-	GtkToolItem* btnConnect = gtk_tool_button_new(iconConnect, strings[I_CONN]);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(btnConnect), strings[I_CONN]);
-	g_signal_connect(G_OBJECT(btnConnect), "clicked", G_CALLBACK(Connect),NULL);
+	connectToolItem = gtk_tool_button_new(iconConnect, strings[I_CONN]);
+	gtk_widget_set_tooltip_text(GTK_WIDGET(connectToolItem), strings[I_CONN]);
+	g_signal_connect(G_OBJECT(connectToolItem), "clicked", G_CALLBACK(Connect),NULL);
 
 	GtkWidget* iconInfo = gtk_image_new_from_icon_name("dialog-information", GTK_ICON_SIZE_BUTTON);
-	GtkToolItem* btnInfo = gtk_tool_button_new(iconInfo, strings[I_Info]);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(btnInfo), strings[I_Info]);
-	g_signal_connect(G_OBJECT(btnInfo), "clicked", G_CALLBACK(info),NULL);
+	infoToolItem = gtk_tool_button_new(iconInfo, strings[I_Info]);
+	gtk_widget_set_tooltip_text(GTK_WIDGET(infoToolItem), strings[I_Info]);
+	g_signal_connect(G_OBJECT(infoToolItem), "clicked", G_CALLBACK(info),NULL);
 
 	toolbar = gtk_toolbar_new();
 	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_ICONS);
 	gtk_box_pack_start(GTK_BOX(vbox),toolbar,FALSE,FALSE,0);
 
-	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), btnOpen, -1);
-	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), btnSave, -1);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(openToolItem), -1);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(saveToolItem), -1);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), gtk_separator_tool_item_new(), -1);
-	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), btnRead, -1);
-	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), btnWrite, -1);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(readToolItem), -1);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(writeToolItem), -1);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), gtk_separator_tool_item_new(), -1);
-	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), btnStop, -1);
-	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), btnConnect, -1);
-	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), btnInfo, -1);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(stopToolItem), -1);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(connectToolItem), -1);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(infoToolItem), -1);
 
-	gtk_widget_set_sensitive(GTK_WIDGET(btnStop), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(stopToolItem), FALSE);
 
 //------tab widget-------------
 	notebook = gtk_notebook_new();
@@ -2257,12 +2031,11 @@ int main( int argc, char *argv[])
 	gtk_style_context_add_class(styleCtx, "mono");
 
 //------device tab-------------
-	label = gtk_label_new(strings[I_Dev]);	//"Device"
 	GtkWidget * devGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(devGrid), 5);
 	gtk_grid_set_row_spacing(GTK_GRID(devGrid), 5);
 
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),devGrid,label);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),devGrid,gtk_label_new(strings[I_Dev])); //"Device"
 	GtkWidget * devHbox1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
 
 	gtk_grid_attach(GTK_GRID(devGrid),devHbox1,0,0,2,1);
@@ -2277,70 +2050,69 @@ int main( int argc, char *argv[])
 
 	gtk_grid_attach(GTK_GRID(devGrid),devHbox2,0,1,2,1);
 	gtk_box_pack_start(GTK_BOX(devHbox2),gtk_label_new("info: "),FALSE,FALSE,0);
-	devinfo = gtk_label_new("i");
-	gtk_box_pack_start(GTK_BOX(devHbox2),devinfo,FALSE,FALSE,0);
-	EEPROM_RW = gtk_check_button_new_with_label(strings[I_EE]);	//"Read and write EEPROM"
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EEPROM_RW),TRUE);
+	devInfoLabel = gtk_label_new("i");
+	gtk_box_pack_start(GTK_BOX(devHbox2),devInfoLabel,FALSE,FALSE,0);
+	eepromRWToggle = gtk_check_button_new_with_label(strings[I_EE]);	//"Read and write EEPROM"
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(eepromRWToggle),TRUE);
 
-	gtk_grid_attach(GTK_GRID(devGrid),EEPROM_RW,0,2,1,1);
-	devFramePIC = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);//gtk_frame_new(NULL);	//"PIC configuration"
+	gtk_grid_attach(GTK_GRID(devGrid),eepromRWToggle,0,2,1,1);
+	picOptsBox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);//gtk_frame_new(NULL);	//"PIC configuration"
 
-	gtk_grid_attach(GTK_GRID(devGrid),devFramePIC,0,3,1,1);
+	gtk_grid_attach(GTK_GRID(devGrid),picOptsBox,0,3,1,1);
 
 	GtkWidget * table_PIC = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(table_PIC), 5);
 	gtk_grid_set_row_spacing(GTK_GRID(table_PIC), 5);
 
-	gtk_box_pack_start(GTK_BOX(devFramePIC),table_PIC,FALSE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(picOptsBox),table_PIC,FALSE,TRUE,0);
 	GtkWidget * devVboxPIC = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	gtk_grid_attach(GTK_GRID(table_PIC),devVboxPIC,0,0,1,1);
 
-	ReadReserved = gtk_check_button_new_with_label(strings[I_ReadRes]);	//"Read reserved area"
-	gtk_container_add(GTK_CONTAINER(devVboxPIC),GTK_WIDGET(ReadReserved));
-	Write_ID_BKCal = gtk_check_button_new_with_label(strings[I_ID_BKo_W]);	//"Write ID and BKOscCal"
-	gtk_container_add(GTK_CONTAINER(devVboxPIC),GTK_WIDGET(Write_ID_BKCal));
-	WriteCalib12 = gtk_check_button_new_with_label(strings[I_CalW]);	//"Write Calib 1 and 2"
-	gtk_container_add(GTK_CONTAINER(devVboxPIC),GTK_WIDGET(WriteCalib12));
-	devFrameOsc = gtk_frame_new(strings[I_OSCW]);	//"Write OscCal"
+	readReservedToggle = gtk_check_button_new_with_label(strings[I_ReadRes]);	//"Read reserved area"
+	gtk_container_add(GTK_CONTAINER(devVboxPIC),GTK_WIDGET(readReservedToggle));
+	writeIDBKCalToggle = gtk_check_button_new_with_label(strings[I_ID_BKo_W]);	//"Write ID and BKOscCal"
+	gtk_container_add(GTK_CONTAINER(devVboxPIC),GTK_WIDGET(writeIDBKCalToggle));
+	writeCalib12Toggle = gtk_check_button_new_with_label(strings[I_CalW]);	//"Write Calib 1 and 2"
+	gtk_container_add(GTK_CONTAINER(devVboxPIC),GTK_WIDGET(writeCalib12Toggle));
+	oscOptsBox = gtk_frame_new(strings[I_OSCW]);	//"Write OscCal"
 
-	gtk_grid_attach(GTK_GRID(table_PIC),devFrameOsc,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(table_PIC),oscOptsBox,0,1,1,1);
 	GtkWidget * devVboxOsc = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
-	gtk_container_add(GTK_CONTAINER(devFrameOsc),GTK_WIDGET(devVboxOsc));
-	UseOSCCAL = gtk_radio_button_new_with_label(NULL,strings[I_OSC]);	//"OSCCal"
-	UseBKOSCCAL = gtk_radio_button_new_with_label(\
-		gtk_radio_button_get_group(GTK_RADIO_BUTTON(UseOSCCAL)),strings[I_BKOSC]);	//"Backup OSCCal"
-	UseFileCal = gtk_radio_button_new_with_label(\
-		gtk_radio_button_get_group(GTK_RADIO_BUTTON(UseOSCCAL)),strings[I_OSCF]);	//"From file"
-	gtk_container_add(GTK_CONTAINER(devVboxOsc),GTK_WIDGET(UseOSCCAL));
-	gtk_container_add(GTK_CONTAINER(devVboxOsc),GTK_WIDGET(UseBKOSCCAL));
-	gtk_container_add(GTK_CONTAINER(devVboxOsc),GTK_WIDGET(UseFileCal));
-	devFrameICD = gtk_frame_new("ICD");
-	gtk_grid_attach(GTK_GRID(table_PIC),devFrameICD,0,2,2,1);
+	gtk_container_add(GTK_CONTAINER(oscOptsBox),GTK_WIDGET(devVboxOsc));
+	useOSCCALToggle = gtk_radio_button_new_with_label(NULL,strings[I_OSC]);	//"OSCCal"
+	useBKOSCCALToggle = gtk_radio_button_new_with_label(\
+		gtk_radio_button_get_group(GTK_RADIO_BUTTON(useOSCCALToggle)),strings[I_BKOSC]);	//"Backup OSCCal"
+	useFileCalToggle = gtk_radio_button_new_with_label(\
+		gtk_radio_button_get_group(GTK_RADIO_BUTTON(useOSCCALToggle)),strings[I_OSCF]);	//"From file"
+	gtk_container_add(GTK_CONTAINER(devVboxOsc),GTK_WIDGET(useOSCCALToggle));
+	gtk_container_add(GTK_CONTAINER(devVboxOsc),GTK_WIDGET(useBKOSCCALToggle));
+	gtk_container_add(GTK_CONTAINER(devVboxOsc),GTK_WIDGET(useFileCalToggle));
+	icdOptsBox = gtk_frame_new("ICD");
+	gtk_grid_attach(GTK_GRID(table_PIC),icdOptsBox,0,2,2,1);
 
 	GtkWidget * devVboxICD = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,25);
-	gtk_container_add(GTK_CONTAINER(devFrameICD),GTK_WIDGET(devVboxICD));
-	ICD_check = gtk_check_button_new_with_label(strings[I_ICD_ENABLE]);	//"Enable ICD"
-	gtk_container_add(GTK_CONTAINER(devVboxICD),ICD_check);
+	gtk_container_add(GTK_CONTAINER(icdOptsBox),GTK_WIDGET(devVboxICD));
+	icdCheckToggle = gtk_check_button_new_with_label(strings[I_ICD_ENABLE]);	//"Enable ICD"
+	gtk_container_add(GTK_CONTAINER(devVboxICD),icdCheckToggle);
 	GtkWidget * devHboxICD = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
-	label = gtk_label_new(strings[I_ICD_ADDRESS]);	//"ICD routine address"
-	gtk_box_pack_start(GTK_BOX(devHboxICD),GTK_WIDGET(label),0,0,1);
-	ICD_addr_entry = gtk_entry_new();
-	gtk_entry_set_width_chars(GTK_ENTRY(ICD_addr_entry),4);
-	gtk_box_pack_start(GTK_BOX(devHboxICD),GTK_WIDGET(ICD_addr_entry),0,0,2);
+	gtk_box_pack_start(GTK_BOX(devHboxICD),GTK_WIDGET(gtk_label_new(strings[I_ICD_ADDRESS])),0,0,1); //"ICD routine address"
+	icdAddrEntry = gtk_entry_new();
+	gtk_entry_set_width_chars(GTK_ENTRY(icdAddrEntry),4);
+	gtk_box_pack_start(GTK_BOX(devHboxICD),GTK_WIDGET(icdAddrEntry),0,0,2);
 	gtk_container_add(GTK_CONTAINER(devVboxICD),GTK_WIDGET(devHboxICD));
-	devFrameConfigW = gtk_frame_new("Config Word");
+	configWOptsBox = gtk_frame_new("Config Word");
 
-	gtk_grid_attach(GTK_GRID(table_PIC),devFrameConfigW,1,0,1,2);
+	gtk_grid_attach(GTK_GRID(table_PIC),configWOptsBox,1,0,1,2);
 	GtkWidget * cwGrid = gtk_grid_new();
-	gtk_container_add(GTK_CONTAINER(devFrameConfigW),GTK_WIDGET(cwGrid));
-	ConfigForce = gtk_check_button_new_with_label(strings[I_PIC_FORCECW]); //"force config word"
-	gtk_grid_attach(GTK_GRID(cwGrid),ConfigForce,0,0,2,1);
-#define CWX(y) 	devPIC_CW##y = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);\
-				label = gtk_label_new("CW"#y);\
-				gtk_box_pack_start(GTK_BOX(devPIC_CW##y),GTK_WIDGET(label),0,0,1);\
-				CW##y##_entry = gtk_entry_new();\
-				gtk_entry_set_width_chars(GTK_ENTRY(CW##y##_entry),4);\
-				gtk_box_pack_start(GTK_BOX(devPIC_CW##y),GTK_WIDGET(CW##y##_entry),0,0,1);
+	gtk_container_add(GTK_CONTAINER(configWOptsBox),GTK_WIDGET(cwGrid));
+	configForceToggle = gtk_check_button_new_with_label(strings[I_PIC_FORCECW]); //"force config word"
+	gtk_grid_attach(GTK_GRID(cwGrid),configForceToggle,0,0,2,1);
+#define CWX(y) 	CW##y##Box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);\
+				gtk_box_pack_start(GTK_BOX(CW##y##Box),GTK_WIDGET(gtk_label_new("CW"#y)),0,0,1);\
+				CW##y##Entry = gtk_entry_new();\
+				gtk_entry_set_width_chars(GTK_ENTRY(CW##y##Entry),4);\
+				gtk_box_pack_start(GTK_BOX(CW##y##Box),GTK_WIDGET(CW##y##Entry),0,0,1);\
+				gtk_grid_attach(GTK_GRID(cwGrid),CW##y##Box,(y+1)%2,(y+1)/2,1,1);
 	CWX(1);
 	CWX(2);
 	CWX(3);
@@ -2348,77 +2120,70 @@ int main( int argc, char *argv[])
 	CWX(5);
 	CWX(6);
 	CWX(7);
-	gtk_grid_attach(GTK_GRID(cwGrid),devPIC_CW1,0,1,1,1);
-	gtk_grid_attach(GTK_GRID(cwGrid),devPIC_CW2,1,1,1,1);
-	gtk_grid_attach(GTK_GRID(cwGrid),devPIC_CW3,0,2,1,1);
-	gtk_grid_attach(GTK_GRID(cwGrid),devPIC_CW4,1,2,1,1);
-	gtk_grid_attach(GTK_GRID(cwGrid),devPIC_CW5,0,3,1,1);
-	gtk_grid_attach(GTK_GRID(cwGrid),devPIC_CW6,1,3,1,1);
-	gtk_grid_attach(GTK_GRID(cwGrid),devPIC_CW7,0,4,1,1);
-	devFrameAVR = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);	//Atmel configuration
+	avrOptsBox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);	//Atmel configuration
 
-	gtk_grid_attach(GTK_GRID(devGrid),devFrameAVR,0,3,1,1);
+	gtk_grid_attach(GTK_GRID(devGrid),avrOptsBox,0,3,1,1);
 	GtkWidget * avrGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(avrGrid), 5);
 	gtk_grid_set_row_spacing(GTK_GRID(avrGrid), 2);
 
-	gtk_box_pack_start(GTK_BOX(devFrameAVR),avrGrid,FALSE,TRUE,0);
-	AVR_FuseLow = gtk_entry_new();
-	gtk_entry_set_width_chars(GTK_ENTRY(AVR_FuseLow),4);
-	gtk_grid_attach(GTK_GRID(avrGrid),AVR_FuseLow,0,1,1,1);
-	AVR_FuseLowWrite = gtk_check_button_new_with_label(strings[I_AT_FUSE]);	//"Write Fuse Low"
-	gtk_grid_attach(GTK_GRID(avrGrid),AVR_FuseLowWrite,1,1,1,1);
-	AVR_FuseHigh = gtk_entry_new();
-	gtk_entry_set_width_chars(GTK_ENTRY(AVR_FuseHigh),4);
-	gtk_grid_attach(GTK_GRID(avrGrid),AVR_FuseHigh,0,2,1,1);
-	AVR_FuseHighWrite = gtk_check_button_new_with_label(strings[I_AT_FUSEH]);	//"Write Fuse High"
-	gtk_grid_attach(GTK_GRID(avrGrid),AVR_FuseHighWrite,1,2,1,1);
-	AVR_FuseExt = gtk_entry_new();
-	gtk_entry_set_width_chars(GTK_ENTRY(AVR_FuseExt),4);
-	gtk_grid_attach(GTK_GRID(avrGrid),AVR_FuseExt,0,3,1,1);
-	AVR_FuseExtWrite = gtk_check_button_new_with_label(strings[I_AT_FUSEX]);	//"Write Extended Fuse"
-	gtk_grid_attach(GTK_GRID(avrGrid),AVR_FuseExtWrite,1,3,1,1);
-	AVR_Lock = gtk_entry_new();
-	gtk_entry_set_width_chars(GTK_ENTRY(AVR_Lock),4);
-	gtk_grid_attach(GTK_GRID(avrGrid),AVR_Lock,0,4,1,1);
-	AVR_LockWrite = gtk_check_button_new_with_label(strings[I_AT_LOCK]);	//"Write Lock"
-	gtk_grid_attach(GTK_GRID(avrGrid),AVR_LockWrite,1,4,1,1);
-	b_WfuseLF = gtk_button_new_with_label(strings[I_AT_FUSELF]);		//"Write Fuse Low @3kHz"
-	gtk_grid_attach(GTK_GRID(avrGrid),b_WfuseLF,0,5,1,1);
+	gtk_box_pack_start(GTK_BOX(avrOptsBox),avrGrid,FALSE,TRUE,0);
+	avrFuseLowEntry = gtk_entry_new();
+	gtk_entry_set_width_chars(GTK_ENTRY(avrFuseLowEntry),4);
+	gtk_grid_attach(GTK_GRID(avrGrid),avrFuseLowEntry,0,1,1,1);
+	avrFuseLowWriteToggle = gtk_check_button_new_with_label(strings[I_AT_FUSE]);	//"Write Fuse Low"
+	gtk_grid_attach(GTK_GRID(avrGrid),avrFuseLowWriteToggle,1,1,1,1);
+	avrFuseHighEntry = gtk_entry_new();
+	gtk_entry_set_width_chars(GTK_ENTRY(avrFuseHighEntry),4);
+	gtk_grid_attach(GTK_GRID(avrGrid),avrFuseHighEntry,0,2,1,1);
+	avrFuseHighWriteToggle = gtk_check_button_new_with_label(strings[I_AT_FUSEH]);	//"Write Fuse High"
+	gtk_grid_attach(GTK_GRID(avrGrid),avrFuseHighWriteToggle,1,2,1,1);
+	avrFuseExtEntry = gtk_entry_new();
+	gtk_entry_set_width_chars(GTK_ENTRY(avrFuseExtEntry),4);
+	gtk_grid_attach(GTK_GRID(avrGrid),avrFuseExtEntry,0,3,1,1);
+	avrFuseExtWriteToggle = gtk_check_button_new_with_label(strings[I_AT_FUSEX]);	//"Write Extended Fuse"
+	gtk_grid_attach(GTK_GRID(avrGrid),avrFuseExtWriteToggle,1,3,1,1);
+	avrLockEntry = gtk_entry_new();
+	gtk_entry_set_width_chars(GTK_ENTRY(avrLockEntry),4);
+	gtk_grid_attach(GTK_GRID(avrGrid),avrLockEntry,0,4,1,1);
+	avrLockWriteToggle = gtk_check_button_new_with_label(strings[I_AT_LOCK]);	//"Write Lock"
+	gtk_grid_attach(GTK_GRID(avrGrid),avrLockWriteToggle,1,4,1,1);
+	wFuseLFBtn = gtk_button_new_with_label(strings[I_AT_FUSELF]);		//"Write Fuse Low @3kHz"
+	gtk_grid_attach(GTK_GRID(avrGrid),wFuseLFBtn,0,5,1,1);
 //------options tab-------------
 	GtkWidget * optGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(optGrid), 5);
 	gtk_grid_set_row_spacing(GTK_GRID(optGrid), 5);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),optGrid,gtk_label_new(strings[I_Opt])); //"Options"
-	b_connect = gtk_button_new_with_label(strings[I_CONN]);	//"Reconnect"
-	gtk_grid_attach(GTK_GRID(optGrid),b_connect,0,0,1,1);
+	connectBtn = gtk_button_new_with_label(strings[I_CONN]);	//"Reconnect"
+	gtk_grid_attach(GTK_GRID(optGrid),connectBtn,0,0,1,1);
 	GtkWidget * optHboxVid = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	gtk_grid_attach(GTK_GRID(optGrid),optHboxVid,0,1,1,1);
 	gtk_box_pack_start(GTK_BOX(optHboxVid),gtk_label_new("VID:"),FALSE,TRUE,0);
-	VID_entry = gtk_entry_new();
-	gtk_entry_set_width_chars(GTK_ENTRY(VID_entry),4);
-	gtk_box_pack_start(GTK_BOX(optHboxVid),VID_entry,FALSE,TRUE,0);
+	vidEntry = gtk_entry_new();
+	gtk_entry_set_width_chars(GTK_ENTRY(vidEntry),4);
+	gtk_box_pack_start(GTK_BOX(optHboxVid),vidEntry,FALSE,TRUE,0);
 	GtkWidget * optHboxPid = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	gtk_grid_attach(GTK_GRID(optGrid),optHboxPid,1,1,1,1);
 	gtk_box_pack_start(GTK_BOX(optHboxPid),gtk_label_new("PID:"),FALSE,TRUE,0);
-	PID_entry = gtk_entry_new();
-	gtk_entry_set_width_chars(GTK_ENTRY(PID_entry),4);
-	gtk_box_pack_start(GTK_BOX(optHboxPid),PID_entry,FALSE,TRUE,0);
+	pidEntry = gtk_entry_new();
+	gtk_entry_set_width_chars(GTK_ENTRY(pidEntry),4);
+	gtk_box_pack_start(GTK_BOX(optHboxPid),pidEntry,FALSE,TRUE,0);
 
-	b_testhw = gtk_button_new_with_label(strings[I_TestHWB]);	//"Hardware test"
-	gtk_grid_attach(GTK_GRID(optGrid),b_testhw,0,2,1,1);
-	b_log = gtk_check_button_new_with_label(strings[I_LOG]);	//"Log activity"
-	gtk_grid_attach(GTK_GRID(optGrid),b_log,0,6,2,1);
-	b_V33check = gtk_check_button_new_with_label(strings[I_CK_V33]);	//"Don't check for 3.3V regulator"
-	gtk_grid_attach(GTK_GRID(optGrid),b_V33check,0,7,2,1);
-	b_WaitS1 = gtk_check_button_new_with_label(strings[I_WAITS1]);	//"Wait for S1 before read/write"
-	gtk_grid_attach(GTK_GRID(optGrid),b_WaitS1,0,8,2,1);
+	testHWBtn = gtk_button_new_with_label(strings[I_TestHWB]);	//"Hardware test"
+	gtk_grid_attach(GTK_GRID(optGrid),testHWBtn,0,2,1,1);
+	logBtn = gtk_check_button_new_with_label(strings[I_LOG]);	//"Log activity"
+	gtk_grid_attach(GTK_GRID(optGrid),logBtn,0,6,2,1);
+	V33CheckToggle = gtk_check_button_new_with_label(strings[I_CK_V33]);	//"Don't check for 3.3V regulator"
+	gtk_grid_attach(GTK_GRID(optGrid),V33CheckToggle,0,7,2,1);
+	waitS1Toggle = gtk_check_button_new_with_label(strings[I_WAITS1]);	//"Wait for S1 before read/write"
+	gtk_grid_attach(GTK_GRID(optGrid),waitS1Toggle,0,8,2,1);
 	GtkWidget * optHboxErr = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	gtk_grid_attach(GTK_GRID(optGrid),optHboxErr,0,9,2,1);
 	gtk_container_add(GTK_CONTAINER(optHboxErr),gtk_label_new(strings[I_MAXERR])); //"Max errors"
-	Errors_entry = gtk_entry_new();
-	gtk_entry_set_width_chars(GTK_ENTRY(Errors_entry),6);
-	gtk_container_add(GTK_CONTAINER(optHboxErr),GTK_WIDGET(Errors_entry));
+	errorsEntry = gtk_entry_new();
+	gtk_entry_set_width_chars(GTK_ENTRY(errorsEntry),6);
+	gtk_container_add(GTK_CONTAINER(optHboxErr),GTK_WIDGET(errorsEntry));
 //------I2C tab-------------
 	GtkWidget * i2cGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(i2cGrid),5);
@@ -2447,65 +2212,60 @@ int main( int argc, char *argv[])
 	gtk_container_add(GTK_CONTAINER(i2cVboxMode),GTK_WIDGET(SPI11));
 	GtkWidget * i2cVboxTX = gtk_box_new(GTK_ORIENTATION_VERTICAL,2);
 	gtk_grid_attach(GTK_GRID(i2cGrid),i2cVboxTX,1,3,2,1);
-	label = gtk_label_new(strings[I_I2CDATAOUT]);	//"Data to send"
-	gtk_container_add(GTK_CONTAINER(i2cVboxTX),label);
-	I2CDataSend = gtk_entry_new();
-	gtk_container_add(GTK_CONTAINER(i2cVboxTX),GTK_WIDGET(I2CDataSend));
+	gtk_container_add(GTK_CONTAINER(i2cVboxTX),gtk_label_new(strings[I_I2CDATAOUT])); //"Data to send"
+	i2cDataSendEntry = gtk_entry_new();
+	gtk_container_add(GTK_CONTAINER(i2cVboxTX),GTK_WIDGET(i2cDataSendEntry));
 	GtkWidget * i2cVboxRX = gtk_box_new(GTK_ORIENTATION_VERTICAL,2);
 	gtk_grid_attach(GTK_GRID(i2cGrid),i2cVboxRX,1,4,2,1);
-	label = gtk_label_new(strings[I_I2CDATATR]);	//"Data transferred"
-	gtk_container_add(GTK_CONTAINER(i2cVboxRX),label);
-	I2CDataReceive = gtk_text_view_new();
-	gtk_text_view_set_editable(GTK_TEXT_VIEW(I2CDataReceive),FALSE);
-	gtk_container_add(GTK_CONTAINER(i2cVboxRX),GTK_WIDGET(I2CDataReceive));
-	gtk_widget_set_size_request(I2CDataReceive,100,60);
+	gtk_container_add(GTK_CONTAINER(i2cVboxRX),gtk_label_new(strings[I_I2CDATATR])); //"Data transferred"
+	i2cDataRcvEntry = gtk_text_view_new();
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(i2cDataRcvEntry),FALSE);
+	gtk_container_add(GTK_CONTAINER(i2cVboxRX),GTK_WIDGET(i2cDataRcvEntry));
+	gtk_widget_set_size_request(i2cDataRcvEntry,100,60);
 	GtkWidget * i2cHboxNB = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	gtk_grid_attach(GTK_GRID(i2cGrid),i2cHboxNB,1,0,2,1);
-	label = gtk_label_new(strings[I_I2C_NB]);	//"Byes to read/write"
-	gtk_container_add(GTK_CONTAINER(i2cHboxNB),label);
-	I2CNbyte = 	gtk_spin_button_new_with_range(0,64,1);
-	gtk_container_add(GTK_CONTAINER(i2cHboxNB),GTK_WIDGET(I2CNbyte));
+	gtk_container_add(GTK_CONTAINER(i2cHboxNB),gtk_label_new(strings[I_I2C_NB])); //"Byes to read/write"
+	i2cNbyteSpinBtn = 	gtk_spin_button_new_with_range(0,64,1);
+	gtk_container_add(GTK_CONTAINER(i2cHboxNB),GTK_WIDGET(i2cNbyteSpinBtn));
 	GtkWidget * i2cHboxSpeed = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	gtk_grid_attach(GTK_GRID(i2cGrid),i2cHboxSpeed,1,1,2,1);
-	label = gtk_label_new(strings[I_Speed]);	//"Speed"
-	gtk_container_add(GTK_CONTAINER(i2cHboxSpeed),label);
-	I2CSpeed = gtk_combo_box_text_new();
-	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(I2CSpeed),"100 kbps");
-	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(I2CSpeed),"200 kbps");
-	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(I2CSpeed),"300/400 kbps");
-	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(I2CSpeed),"500/800 kbps");
-	gtk_combo_box_set_active(GTK_COMBO_BOX(I2CSpeed),0);
-	gtk_container_add(GTK_CONTAINER(i2cHboxSpeed),GTK_WIDGET(I2CSpeed));
-	I2CSendBtn = gtk_button_new_with_label(strings[I_I2CSend]);	//"Send"
-	gtk_grid_attach(GTK_GRID(i2cGrid),I2CSendBtn,1,2,1,1);
-	I2CReceiveBtn = gtk_button_new_with_label(strings[I_I2CReceive]);	//"Receive"
-	gtk_grid_attach(GTK_GRID(i2cGrid),I2CReceiveBtn,2,2,1,1);
+	gtk_container_add(GTK_CONTAINER(i2cHboxSpeed),gtk_label_new(strings[I_Speed])); //"Speed"
+	i2cSpeedCombo = gtk_combo_box_text_new();
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(i2cSpeedCombo),"100 kbps");
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(i2cSpeedCombo),"200 kbps");
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(i2cSpeedCombo),"300/400 kbps");
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(i2cSpeedCombo),"500/800 kbps");
+	gtk_combo_box_set_active(GTK_COMBO_BOX(i2cSpeedCombo),0);
+	gtk_container_add(GTK_CONTAINER(i2cHboxSpeed),GTK_WIDGET(i2cSpeedCombo));
+	i2cSendBtn = gtk_button_new_with_label(strings[I_I2CSend]);	//"Send"
+	gtk_grid_attach(GTK_GRID(i2cGrid),i2cSendBtn,1,2,1,1);
+	i2cRcvBtn = gtk_button_new_with_label(strings[I_I2CReceive]);	//"Receive"
+	gtk_grid_attach(GTK_GRID(i2cGrid),i2cRcvBtn,2,2,1,1);
 //------ICD tab-------------
-	label = gtk_label_new("ICD");
-	icdVbox1 = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),icdVbox1,label);
+	icdVBox = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),icdVBox,gtk_label_new("ICD"));
 	//menu
 	GtkWidget * icdMenuBar = gtk_menu_bar_new ();
 	GtkWidget * icdRootMenu = gtk_menu_item_new_with_label(strings[I_Opt]); //"Options";
     gtk_menu_shell_append (GTK_MENU_SHELL (icdMenuBar), icdRootMenu);
 	GtkWidget * icdMenu = gtk_menu_new();
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (icdRootMenu), icdMenu);
-	icdMenuPC = gtk_check_menu_item_new_with_label(strings[I_SHOW_PC]); //"show Program Counter"
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(icdMenuPC),TRUE);
-	icdMenuSTAT = gtk_check_menu_item_new_with_label(strings[I_SHOW_STATUS]); //"show status registers"
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(icdMenuSTAT),TRUE);
-	icdMenuBank0 = gtk_check_menu_item_new_with_label(strings[I_SHOW_BANK0]); //"show memory bank 0"
-	icdMenuBank1 = gtk_check_menu_item_new_with_label(strings[I_SHOW_BANK1]); //"show memory bank 1"
-	icdMenuBank2 = gtk_check_menu_item_new_with_label(strings[I_SHOW_BANK2]); //"show memory bank 2"
-	icdMenuBank3 = gtk_check_menu_item_new_with_label(strings[I_SHOW_BANK3]); //"show memory bank 3"
-	icdMenuEE = gtk_check_menu_item_new_with_label(strings[I_SHOW_EE]); //"show EEPROM"
-	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdMenuPC);
-	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdMenuSTAT);
-	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdMenuBank0);
-	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdMenuBank1);
-	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdMenuBank2);
-	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdMenuBank3);
-	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdMenuEE);
+	icdPC_CheckMenuItem = gtk_check_menu_item_new_with_label(strings[I_SHOW_PC]); //"show Program Counter"
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(icdPC_CheckMenuItem),TRUE);
+	icdSTAT_CheckMenuItem = gtk_check_menu_item_new_with_label(strings[I_SHOW_STATUS]); //"show status registers"
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(icdSTAT_CheckMenuItem),TRUE);
+	icdBank0_CheckMenuItem = gtk_check_menu_item_new_with_label(strings[I_SHOW_BANK0]); //"show memory bank 0"
+	icdBank1_CheckMenuItem = gtk_check_menu_item_new_with_label(strings[I_SHOW_BANK1]); //"show memory bank 1"
+	icdBank2_CheckMenuItem = gtk_check_menu_item_new_with_label(strings[I_SHOW_BANK2]); //"show memory bank 2"
+	icdBank3_CheckMenuItem = gtk_check_menu_item_new_with_label(strings[I_SHOW_BANK3]); //"show memory bank 3"
+	icdEE_CheckMenuItem = gtk_check_menu_item_new_with_label(strings[I_SHOW_EE]); //"show EEPROM"
+	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdPC_CheckMenuItem);
+	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdSTAT_CheckMenuItem);
+	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdBank0_CheckMenuItem);
+	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdBank1_CheckMenuItem);
+	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdBank2_CheckMenuItem);
+	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdBank3_CheckMenuItem);
+	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdEE_CheckMenuItem);
 	//toolbar
 	GtkWidget* iconGO = gtk_image_new_from_resource("/openprog/icons/go.png");
 	GtkToolItem* btnICDGo = gtk_tool_button_new(iconGO, strings[I_ICD_RUN]);
@@ -2541,9 +2301,9 @@ int main( int argc, char *argv[])
 	g_signal_connect(G_OBJECT(btnICDLoadCOFF), "clicked", G_CALLBACK(loadCoff),window);
 
 	GtkToolItem* itemICDCommand = gtk_tool_item_new();
-	icdCommand = gtk_entry_new();
-	gtk_widget_set_tooltip_text(icdCommand, strings[I_ICD_CMD]);
-	gtk_container_add(GTK_CONTAINER(itemICDCommand), icdCommand);
+	icdCommandEntry = gtk_entry_new();
+	gtk_widget_set_tooltip_text(icdCommandEntry, strings[I_ICD_CMD]);
+	gtk_container_add(GTK_CONTAINER(itemICDCommand), icdCommandEntry);
 
 	GtkWidget* iconHELP = gtk_image_new_from_icon_name("system-help", GTK_ICON_SIZE_BUTTON);
 	GtkToolItem* btnICDHelp = gtk_tool_button_new(iconHELP, strings[I_ICD_HELP]);
@@ -2552,7 +2312,7 @@ int main( int argc, char *argv[])
 
 	GtkWidget * icdtoolbar = gtk_toolbar_new();
 	gtk_toolbar_set_style(GTK_TOOLBAR(icdtoolbar),GTK_TOOLBAR_ICONS);
-	gtk_box_pack_start(GTK_BOX(icdVbox1),icdtoolbar,FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(icdVBox),icdtoolbar,FALSE,FALSE,0);
 	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnICDGo,-1);
 	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnICDHalt,-1);
 	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnICDStep,-1);
@@ -2569,22 +2329,21 @@ int main( int argc, char *argv[])
 	gtk_toolbar_insert(GTK_TOOLBAR(icdtoolbar),btnICDHelp,-1);
 
 	GtkWidget *hpaned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
-	gtk_box_pack_start(GTK_BOX(icdVbox1),hpaned,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(icdVBox),hpaned,TRUE,TRUE,0);
 	gint width,height;
 	gtk_window_get_size(GTK_WINDOW(window),&width,&height);
 	gtk_paned_set_position(GTK_PANED (hpaned),width/2);
 	//source
 	GtkWidget * icdVbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
-	gtk_paned_pack1 (GTK_PANED (hpaned), icdVbox2, TRUE, FALSE);
-	label = gtk_label_new(strings[I_ICD_SOURCE]);	//"Source"
-	gtk_box_pack_start(GTK_BOX(icdVbox2),label,FALSE,FALSE,0);
+	gtk_paned_pack1(GTK_PANED (hpaned), icdVbox2, TRUE, FALSE);
+	gtk_box_pack_start(GTK_BOX(icdVbox2),gtk_label_new(strings[I_ICD_SOURCE]),FALSE,FALSE,0); //"Source"
 	GtkWidget * sourceScroll = gtk_scrolled_window_new(NULL,NULL);
-	sourceTxt = gtk_text_view_new();
-	sourceBuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(sourceTxt));
-	gtk_text_view_set_editable(GTK_TEXT_VIEW(sourceTxt),FALSE);
-	gtk_container_add(GTK_CONTAINER(sourceScroll),sourceTxt);
+	sourceTextView = gtk_text_view_new();
+	sourceBuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(sourceTextView));
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(sourceTextView),FALSE);
+	gtk_container_add(GTK_CONTAINER(sourceScroll),sourceTextView);
 
-	styleCtx = gtk_widget_get_style_context(GTK_WIDGET(sourceTxt));
+	styleCtx = gtk_widget_get_style_context(GTK_WIDGET(sourceTextView));
 	gtk_style_context_add_class(styleCtx, "mono");
 
 	gtk_box_pack_start(GTK_BOX(icdVbox2),sourceScroll,TRUE,TRUE,0);
@@ -2594,31 +2353,29 @@ int main( int argc, char *argv[])
 	GtkWidget * icdHbox2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,20);
 	gtk_box_set_homogeneous(GTK_BOX(icdHbox2), TRUE);
 	gtk_box_pack_start(GTK_BOX(icdVbox3),icdHbox2,FALSE,FALSE,0);
-	label = gtk_label_new(strings[I_ICD_STATUS]);	//"Status"
-	gtk_box_pack_start(GTK_BOX(icdHbox2),label,FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(icdHbox2),gtk_label_new(strings[I_ICD_STATUS]),FALSE,FALSE,0); //"Status"
 	gtk_box_pack_start(GTK_BOX(icdHbox2),icdMenuBar,FALSE,FALSE,0);
 	GtkWidget * statusScroll = gtk_scrolled_window_new(NULL,NULL);
-	statusTxt = gtk_text_view_new();
-	statusBuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(statusTxt));
-	gtk_text_view_set_editable(GTK_TEXT_VIEW(statusTxt),FALSE);
-	gtk_container_add(GTK_CONTAINER(statusScroll),statusTxt);
+	statusTextView = gtk_text_view_new();
+	statusBuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(statusTextView));
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(statusTextView),FALSE);
+	gtk_container_add(GTK_CONTAINER(statusScroll),statusTextView);
 
-	styleCtx = gtk_widget_get_style_context(GTK_WIDGET(statusTxt));
+	styleCtx = gtk_widget_get_style_context(GTK_WIDGET(statusTextView));
 	gtk_style_context_add_class(styleCtx, "mono");
 
 	gtk_box_pack_start(GTK_BOX(icdVbox3),statusScroll,TRUE,TRUE,0);
 //------IO tab-------------
-	label = gtk_label_new("I/O");
 	GtkWidget * ioVbox1 = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),ioVbox1,label);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),ioVbox1,gtk_label_new("I/O"));
 	GtkWidget * ioFrameIO = gtk_frame_new("I/O");
 	gtk_box_pack_start(GTK_BOX(ioVbox1),ioFrameIO,FALSE,FALSE,0);
 	GtkWidget * ioGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(ioGrid),20);
 
 	gtk_container_add(GTK_CONTAINER(ioFrameIO),GTK_WIDGET(ioGrid));
-	b_io_active = gtk_check_button_new_with_label(strings[I_IO_Enable]);	//"Enable IO"
-	gtk_grid_attach(GTK_GRID(ioGrid),b_io_active,0,0,1,1);
+	ioActiveToggle = gtk_check_button_new_with_label(strings[I_IO_Enable]);	//"Enable IO"
+	gtk_grid_attach(GTK_GRID(ioGrid),ioActiveToggle,0,0,1,1);
 	int ii;
 	for(ii=0;ii<=7;ii++){
 		char ss[16];
@@ -2645,8 +2402,7 @@ int main( int argc, char *argv[])
 	for(ii=0;ii<sizeof(ioButtons)/sizeof(ioButtons[0]);ii++){
 		GtkWidget * ioBoxRBx = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 		gtk_grid_attach(GTK_GRID(ioGrid),ioBoxRBx,ioButtons[ii].x,ioButtons[ii].y,1,1);
-		label = gtk_label_new(ioButtons[ii].name);
-		gtk_box_pack_start(GTK_BOX(ioBoxRBx),label,FALSE,TRUE,0);
+		gtk_box_pack_start(GTK_BOX(ioBoxRBx),gtk_label_new(ioButtons[ii].name),FALSE,TRUE,0);
 		ioButtons[ii].r_0 = gtk_radio_button_new_with_label(NULL,"0");
 		ioButtons[ii].r_1 = gtk_radio_button_new_with_label(gtk_radio_button_get_group(GTK_RADIO_BUTTON(ioButtons[ii].r_0)),"1");
 		ioButtons[ii].r_I = gtk_radio_button_new_with_label(gtk_radio_button_get_group(GTK_RADIO_BUTTON(ioButtons[ii].r_0)),"INPUT:");
@@ -2665,14 +2421,14 @@ int main( int argc, char *argv[])
 	}
 	GtkWidget * ioBoxDCDC = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	gtk_box_pack_start(GTK_BOX(ioVbox1),ioBoxDCDC,FALSE,FALSE,0);
-	VDD_ON = gtk_check_button_new_with_label("VDDU");	//""
-	gtk_box_pack_start(GTK_BOX(ioBoxDCDC),VDD_ON,FALSE,TRUE,2);
-	VPP_ON = gtk_check_button_new_with_label("VPPU");	//""
-	gtk_box_pack_start(GTK_BOX(ioBoxDCDC),VPP_ON,FALSE,TRUE,2);
-	DCDC_ON = gtk_check_button_new_with_label("DCDC");	//""
-	gtk_box_pack_start(GTK_BOX(ioBoxDCDC),DCDC_ON,FALSE,TRUE,2);
-	DCDC_voltage=gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,5,15,0.1);
-	gtk_box_pack_start(GTK_BOX(ioBoxDCDC),DCDC_voltage,TRUE,TRUE,2);
+	vddOnToggle = gtk_check_button_new_with_label("VDDU");	//""
+	gtk_box_pack_start(GTK_BOX(ioBoxDCDC),vddOnToggle,FALSE,TRUE,2);
+	vppOnToggle = gtk_check_button_new_with_label("VPPU");	//""
+	gtk_box_pack_start(GTK_BOX(ioBoxDCDC),vppOnToggle,FALSE,TRUE,2);
+	dcdcOnToggle = gtk_check_button_new_with_label("DCDC");	//""
+	gtk_box_pack_start(GTK_BOX(ioBoxDCDC),dcdcOnToggle,FALSE,TRUE,2);
+	dcdcVoltageRange=gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,5,15,0.1);
+	gtk_box_pack_start(GTK_BOX(ioBoxDCDC),dcdcVoltageRange,TRUE,TRUE,2);
 //------Utility tab-------------
 	GtkWidget * utVbox1 = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),utVbox1,gtk_label_new("Utility"));
@@ -2683,11 +2439,11 @@ int main( int argc, char *argv[])
 	GtkWidget * utHboxHex = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	gtk_container_add(GTK_CONTAINER(utVboxHex),utHboxHex);
 	gtk_box_pack_start(GTK_BOX(utHboxHex),gtk_label_new("Hex"),FALSE,TRUE,5);
-	Hex_entry = gtk_entry_new();
-	gtk_box_pack_start(GTK_BOX(utHboxHex),Hex_entry,TRUE,TRUE,5);
-	Hex_data = gtk_entry_new();
-	gtk_editable_set_editable(GTK_EDITABLE(Hex_data),0);
-	gtk_box_pack_start(GTK_BOX(utVboxHex),Hex_data,TRUE,TRUE,5);
+	hexEntry = gtk_entry_new();
+	gtk_box_pack_start(GTK_BOX(utHboxHex),hexEntry,TRUE,TRUE,5);
+	hexDataEntry = gtk_entry_new();
+	gtk_editable_set_editable(GTK_EDITABLE(hexDataEntry),0);
+	gtk_box_pack_start(GTK_BOX(utVboxHex),hexDataEntry,TRUE,TRUE,5);
 	GtkWidget * utFrameD2H = gtk_frame_new("DATA -> HEX");
 	gtk_box_pack_start(GTK_BOX(utVbox1),utFrameD2H,FALSE,FALSE,5);
 	GtkWidget * utGrid = gtk_grid_new();
@@ -2695,50 +2451,50 @@ int main( int argc, char *argv[])
 	gtk_grid_set_row_spacing(GTK_GRID(utGrid),5);
 	gtk_container_add(GTK_CONTAINER(utFrameD2H),utGrid);
 	gtk_grid_attach(GTK_GRID(utGrid),gtk_label_new(strings[I_ADDR]),0,0,1,1); //"Address"
-	Address_entry = gtk_entry_new();
-	gtk_grid_attach(GTK_GRID(utGrid),Address_entry,1,0,1,1);
+	addressEntry = gtk_entry_new();
+	gtk_grid_attach(GTK_GRID(utGrid),addressEntry,1,0,1,1);
 	gtk_grid_attach(GTK_GRID(utGrid),gtk_label_new(strings[I_Data]),0,1,1,1); //Data
-	Data_entry = gtk_entry_new();
-	gtk_grid_attach(GTK_GRID(utGrid),Data_entry,1,1,1,1);
+	dataEntry = gtk_entry_new();
+	gtk_grid_attach(GTK_GRID(utGrid),dataEntry,1,1,1,1);
 	gtk_grid_attach(GTK_GRID(utGrid),gtk_label_new("Hex"),0,2,1,1);
-	Hex_data2 = gtk_entry_new();
-	gtk_editable_set_editable(GTK_EDITABLE(Hex_data2),0);
-	gtk_grid_attach(GTK_GRID(utGrid),Hex_data2,1,2,1,1);
+	hexDataEntry2 = gtk_entry_new();
+	gtk_editable_set_editable(GTK_EDITABLE(hexDataEntry2),0);
+	gtk_grid_attach(GTK_GRID(utGrid),hexDataEntry2,1,2,1,1);
 	GtkWidget * b_hexsave = gtk_button_new_with_label(strings[I_Fsave]);
 	gtk_grid_attach(GTK_GRID(utGrid),b_hexsave,0,3,1,1);
 //------status bar-------------
 	status_bar = gtk_statusbar_new();
 	gtk_box_pack_start(GTK_BOX(vbox),status_bar,FALSE,TRUE,0);
 	statusID=gtk_statusbar_get_context_id(GTK_STATUSBAR(status_bar),"ID");
-	g_signal_connect(G_OBJECT(b_testhw),"clicked",G_CALLBACK(TestHw),window);
-	g_signal_connect(G_OBJECT(b_connect),"clicked",G_CALLBACK(Connect),window);
-	g_signal_connect(G_OBJECT(I2CReceiveBtn),"clicked",G_CALLBACK(I2cspiR),window);
-	g_signal_connect(G_OBJECT(I2CSendBtn),"clicked",G_CALLBACK(I2cspiS),window);
-	g_signal_connect(G_OBJECT(sourceTxt),"button_press_event",G_CALLBACK(source_mouse_event),NULL);
-	g_signal_connect(G_OBJECT(statusTxt),"button_press_event",G_CALLBACK(icdStatus_mouse_event),NULL);
-	g_signal_connect(G_OBJECT(icdCommand),"key_press_event",G_CALLBACK(icdCommand_key_event),NULL);
-	g_signal_connect(G_OBJECT(icdVbox1),"key_press_event",G_CALLBACK(icd_key_event),NULL);
+	g_signal_connect(G_OBJECT(testHWBtn),"clicked",G_CALLBACK(TestHw),window);
+	g_signal_connect(G_OBJECT(connectBtn),"clicked",G_CALLBACK(Connect),window);
+	g_signal_connect(G_OBJECT(i2cRcvBtn),"clicked",G_CALLBACK(I2cspiR),window);
+	g_signal_connect(G_OBJECT(i2cSendBtn),"clicked",G_CALLBACK(I2cspiS),window);
+	g_signal_connect(G_OBJECT(sourceTextView),"button_press_event",G_CALLBACK(source_mouse_event),NULL);
+	g_signal_connect(G_OBJECT(statusTextView),"button_press_event",G_CALLBACK(icdStatus_mouse_event),NULL);
+	g_signal_connect(G_OBJECT(icdCommandEntry),"key_press_event",G_CALLBACK(icdCommand_key_event),NULL);
+	g_signal_connect(G_OBJECT(icdVBox),"key_press_event",G_CALLBACK(icd_key_event),NULL);
 	g_signal_connect(G_OBJECT(devTypeCombo),"changed",G_CALLBACK(FilterDevType),NULL);
 	g_signal_connect(G_OBJECT(devCombo),"changed",G_CALLBACK(DeviceChanged),NULL);
-	g_signal_connect(G_OBJECT(b_io_active),"toggled",G_CALLBACK(IOactive),NULL);
-	g_signal_connect(G_OBJECT(VDD_ON),"toggled",G_CALLBACK(VPPVDDactive),NULL);
-	g_signal_connect(G_OBJECT(VPP_ON),"toggled",G_CALLBACK(VPPVDDactive),NULL);
-	g_signal_connect(G_OBJECT(DCDC_ON),"toggled",G_CALLBACK(DCDCactive),NULL);
-	g_signal_connect(G_OBJECT(DCDC_voltage),"value_changed",G_CALLBACK(DCDCactive),NULL);
-	g_signal_connect(G_OBJECT(Hex_entry),"changed",G_CALLBACK(HexConvert),NULL);
-	g_signal_connect(G_OBJECT(Address_entry),"changed",G_CALLBACK(DataToHexConvert),NULL);
-	g_signal_connect(G_OBJECT(Data_entry),"changed",G_CALLBACK(DataToHexConvert),NULL);
+	g_signal_connect(G_OBJECT(ioActiveToggle),"toggled",G_CALLBACK(IOactive),NULL);
+	g_signal_connect(G_OBJECT(vddOnToggle),"toggled",G_CALLBACK(VPPVDDactive),NULL);
+	g_signal_connect(G_OBJECT(vppOnToggle),"toggled",G_CALLBACK(VPPVDDactive),NULL);
+	g_signal_connect(G_OBJECT(dcdcOnToggle),"toggled",G_CALLBACK(DCDCactive),NULL);
+	g_signal_connect(G_OBJECT(dcdcVoltageRange),"value_changed",G_CALLBACK(DCDCactive),NULL);
+	g_signal_connect(G_OBJECT(hexEntry),"changed",G_CALLBACK(HexConvert),NULL);
+	g_signal_connect(G_OBJECT(addressEntry),"changed",G_CALLBACK(DataToHexConvert),NULL);
+	g_signal_connect(G_OBJECT(dataEntry),"changed",G_CALLBACK(DataToHexConvert),NULL);
 	g_signal_connect(G_OBJECT(b_hexsave),"clicked",G_CALLBACK(HexSave),window);
-	g_signal_connect(G_OBJECT(b_WfuseLF),"clicked",G_CALLBACK(WriteATfuseLowLF),window);
+	g_signal_connect(G_OBJECT(wFuseLFBtn),"clicked",G_CALLBACK(WriteATfuseLowLF),window);
 	gtk_widget_show_all(window);
 //********Init*************
 	char text[16];
 	sprintf(text,"%04X",vid);
-	gtk_entry_set_text(GTK_ENTRY(VID_entry),text);
+	gtk_entry_set_text(GTK_ENTRY(vidEntry),text);
 	sprintf(text,"%04X",pid);
-	gtk_entry_set_text(GTK_ENTRY(PID_entry),text);
+	gtk_entry_set_text(GTK_ENTRY(pidEntry),text);
 	sprintf(text,"%d",max_err);
-	gtk_entry_set_text(GTK_ENTRY(Errors_entry),text);
+	gtk_entry_set_text(GTK_ENTRY(errorsEntry),text);
 	sizeW=0x8400;
 	memCODE_W=malloc(sizeW*sizeof(WORD));
 	initVar();
@@ -2765,7 +2521,6 @@ int main( int argc, char *argv[])
 				 !strncmp(dev,"95",2)||!strncmp(dev,"11",2)||!strncmp(dev,"DS",2))) \
 				tt=7;	//EEPROM
 	gtk_combo_box_set_active(GTK_COMBO_BOX(devTypeCombo),tt);
-//	AddDevices();	//populate device list
 	DeviceDetected=FindDevice(vid,pid);	//connect to USB programmer
 	if(!DeviceDetected){
 		DeviceDetected=FindDevice(new_vid,new_pid);	//try default
@@ -2777,7 +2532,6 @@ int main( int argc, char *argv[])
 	if(!DeviceDetected) DeviceDetected=FindDevice(old_vid,old_pid); //try old one
 	ProgID();		//get firmware version and reset
 	gtk_main();
-//	printf(ListDevices());
 //******Save ini file******
 // only if parameters are changed
 	if(strcmp(dev_ini,dev)||vid_ini!=vid||pid_ini!=pid||max_err_ini!=max_err){
@@ -2810,8 +2564,8 @@ void MsgBox(const char* msg)
 ///
 /// Find the programmer and setup communication
 void Connect(GtkWidget *widget,GtkWidget *window){
-	vid=htoi(gtk_entry_get_text(GTK_ENTRY(VID_entry)),4);
-	pid=htoi(gtk_entry_get_text(GTK_ENTRY(PID_entry)),4);
+	vid=htoi(gtk_entry_get_text(GTK_ENTRY(vidEntry)),4);
+	pid=htoi(gtk_entry_get_text(GTK_ENTRY(pidEntry)),4);
 	DeviceDetected=FindDevice(vid,pid);	//connect to USB programmer
 	if(!DeviceDetected){
 		DeviceDetected=FindDevice(new_vid,new_pid);	//try default
@@ -2828,10 +2582,9 @@ void Connect(GtkWidget *widget,GtkWidget *window){
 /// I2C/SPI receive
 void I2cspiR()
 {
-	//if(DeviceDetected!=1) return;
 	gtk_statusbar_push(GTK_STATUSBAR(status_bar),statusID,"");
-	saveLog = (int) gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(b_log));
-	int nbyte=gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(I2CNbyte));
+	saveLog = (int) gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(logBtn));
+	int nbyte=gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(i2cNbyteSpinBtn));
 	if(nbyte<0) nbyte=0;
 	if(nbyte>60) nbyte=60;
 	int mode=0;
@@ -2844,7 +2597,7 @@ void I2cspiR()
     char tokbuf[512];
 	BYTE tmpbuf[128];
 	int i=0,x;
-    strncpy(tokbuf, (const char *)gtk_entry_get_text(GTK_ENTRY(I2CDataSend)), sizeof(tokbuf));
+    strncpy(tokbuf, (const char *)gtk_entry_get_text(GTK_ENTRY(i2cDataSendEntry)), sizeof(tokbuf));
 	for(tok=strtok(tokbuf," ");tok&&i<128;tok=strtok(NULL," ")){
 		if(sscanf(tok,"%x",&x)){
 			tmpbuf[i] = (BYTE)x;
@@ -2852,7 +2605,7 @@ void I2cspiR()
 		}
 	}
 	for(;i<128;i++) tmpbuf[i]=0;
-	I2CReceive(mode,gtk_combo_box_get_active(GTK_COMBO_BOX(I2CSpeed)),nbyte,tmpbuf);
+	I2CReceive(mode,gtk_combo_box_get_active(GTK_COMBO_BOX(i2cSpeedCombo)),nbyte,tmpbuf);
 }
 ///
 /// I2C/SPI send
@@ -2860,8 +2613,8 @@ void I2cspiS()
 {
 	//if(DeviceDetected!=1) return;
 	gtk_statusbar_push(GTK_STATUSBAR(status_bar),statusID,"");
-	saveLog = (int) gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(b_log));
-	int nbyte=gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(I2CNbyte));
+	saveLog = (int) gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(logBtn));
+	int nbyte=gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(i2cNbyteSpinBtn));
 	if(nbyte<0) nbyte=0;
 	if(nbyte>57) nbyte=57;
 	int mode=0;
@@ -2874,7 +2627,7 @@ void I2cspiS()
     char tokbuf[512];
 	BYTE tmpbuf[128];
 	int i=0,x;
-    strncpy(tokbuf, (const char *)gtk_entry_get_text(GTK_ENTRY(I2CDataSend)), sizeof(tokbuf));
+    strncpy(tokbuf, (const char *)gtk_entry_get_text(GTK_ENTRY(i2cDataSendEntry)), sizeof(tokbuf));
 	for(tok=strtok(tokbuf," ");tok&&i<128;tok=strtok(NULL," ")){
 		if(sscanf(tok,"%x",&x)){
 			tmpbuf[i] = (BYTE)x;
@@ -2882,7 +2635,7 @@ void I2cspiS()
 		}
 	}
 	for(;i<128;i++) tmpbuf[i]=0;
-	I2CSend(mode,gtk_combo_box_get_active(GTK_COMBO_BOX(I2CSpeed)),nbyte,tmpbuf);
+	I2CSend(mode,gtk_combo_box_get_active(GTK_COMBO_BOX(i2cSpeedCombo)),nbyte,tmpbuf);
 }
 ///
 ///Display contents of EEprom memory
@@ -2958,7 +2711,6 @@ int StartHVReg(double V){
 	msDelay(20);
 	for(z=0;z<DIMBUF-2&&bufferI[z]!=READ_ADC;z++);
 	int v=(bufferI[z+1]<<8)+bufferI[z+2];
-//	PrintMessage2("v=%d=%fV\n",v,v/G);
 	if(v==0){
 		PrintMessage(strings[S_lowUsbV]);	//"Tensione USB troppo bassa (VUSB<4.5V)\r\n"
 		return 0;
@@ -2974,7 +2726,6 @@ int StartHVReg(double V){
 		for(z=0;z<DIMBUF-2&&bufferI[z]!=READ_ADC;z++);
 		v=(bufferI[z+1]<<8)+bufferI[z+2];
 		if(HwID==3) v>>=2;		//if 12 bit ADC
-//		PrintMessage2("v=%d=%fV\n",v,v/G);
 	}
 	if(v>(vreg/10.0+1)*G){
 		PrintMessage(strings[S_HiVPP]);	//"Attenzione: tensione regolatore troppo alta\r\n\r\n"
@@ -3623,20 +3374,13 @@ int FindDevice(int vid,int pid){
 	while ((LastDevice == FALSE) && (MyDeviceDetected == FALSE));
 	//Free the memory reserved for hDevInfo by SetupDiClassDevs.
 	SetupDiDestroyDeviceInfoList(hDevInfo);
-/*	if(info){
-		PrintMessage3("Device detected: vid=0x%04X pid=0x%04X\nPath: %s\n",vid,pid,MyDevicePathName);
-		if(HidD_GetManufacturerString(DeviceHandle,string,sizeof(string))==TRUE) wprintf(L"Manufacturer string: %s\n",string);
-		if(HidD_GetProductString(DeviceHandle,string,sizeof(string))==TRUE) wprintf(L"Product string: %s\n",string);
-	}*/
 #endif
 	if (MyDeviceDetected == FALSE){
 		PrintMessage(strings[S_noprog]);	//"Programmer not detected\r\n"
-		//gtk_statusbar_push(status_bar,statusID,strings[S_noprog]);
 	}
 	else{
 		PrintMessage(strings[S_prog]);	//"Programmer detected\r\n");
 		PrintMessage2("VID=0x%04X PID=0x%04X\r\n",vid,pid);
-		//gtk_statusbar_push(status_bar,statusID,strings[S_prog]);
 	}
 	return MyDeviceDetected;
 }
