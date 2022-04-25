@@ -783,6 +783,7 @@ void FilterDevType(GtkWidget *widget,GtkWidget *window)
 {
 	char *str=0;
 	g_signal_handlers_disconnect_by_func(G_OBJECT(devCombo),G_CALLBACK(DeviceChanged),NULL); //disconnect callback while adding items
+	gtk_combo_box_set_wrap_width(GTK_COMBO_BOX(devCombo),0);
 	GtkTreeModel *store = gtk_combo_box_get_model( GTK_COMBO_BOX(devCombo) );
 	gtk_list_store_clear( GTK_LIST_STORE( store ) );
 	int i=gtk_combo_box_get_active(GTK_COMBO_BOX(devTypeCombo));
@@ -824,6 +825,7 @@ void FilterDevType(GtkWidget *widget,GtkWidget *window)
 	}
 //	printf("i=%d str=%p\n",i,str);fflush(stdout);
 	if(i>=10000||!str)gtk_combo_box_set_active(GTK_COMBO_BOX(devCombo),0);
+	gtk_combo_box_set_wrap_width(GTK_COMBO_BOX(devCombo),6);
 	g_signal_connect(G_OBJECT(devCombo),"changed",G_CALLBACK(DeviceChanged),NULL);	//enable callback
 	DeviceChanged(NULL,NULL);
 }
