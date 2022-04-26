@@ -13,7 +13,6 @@ void I2cspiR();
 void I2cspiS();
 void ProgID();
 void ShowContext();
-int FindDevice(int vid,int pid);
 void TestHw();
 int CheckS1();
 void AddDevices();
