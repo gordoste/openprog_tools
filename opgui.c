@@ -1993,17 +1993,15 @@ int main( int argc, char *argv[])
 //------tab widget-------------
 	notebook = gtk_notebook_new();
 	gtk_box_pack_start(GTK_BOX(vbox),notebook,TRUE,TRUE,0);
-//------data tab-------------
+//------logging window
 	data_scroll = gtk_scrolled_window_new(NULL,NULL);
 	data = gtk_text_view_new();
 	dataBuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data));
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(data),FALSE);
 	gtk_container_add(GTK_CONTAINER(data_scroll),data);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),data_scroll,gtk_label_new(strings[I_Data])); //"Data"
-
 	styleCtx = gtk_widget_get_style_context(GTK_WIDGET(data));
 	gtk_style_context_add_class(styleCtx, "mono");
-
+	gtk_box_pack_start(GTK_BOX(vbox),data_scroll,TRUE,TRUE,0);
 //------device tab-------------
 	GtkWidget * devGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(devGrid), 5);
