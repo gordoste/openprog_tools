@@ -1938,39 +1938,38 @@ int main( int argc, char *argv[])
 	gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), GTK_STYLE_PROVIDER(cssProv), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
 //------toolbar-------------
-
-	GtkWidget* iconOpen = gtk_image_new_from_icon_name("document-open", GTK_ICON_SIZE_BUTTON);
-	openToolItem = gtk_tool_button_new(iconOpen, strings[I_Fopen]);
+	openToolItem = gtk_tool_button_new(\
+		gtk_image_new_from_icon_name("document-open", GTK_ICON_SIZE_BUTTON), strings[I_Fopen]);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(openToolItem), strings[I_Fopen]);
 	g_signal_connect(G_OBJECT(openToolItem), "clicked", G_CALLBACK(Fopen),NULL);
 
-	GtkWidget* iconSave = gtk_image_new_from_icon_name("document-save", GTK_ICON_SIZE_BUTTON);
-	saveToolItem = gtk_tool_button_new(iconSave, strings[I_Fsave]);
+	saveToolItem = gtk_tool_button_new(\
+		gtk_image_new_from_icon_name("document-save", GTK_ICON_SIZE_BUTTON), strings[I_Fsave]);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(saveToolItem), strings[I_Fsave]);
 	g_signal_connect(G_OBJECT(saveToolItem), "clicked", G_CALLBACK(Fsave),NULL);
 
-	GtkWidget* iconRead = gtk_image_new_from_resource("/openprog/icons/read.png");
-	readToolItem = gtk_tool_button_new(iconRead, strings[I_DevR]);
+	readToolItem = gtk_tool_button_new(\
+		gtk_image_new_from_resource("/openprog/icons/read.png"), strings[I_DevR]);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(readToolItem), strings[I_DevR]);
 	g_signal_connect(G_OBJECT(readToolItem), "clicked", G_CALLBACK(DevRead),NULL);
 
-	GtkWidget* iconWrite = gtk_image_new_from_resource("/openprog/icons/write.png");
-	writeToolItem = gtk_tool_button_new(iconWrite, strings[I_DevW]);
+	writeToolItem = gtk_tool_button_new(\
+		gtk_image_new_from_resource("/openprog/icons/write.png"), strings[I_DevW]);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(writeToolItem), strings[I_DevW]);
 	g_signal_connect(G_OBJECT(writeToolItem), "clicked", G_CALLBACK(DevWrite),NULL);
 
-	GtkWidget* iconStop = gtk_image_new_from_icon_name("process-stop", GTK_ICON_SIZE_BUTTON);
-	stopToolItem = gtk_tool_button_new(iconStop, strings[I_ICD_STOP]);
+	stopToolItem = gtk_tool_button_new(\
+		gtk_image_new_from_icon_name("process-stop", GTK_ICON_SIZE_BUTTON), strings[I_ICD_STOP]);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(stopToolItem), strings[I_ICD_STOP]);
 	g_signal_connect(G_OBJECT(stopToolItem), "clicked", G_CALLBACK(Stop),NULL);
 
-	GtkWidget* iconConnect = gtk_image_new_from_icon_name("network-wired", GTK_ICON_SIZE_BUTTON);
-	connectToolItem = gtk_tool_button_new(iconConnect, strings[I_CONN]);
+	connectToolItem = gtk_tool_button_new(\
+		gtk_image_new_from_icon_name("network-wired", GTK_ICON_SIZE_BUTTON), strings[I_CONN]);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(connectToolItem), strings[I_CONN]);
 	g_signal_connect(G_OBJECT(connectToolItem), "clicked", G_CALLBACK(Connect),NULL);
 
-	GtkWidget* iconInfo = gtk_image_new_from_icon_name("dialog-information", GTK_ICON_SIZE_BUTTON);
-	infoToolItem = gtk_tool_button_new(iconInfo, strings[I_Info]);
+	infoToolItem = gtk_tool_button_new(\
+		gtk_image_new_from_icon_name("dialog-information", GTK_ICON_SIZE_BUTTON), strings[I_Info]);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(infoToolItem), strings[I_Info]);
 	g_signal_connect(G_OBJECT(infoToolItem), "clicked", G_CALLBACK(info),NULL);
 
