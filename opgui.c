@@ -1127,10 +1127,8 @@ void ShowContext(){
 			sprintf(s,"%02X ",data[i]);
 			strcat(str,s);
 			t[i&0x7]=isprint(data[i])?data[i]:'.';
-			if(i%8==7){
-				g=g_locale_to_utf8(t,-1,NULL,NULL,NULL);
-				if(g) strcat(str,g);
-				g_free(g);
+			if(i%8==7) {
+				StrcatConvert(str,t);
 			}
 		}
 		AppendMessageICD(str);
@@ -1245,9 +1243,7 @@ int executeCommand(char *command){
 				strcat(str,s);
 				t[i&0x7]=isprint(data[i])?data[i]:'.';
 				if(i%8==7){
-					g=g_locale_to_utf8(t,-1,NULL,NULL,NULL);
-					if(g) strcat(str,g);
-					g_free(g);
+					StrcatConvert(str,t);
 				}
 			}
 			strcat(str,"\n");
@@ -2620,9 +2616,7 @@ void DisplayEE(){
 			sprintf(t,"%02X ",memEE[j]);
 			strcat(s,t);
 			sprintf(t,"%c",isprint(memEE[j])&&(memEE[j]<0xFF)?memEE[j]:'.');
-			g=g_locale_to_utf8(t,-1,NULL,NULL,NULL);
-			if(g) strcat(v,g);
-			g_free(g);
+			StrcatConvert(v,t);
 			if(memEE[j]<0xff) valid=1;
 		}
 		if(valid){
