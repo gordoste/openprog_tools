@@ -121,7 +121,6 @@ int main (int argc, char **argv) {
 		{"path",          required_argument,       0, 'p'},
 #endif
 		{"pid",           required_argument,       0, 'P'},
-		{"rep" ,          required_argument,       0, 'R'},
 		{"reserved",      no_argument,              &r, 1},
 		{"r",             no_argument,              &r, 1},
 		{"s1",            no_argument,             &s1, 1},
@@ -145,10 +144,6 @@ int main (int argc, char **argv) {
 		{0, 0, 0, 0}
 	};
 	while ((c = getopt_long_only (argc, argv, "",long_options,&option_index)) != -1)
-	/*{	printf("optarg=%X\n",optarg);
-		if(optarg) printf("%s\n",optarg);
-		printf("c=%X %c\noption_index=%d name=%s\n",c,c,option_index,long_options[option_index].name);	}
-		exit(0);*/
 		switch (c)
 		{
 			case '1':	//force config word 1
@@ -231,9 +226,6 @@ int main (int argc, char **argv) {
 #endif
 			case 'P':	//pid
 				sscanf(optarg, "%x", &pid);
-				break;
-			case 'R':	//USB HID report size
-				//DIMBUF = atoi(optarg);
 				break;
 			case 's':	//save
 				strncpy(savefile,optarg,sizeof(savefile)-1);
@@ -471,22 +463,6 @@ Foundation; either version 2 of the License, or (at your option) any later versi
 				PrintMessage2(strings[S_ConfigWordL],i+1,memCONFIG[i*2]);	//"CONFIG%dL: 0x%02X\r\n"
 			}
 		}
-/*		if(CW1_force!=-1||CW2_force!=-1){
-			if((!strncmp(dev,"16F1",4)||!strncmp(dev,"12F1",4))){		//16F1xxx
-				if(CW1_force!=-1&&sizeW>0x8007) memCODE_W[0x8007]=CW1_force;
-				if(CW2_force!=-1&&sizeW>0x8008) memCODE_W[0x8008]=CW2_force;
-			}
-			else if((!strncmp(dev,"16F",3)||!strncmp(dev,"12F6",4))&&strncmp(dev,"16F5",4)){	//16Fxxx
-				if(CW1_force!=-1&&sizeW>0x2007) memCODE_W[0x2007]=CW1_force;
-				if(CW2_force!=-1&&sizeW>0x2008) memCODE_W[0x2008]=CW2_force;
-			}
-			else if((!strncmp(dev,"12F",3)||!strncmp(dev,"10F",3)||!strncmp(dev,"16F5",4))){	//12Fxxx
-				if(CW1_force!=-1&&sizeW>0xFFF) memCODE_W[0xFFF]=CW1_force&0xFFF;
-			}
-			if(CW1_force!=-1) PrintMessage1(strings[S_ForceConfigWx],CW1_force); //"forcing config word1 (0x%04X)"
-			if(CW2_force!=-1) PrintMessage1(strings[S_ForceConfigWx],CW2_force); //"forcing config word2 (0x%04X)"
-		}
-*/
 		//Start with button
 		if(s1){
 			PrintMessage(strings[S_WaitS1W]);	//"Press S1 to program, any key to exit"
@@ -588,7 +564,6 @@ int StartHVReg(double V){
 	msDelay(20);
 	for(z=0;z<DIMBUF-2&&bufferI[z]!=READ_ADC;z++);
 	int v=(bufferI[z+1]<<8)+bufferI[z+2];
-//	PrintMessage2("v=%d=%fV\n",v,v/G);
 	if(v==0){
 		PrintMessage(strings[S_lowUsbV]);	//"Tensione USB troppo bassa (VUSB<4.5V)\r\n"
 		return 0;
@@ -604,7 +579,6 @@ int StartHVReg(double V){
 		for(z=0;z<DIMBUF-2&&bufferI[z]!=READ_ADC;z++);
 		v=(bufferI[z+1]<<8)+bufferI[z+2];
 		if(HwID==3) v>>=2;		//if 12 bit ADC
-//		PrintMessage2("v=%d=%fV\n",v,v/G);
 	}
 	if(v>(vreg/10.0+1)*G){
 		PrintMessage(strings[S_HiVPP]);	//"Attenzione: tensione regolatore troppo alta\r\n\r\n"
