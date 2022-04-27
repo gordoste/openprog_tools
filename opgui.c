@@ -87,6 +87,7 @@ int forceConfig=0;
 #endif
 
 //List of gtk controls
+GtkApplication *app;
 GtkTextBuffer * dataBuf;
 GtkWidget *data, *data_scroll;
 GtkWidget *window, *toolbar, *button, *notebook, *status_bar;
@@ -122,19 +123,17 @@ struct io_btn {	char * name;
 int statusID;
 int ee = 0;
 int readRes=0;
+
+gchar *homedir, *fname;
+char dev_ini[64];
+int vid_ini,pid_ini,max_err_ini;
+
 char dev[64]="";
 int devType=-1;
 char str[4096]="";
 char* cur_path=0;
 char* cur_pathEE=0;
 
-///
-///Exit
-gint delete_event( GtkWidget *widget,GdkEvent *event,gpointer data )
-{
-gtk_main_quit ();
-return FALSE;
-}
 ///
 ///Append a message on the data tab; shorten the length of the entry field to MAXLINES
 void PrintMessage(const char *msg){
@@ -1792,8 +1791,9 @@ void Stop(GtkWidget *widget,GtkWidget *window)
 void Xclose(){
 	char *str=gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(devCombo));
 	if(str) strncpy(dev,str,sizeof(dev)-1);
-	gtk_main_quit();
+	gtk_widget_destroy(window);
 }
+
 ///-----------------------------------
 ///Main function
 ///-----------------------------------
@@ -1801,7 +1801,7 @@ int main( int argc, char *argv[])
 {
 	//int langID=GetUserDefaultLangID();
 	FILE *f;
-	gchar *homedir,*config_dir,*fname=0;
+	gchar *config_dir;
 	char lang[32]="";
 	int langfile=0;
 	homedir = (gchar *) g_get_home_dir ();
@@ -1827,9 +1827,7 @@ int main( int argc, char *argv[])
 			fclose(f);
 		}
 	}
-	char dev_ini[64];
 	strncpy(dev_ini,dev,sizeof(dev_ini));
-	int vid_ini=vid,pid_ini=pid,max_err_ini=max_err;
 	vid_ini=vid;
 	pid_ini=pid;
 	max_err_ini=max_err;
@@ -1919,7 +1917,17 @@ int main( int argc, char *argv[])
 		else printf(strings[S_noprog]);
 		exit(0);
 	}
-	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+	app = gtk_application_new("openprog.gui", G_APPLICATION_FLAGS_NONE);
+	g_signal_connect(app, "activate", G_CALLBACK(onActivate),NULL);
+	g_signal_connect(app, "shutdown", G_CALLBACK(onShutdown),NULL);
+	int status = g_application_run (G_APPLICATION (app), argc, argv);
+	g_object_unref(app);
+	return status;
+}
+
+void onActivate(GtkApplication *_app, gpointer user_data) {
+	window = gtk_application_window_new(app);
 	sprintf(str,"opgui v%s",VERSION);
 	gtk_window_set_title(GTK_WINDOW(window),str);
 	gtk_window_set_default_size(GTK_WINDOW(window), 750, 250);
@@ -2468,7 +2476,7 @@ int main( int argc, char *argv[])
 	sizeW=0x8400;
 	memCODE_W=malloc(sizeW*sizeof(WORD));
 	initVar();
-	for(i=0;i<0x8400;i++) memCODE_W[i]=0x3fff;
+	for(int i=0;i<0x8400;i++) memCODE_W[i]=0x3fff;
 	strncpy(LogFileName,strings[S_LogFile],sizeof(LogFileName));
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devTypeCombo),"*");
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devTypeCombo),"PIC10/12");
@@ -2493,12 +2501,14 @@ int main( int argc, char *argv[])
 	gtk_combo_box_set_active(GTK_COMBO_BOX(devTypeCombo),tt);
 	DeviceDetected=SearchDevice(&vid,&pid,false);
 	ProgID();		//get firmware version and reset
-	gtk_main();
+}
+
+void onShutdown(GtkApplication *_app, gpointer user_data) {
 //******Save ini file******
 // only if parameters are changed
 	if(strcmp(dev_ini,dev)||vid_ini!=vid||pid_ini!=pid||max_err_ini!=max_err){
 		if(homedir){
-			f=fopen(fname,"w");
+			FILE *f=fopen(fname,"w");
 			if(f){
 				fprintf(f,"device %s\n",dev);
 				fprintf(f,"maxerr %d\n",max_err);
@@ -2508,8 +2518,8 @@ int main( int argc, char *argv[])
 			fclose(f);
 		}
 	}
-	return 0;
 }
+
 ///
 /// Show a message box
 void MsgBox(const char* msg)

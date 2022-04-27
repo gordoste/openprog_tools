@@ -8,6 +8,9 @@
 extern int StatusID;
 extern GtkWidget *status_bar;
 
+void onActivate(GtkApplication *_app, gpointer user_data);
+void onShutdown(GtkApplication *_app, gpointer user_data);
+
 void Connect(GtkWidget *widget,GtkWidget *window);
 void I2cspiR();
 void I2cspiS();
