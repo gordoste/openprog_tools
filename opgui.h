@@ -20,4 +20,12 @@ void TestHw();
 int CheckS1();
 void AddDevices();
 
+enum
+{
+  DEVICE_ID_COLUMN = 0,
+  DEVICE_NAME_COLUMN,
+  DEVICE_FAMILY_COLUMN,
+  DEVICE_N_COLUMNS
+};
+
 #endif

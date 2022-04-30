@@ -30,6 +30,20 @@
 
 #include "deviceRW.h"
 
+char *familyNames[NUM_FAMILIES] = {
+	"PIC12",
+	"PIC16",
+	"PIC18",
+	"PIC24",
+	"PIC32",
+	"AVR",
+	"I2C EE",
+	"SPI EE",
+	"uWire EE",
+	"1Wire EE",
+	"UNIO EE"
+};
+
 char* devices[]={
 "10F200","10F202","10F204","10F206","10F220","10F222",
 "10F320","10F322",
@@ -198,18 +212,7 @@ struct DevInfo{
 	int sizeEE;					//EE memory size
 };*/
 
-struct DEVICES{
-	char *device;				//list of device names
-	int family;					//type
-	double HV;					//High voltage value (-1= turn off HV)
-	int V33;					//3.3V regulator required (0=not required)
-	void (*ReadPtr)();			//Read function pointer
-	int ReadParam[4];			//Read function parameters; -10 = NU
-	int ResArea;				//reserved area size
-	void (*WritePtr)();			//Write function pointer
-	int WriteParam[6];			//Write function parameters; -10 = NU
-	double WriteParamD;			//Write function parameter, double
-} DEVLIST[]={
+struct DEVICES DEVLIST[]={
 //-------------PIC10-16---------------------------------------------------------
 	{"10F200,10F204,10F220",
 		PIC12,13.0,0,Read12F5xx,{0x100,5},0x40,Write12F5xx,{0x100,0xFF},0},		//256
@@ -844,6 +847,8 @@ struct DEVICES{
 	{"11160",
 		UNIOEE,-1,0,Read11xx,{0x800},0,Write11xx,{0x800,16},0}		//2k
 };
+
+int NDEVLIST = (sizeof(DEVLIST)/sizeof(struct DEVICES));
 
 //Make a list of all supported devices (insert \n between types)
 char* ListDevices(){

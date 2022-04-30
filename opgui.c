@@ -110,6 +110,9 @@ GtkWidget *CW1Entry, *CW2Entry, *CW3Entry, *CW4Entry, *CW5Entry, *CW6Entry, *CW7
 GtkWidget *CW1Box, *CW2Box, *CW3Box, *CW4Box, *CW5Box, *CW6Box, *CW7Box;
 GtkWidget *configForceToggle;
 GtkStyleContext *styleCtx;
+GtkListStore *devStore;
+GtkWidget *devTree;
+GtkTreeIter iter;
 
 ///array of radio buttons for IO manual control
 struct io_btn {	char * name;
@@ -566,8 +569,8 @@ void FilterDevType(GtkWidget *widget,GtkWidget *window)
 	char *str=0;
 	g_signal_handlers_disconnect_by_func(G_OBJECT(devCombo),G_CALLBACK(DeviceChanged),NULL); //disconnect callback while adding items
 	gtk_combo_box_set_wrap_width(GTK_COMBO_BOX(devCombo),0);
-	GtkTreeModel *store = gtk_combo_box_get_model( GTK_COMBO_BOX(devCombo) );
-	gtk_list_store_clear( GTK_LIST_STORE( store ) );
+	GtkTreeModel *devStore = gtk_combo_box_get_model( GTK_COMBO_BOX(devCombo) );
+	gtk_list_store_clear( GTK_LIST_STORE( devStore ) );
 	int i=gtk_combo_box_get_active(GTK_COMBO_BOX(devTypeCombo));
 	switch(i){
 		case 1:		//10F 12F
@@ -1979,7 +1982,7 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 
 	toolbar = gtk_toolbar_new();
 	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_ICONS);
-	gtk_box_pack_start(GTK_BOX(mainVbox),toolbar,FALSE,FALSE,0);
+	//gtk_box_pack_start(GTK_BOX(mainVbox),toolbar,FALSE,FALSE,0);
 
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(openToolItem), -1);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(saveToolItem), -1);
@@ -1995,7 +1998,7 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 
 //------tab widget-------------
 	notebook = gtk_notebook_new();
-	gtk_box_pack_start(GTK_BOX(mainVbox),notebook,FALSE,FALSE,0);
+	//gtk_box_pack_start(GTK_BOX(mainVbox),notebook,FALSE,FALSE,0);
 //------logging window
 	data_scroll = gtk_scrolled_window_new(NULL,NULL);
 	data = gtk_text_view_new();
@@ -2004,7 +2007,7 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	gtk_container_add(GTK_CONTAINER(data_scroll),data);
 	styleCtx = gtk_widget_get_style_context(GTK_WIDGET(data));
 	gtk_style_context_add_class(styleCtx, "mono");
-	gtk_box_pack_start(GTK_BOX(mainVbox),data_scroll,TRUE,TRUE,0);
+	//gtk_box_pack_start(GTK_BOX(mainVbox),data_scroll,TRUE,TRUE,0);
 //------device tab-------------
 	GtkWidget * devGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(devGrid), 5);
@@ -2442,7 +2445,7 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	gtk_grid_attach(GTK_GRID(utGrid),hexSaveBtn,0,3,1,1);
 //------status bar-------------
 	status_bar = gtk_statusbar_new();
-	gtk_box_pack_start(GTK_BOX(mainVbox),status_bar,FALSE,TRUE,0);
+	//gtk_box_pack_start(GTK_BOX(mainVbox),status_bar,FALSE,TRUE,0);
 	statusID=gtk_statusbar_get_context_id(GTK_STATUSBAR(status_bar),"ID");
 	g_signal_connect(G_OBJECT(testHWBtn),"clicked",G_CALLBACK(TestHw),window);
 	g_signal_connect(G_OBJECT(connectBtn),"clicked",G_CALLBACK(Connect),window);
@@ -2464,6 +2467,25 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	g_signal_connect(G_OBJECT(dataEntry),"changed",G_CALLBACK(DataToHexConvert),NULL);
 	g_signal_connect(G_OBJECT(hexSaveBtn),"clicked",G_CALLBACK(HexSave),window);
 	g_signal_connect(G_OBJECT(wFuseLFBtn),"clicked",G_CALLBACK(WriteATfuseLowLF),window);
+
+	//*********Device tree******
+  	devTree = gtk_tree_view_new();
+	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(devTree),
+		-1, "Name", gtk_cell_renderer_text_new(), "text", DEVICE_NAME_COLUMN, NULL);
+	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(devTree),
+		-1, "Family", gtk_cell_renderer_text_new(), "text", DEVICE_FAMILY_COLUMN, NULL);
+
+  	devStore = gtk_list_store_new (DEVICE_N_COLUMNS,
+	  						  G_TYPE_UINT,
+                              G_TYPE_STRING,
+                              G_TYPE_STRING);
+
+	AddDevices();
+
+	gtk_tree_view_set_model(GTK_TREE_VIEW(devTree), GTK_TREE_MODEL(devStore));
+ 	g_object_unref (G_OBJECT (devStore));
+	gtk_box_pack_start(GTK_BOX(mainVbox),devTree,TRUE,TRUE,0);
+
 	gtk_widget_show_all(window);
 //********Init*************
 	char text[16];
@@ -2897,6 +2919,19 @@ void StrcatConvert(char *dst, const char *src) {
 
 //Add all devices to the appropriate structure
 void AddDevices() {
-	int i;
-	for(i=0;i<Ndevices;i++) gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
+	int i,j=0,type=-1;
+	char *str=0,*tok;
+	for(i=0;i<NDEVLIST;i++){
+		if(str) free(str);
+		str=malloc(strlen(DEVLIST[i].device)+1);
+		strcpy(str,DEVLIST[i].device);
+		for(tok=strtok(str,",");tok;tok=strtok(NULL,",")){
+			type=DEVLIST[i].family;
+			gtk_list_store_insert_with_values(devStore, NULL, -1,
+				DEVICE_ID_COLUMN, j++,
+				DEVICE_NAME_COLUMN, tok,
+				DEVICE_FAMILY_COLUMN, familyNames[type], -1);
+		}
+	}
+	free(str);
 }
