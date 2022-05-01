@@ -92,7 +92,7 @@ GtkTextBuffer * dataBuf;
 GtkWidget *data, *data_scroll;
 GtkWidget *window, *toolbar, *button, *notebook, *status_bar;
 GtkToolItem *openToolItem, *saveToolItem, *readToolItem, *writeToolItem, *connectToolItem, *stopToolItem, *infoToolItem;
-GtkWidget *devCombo, *devTypeCombo, *picOptsBox, *avrOptsBox, *configWOptsBox, *icdOptsBox, *oscOptsBox, *devInfoLabel;
+GtkWidget *devTypeCombo, *picOptsBox, *avrOptsBox, *configWOptsBox, *icdOptsBox, *oscOptsBox, *devInfoLabel;
 GtkWidget *icdCheckToggle, *icdAddrEntry;
 GtkWidget *eepromRWToggle, *readReservedToggle, *writeIDBKCalToggle, *writeCalib12Toggle, *useOSCCALToggle, *useBKOSCCALToggle, *useFileCalToggle;
 GtkWidget *avrFuseLowEntry, *avrFuseLowWriteToggle, *avrFuseHighEntry, *avrFuseHighWriteToggle, *avrFuseExtEntry, *avrFuseExtWriteToggle, *avrLockEntry, *avrLockWriteToggle;
@@ -112,7 +112,7 @@ GtkWidget *configForceToggle;
 GtkStyleContext *styleCtx;
 GtkListStore *devStore;
 GtkWidget *devTree;
-GtkTreeIter iter;
+GtkTreeSelection *devSel;
 
 ///array of radio buttons for IO manual control
 struct io_btn {	char * name;
@@ -203,9 +203,7 @@ void getOptions()
 	waitS1=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(waitS1Toggle));
 	int i=sscanf(gtk_entry_get_text(GTK_ENTRY(icdAddrEntry)),"%x",&ICDaddr);
 	if(i!=1||ICDaddr<0||ICDaddr>0xFFFF) ICDaddr=0x1FF0;
-	char *str=gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(devCombo));
-	if(str) strncpy(dev,str,sizeof(dev)-1);
-	g_free(str);
+	GetSelectedDevice();
 	AVRfuse=AVRfuse_h=AVRfuse_x=AVRlock=0x100;
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(avrFuseLowWriteToggle))){
 		i=sscanf(gtk_entry_get_text(GTK_ENTRY(avrFuseLowEntry)),"%x",&AVRfuse);
@@ -223,7 +221,6 @@ void getOptions()
 		i=sscanf(gtk_entry_get_text(GTK_ENTRY(avrLockEntry)),"%x",&AVRlock);
 		if(i!=1||AVRlock<0||AVRlock>0xFF) AVRlock=0x100;
 	}
-	str=malloc(128);
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(configForceToggle))){
 		int cw1,cw2,cw3,cw4,cw5,cw6,cw7;
 		cw1=cw2=cw3=cw4=cw5=cw6=cw7=0x10000;
@@ -299,17 +296,14 @@ void getOptions()
 			}
 		}
 	}
-	free(str);
 }
 ///
 ///Choose a file to open and call Load()
 void Fopen(GtkWidget *widget,GtkWidget *window)
 {
-	char *str=gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(devCombo));
+	GetSelectedDevice();
 	if(progress) return;
 	progress=1;
-	if(str) strncpy(dev,str,sizeof(dev)-1);
-	g_free(str);
 	GtkFileChooser *dialog;
 	dialog = (GtkFileChooser*) gtk_file_chooser_dialog_new ("Open File",
 				      GTK_WINDOW(window),
@@ -496,18 +490,34 @@ void WriteATfuseLowLF(GtkWidget *widget,GtkWidget *window){
 	}
 }
 ///
+///Get device selected
+void GetSelectedDevice() {
+	GtkTreeModel *tmpModel;
+	GtkTreeIter tmpIter;
+	char *devName;
+	if (gtk_tree_selection_get_selected(devSel, &tmpModel, &tmpIter)) {
+		gtk_tree_model_get(tmpModel, &tmpIter, DEVICE_NAME_COLUMN, &devName, -1);
+		strcpy(dev,devName);
+		gtk_widget_set_sensitive(GTK_WIDGET(readToolItem), TRUE);
+		gtk_widget_set_sensitive(GTK_WIDGET(writeToolItem), TRUE);
+	} else { // Shouldn't ever happen, but just in case
+		dev[0] = '\0';
+		gtk_widget_set_sensitive(GTK_WIDGET(readToolItem), FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(writeToolItem), FALSE);
+	}
+}
+
+///
 ///Callback function to set available options for each device type
-void DeviceChanged(GtkWidget *widget,GtkWidget *window)
+void onDevSel_Changed(GtkWidget *widget,GtkWidget *window)
 {
 	struct DevInfo info;
 	char str2[256],str3[64],strF[32];
 	double x;
-	char *str=gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(devCombo));
-	if(str) strncpy(dev,str,sizeof(dev)-1);
-	else return;
-	g_free(str);
+	GetSelectedDevice();
+	if (strlen(dev) == 0) return; // None selected
 	info=GetDevInfo(dev);
-	devType=info.type;
+	devType=info.family;
 	gtk_label_set_text(GTK_LABEL(devInfoLabel),info.features);
 	if(devType==PIC12||devType==PIC16||devType==PIC18||devType==PIC24){
 		gtk_widget_show_all(GTK_WIDGET(picOptsBox));
@@ -567,51 +577,7 @@ void DeviceChanged(GtkWidget *widget,GtkWidget *window)
 void FilterDevType(GtkWidget *widget,GtkWidget *window)
 {
 	char *str=0;
-	g_signal_handlers_disconnect_by_func(G_OBJECT(devCombo),G_CALLBACK(DeviceChanged),NULL); //disconnect callback while adding items
-	gtk_combo_box_set_wrap_width(GTK_COMBO_BOX(devCombo),0);
-	GtkTreeModel *devStore = gtk_combo_box_get_model( GTK_COMBO_BOX(devCombo) );
-	gtk_list_store_clear( GTK_LIST_STORE( devStore ) );
 	int i=gtk_combo_box_get_active(GTK_COMBO_BOX(devTypeCombo));
-	switch(i){
-		case 1:		//10F 12F
-			for(i=0;i<Ndevices;i++) if(!strncmp(devices[i],"10F",3)||!strncmp(devices[i],"12F",3))
-				gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
-		break;
-		case 2:		//16F
-			for(i=0;i<Ndevices;i++) if(!strncmp(devices[i],"16F",3)) gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
-		break;
-		case 3: 	//18F
-			for(i=0;i<Ndevices;i++) if(!strncmp(devices[i],"18F",3)) gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
-		break;
-		case 4:		//24F
-			for(i=0;i<Ndevices;i++) if(!strncmp(devices[i],"24F",3)||!strncmp(devices[i],"24H",3)||!strncmp(devices[i],"24E",3))
-				gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
-		break;
-		case 5:		//30F 33F
-			for(i=0;i<Ndevices;i++) if(!strncmp(devices[i],"30F",3)||!strncmp(devices[i],"33F",3)||!strncmp(devices[i],"33E",3))
-				gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
-		break;
-		case 6:		//ATMEL
-			for(i=0;i<Ndevices;i++) if(!strncmp(devices[i],"AT",2)) gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
-		break;
-		case 7:		//24 25 93 DS 11
-			for(i=0;i<Ndevices;i++) if( (strncmp(devices[i],"24F",3)&&strncmp(devices[i],"24H",3)&&strncmp(devices[i],"24E",3))&&\
-				(!strncmp(devices[i],"24",2)||!strncmp(devices[i],"25",2)||!strncmp(devices[i],"93",2)|| \
-				 !strncmp(devices[i],"11",2)||!strncmp(devices[i],"DS",2))) \
-				gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
-		break;
-		default:
-			for(i=0;i<Ndevices;i++) gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devCombo),devices[i]);
-	}
-	gtk_combo_box_set_active(GTK_COMBO_BOX(devCombo),0);
-	for(i=0;(str=gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(devCombo)))&&strcmp(str,dev)&&i<10000;i++){
-		gtk_combo_box_set_active(GTK_COMBO_BOX(devCombo),i);	//need to set item to parse all items
-		g_free(str);
-	}
-	if(i>=10000||!str)gtk_combo_box_set_active(GTK_COMBO_BOX(devCombo),0);
-	gtk_combo_box_set_wrap_width(GTK_COMBO_BOX(devCombo),6);
-	g_signal_connect(G_OBJECT(devCombo),"changed",G_CALLBACK(DeviceChanged),NULL);	//enable callback
-	DeviceChanged(NULL,NULL);
 }
 ///
 ///Scroll source file
@@ -1792,8 +1758,7 @@ void Stop(GtkWidget *widget,GtkWidget *window)
 ///
 ///Close program
 void Xclose(){
-	char *str=gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(devCombo));
-	if(str) strncpy(dev,str,sizeof(dev)-1);
+	GetSelectedDevice();
 	gtk_widget_destroy(window);
 }
 
@@ -1982,7 +1947,7 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 
 	toolbar = gtk_toolbar_new();
 	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_ICONS);
-	//gtk_box_pack_start(GTK_BOX(mainVbox),toolbar,FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(mainVbox),toolbar,FALSE,FALSE,0);
 
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(openToolItem), -1);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(saveToolItem), -1);
@@ -1998,7 +1963,7 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 
 //------tab widget-------------
 	notebook = gtk_notebook_new();
-	//gtk_box_pack_start(GTK_BOX(mainVbox),notebook,FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(mainVbox),notebook,FALSE,FALSE,0);
 //------logging window
 	data_scroll = gtk_scrolled_window_new(NULL,NULL);
 	data = gtk_text_view_new();
@@ -2007,36 +1972,59 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	gtk_container_add(GTK_CONTAINER(data_scroll),data);
 	styleCtx = gtk_widget_get_style_context(GTK_WIDGET(data));
 	gtk_style_context_add_class(styleCtx, "mono");
-	//gtk_box_pack_start(GTK_BOX(mainVbox),data_scroll,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(mainVbox),data_scroll,TRUE,TRUE,0);
 //------device tab-------------
 	GtkWidget * devGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(devGrid), 5);
 	gtk_grid_set_row_spacing(GTK_GRID(devGrid), 5);
-
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),devGrid,gtk_label_new(strings[I_Dev])); //"Device"
-	GtkWidget * devHbox1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
 
+	//*********Device tree******
+	GtkWidget *devScroll = gtk_scrolled_window_new(NULL,NULL);
+  	devTree = gtk_tree_view_new();
+	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(devTree),
+		-1, strings[I_Dev], gtk_cell_renderer_text_new(), "text", DEVICE_NAME_COLUMN, NULL);
+	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(devTree),
+		-1, strings[I_Type], gtk_cell_renderer_text_new(), "text", DEVICE_FAMILY_COLUMN, NULL);
+
+  	devStore = gtk_list_store_new (DEVICE_N_COLUMNS,
+	  						  G_TYPE_UINT,
+                              G_TYPE_STRING,
+                              G_TYPE_STRING);
+
+	AddDevices();
+
+	gtk_tree_view_set_model(GTK_TREE_VIEW(devTree), GTK_TREE_MODEL(devStore));
+ 	g_object_unref (G_OBJECT(devStore));
+
+	devSel = gtk_tree_view_get_selection(GTK_TREE_VIEW(devTree));
+	gtk_tree_selection_set_mode(devSel, GTK_SELECTION_BROWSE);
+	GtkTreeIter devIter;
+	gtk_tree_model_get_iter_first(GTK_TREE_MODEL(devStore), &devIter);
+	gtk_tree_selection_select_iter(devSel, &devIter);
+	g_signal_connect(G_OBJECT(devSel),"changed",G_CALLBACK(onDevSel_Changed),NULL);
+
+	gtk_container_add(GTK_CONTAINER(devScroll), devTree);
+
+	GtkWidget * devHbox1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
 	gtk_grid_attach(GTK_GRID(devGrid),devHbox1,0,0,2,1);
 	gtk_box_pack_start(GTK_BOX(devHbox1),gtk_label_new(strings[I_Type]),FALSE,TRUE,0); //"Type"
 	devTypeCombo = gtk_combo_box_text_new();
 	gtk_box_pack_start(GTK_BOX(devHbox1),devTypeCombo,FALSE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(devHbox1),gtk_label_new("   "),FALSE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(devHbox1),gtk_label_new(strings[I_Dev]),FALSE,TRUE,0); //"Device"
-	devCombo = gtk_combo_box_text_new();
-	gtk_box_pack_start(GTK_BOX(devHbox1),devCombo,FALSE,TRUE,0);
+	gtk_grid_attach(GTK_GRID(devGrid),devScroll,0,1,2,4);
 	GtkWidget * devHbox2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
 
-	gtk_grid_attach(GTK_GRID(devGrid),devHbox2,0,1,2,1);
+	gtk_grid_attach(GTK_GRID(devGrid),devHbox2,2,1,2,1);
 	gtk_box_pack_start(GTK_BOX(devHbox2),gtk_label_new("info: "),FALSE,FALSE,0);
 	devInfoLabel = gtk_label_new("i");
 	gtk_box_pack_start(GTK_BOX(devHbox2),devInfoLabel,FALSE,FALSE,0);
+
 	eepromRWToggle = gtk_check_button_new_with_label(strings[I_EE]);	//"Read and write EEPROM"
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(eepromRWToggle),TRUE);
+	gtk_grid_attach(GTK_GRID(devGrid),eepromRWToggle,2,2,1,1);
 
-	gtk_grid_attach(GTK_GRID(devGrid),eepromRWToggle,0,2,1,1);
-	picOptsBox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);//gtk_frame_new(NULL);	//"PIC configuration"
-
-	gtk_grid_attach(GTK_GRID(devGrid),picOptsBox,0,3,1,1);
+	picOptsBox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);	//"PIC configuration"
+	gtk_grid_attach(GTK_GRID(devGrid),picOptsBox,2,3,1,1);
 
 	GtkWidget *picGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(picGrid), 5);
@@ -2100,7 +2088,7 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	CWX(7);
 
 	avrOptsBox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);	//Atmel configuration
-	gtk_grid_attach(GTK_GRID(devGrid),avrOptsBox,0,3,1,1);
+	gtk_grid_attach(GTK_GRID(devGrid),avrOptsBox,2,3,1,1);
 	GtkWidget * avrGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(avrGrid), 5);
 	gtk_grid_set_row_spacing(GTK_GRID(avrGrid), 2);
@@ -2445,7 +2433,7 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	gtk_grid_attach(GTK_GRID(utGrid),hexSaveBtn,0,3,1,1);
 //------status bar-------------
 	status_bar = gtk_statusbar_new();
-	//gtk_box_pack_start(GTK_BOX(mainVbox),status_bar,FALSE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(mainVbox),status_bar,FALSE,TRUE,0);
 	statusID=gtk_statusbar_get_context_id(GTK_STATUSBAR(status_bar),"ID");
 	g_signal_connect(G_OBJECT(testHWBtn),"clicked",G_CALLBACK(TestHw),window);
 	g_signal_connect(G_OBJECT(connectBtn),"clicked",G_CALLBACK(Connect),window);
@@ -2456,7 +2444,6 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	g_signal_connect(G_OBJECT(icdCommandEntry),"key_press_event",G_CALLBACK(icdCommand_key_event),NULL);
 	g_signal_connect(G_OBJECT(icdVBox),"key_press_event",G_CALLBACK(icd_key_event),NULL);
 	g_signal_connect(G_OBJECT(devTypeCombo),"changed",G_CALLBACK(FilterDevType),NULL);
-	g_signal_connect(G_OBJECT(devCombo),"changed",G_CALLBACK(DeviceChanged),NULL);
 	g_signal_connect(G_OBJECT(ioActiveToggle),"toggled",G_CALLBACK(IOactive),NULL);
 	g_signal_connect(G_OBJECT(vddOnToggle),"toggled",G_CALLBACK(VPPVDDactive),NULL);
 	g_signal_connect(G_OBJECT(vppOnToggle),"toggled",G_CALLBACK(VPPVDDactive),NULL);
@@ -2467,24 +2454,6 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	g_signal_connect(G_OBJECT(dataEntry),"changed",G_CALLBACK(DataToHexConvert),NULL);
 	g_signal_connect(G_OBJECT(hexSaveBtn),"clicked",G_CALLBACK(HexSave),window);
 	g_signal_connect(G_OBJECT(wFuseLFBtn),"clicked",G_CALLBACK(WriteATfuseLowLF),window);
-
-	//*********Device tree******
-  	devTree = gtk_tree_view_new();
-	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(devTree),
-		-1, "Name", gtk_cell_renderer_text_new(), "text", DEVICE_NAME_COLUMN, NULL);
-	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(devTree),
-		-1, "Family", gtk_cell_renderer_text_new(), "text", DEVICE_FAMILY_COLUMN, NULL);
-
-  	devStore = gtk_list_store_new (DEVICE_N_COLUMNS,
-	  						  G_TYPE_UINT,
-                              G_TYPE_STRING,
-                              G_TYPE_STRING);
-
-	AddDevices();
-
-	gtk_tree_view_set_model(GTK_TREE_VIEW(devTree), GTK_TREE_MODEL(devStore));
- 	g_object_unref (G_OBJECT (devStore));
-	gtk_box_pack_start(GTK_BOX(mainVbox),devTree,TRUE,TRUE,0);
 
 	gtk_widget_show_all(window);
 //********Init*************
@@ -2508,7 +2477,7 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devTypeCombo),"PIC30/33");
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devTypeCombo),"ATMEL AVR");
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devTypeCombo),"EEPROM");
-	gtk_combo_box_set_wrap_width(GTK_COMBO_BOX(devCombo),6);
+	// gtk_combo_box_set_wrap_width(GTK_COMBO_BOX(devCombo),6);
 	int tt=0;
 	if(!strncmp(dev,"10F",3)||!strncmp(dev,"12F",3)) tt=1;	//10F 12F
 	else if(!strncmp(dev,"16F",3)) tt=2;	//16F
@@ -2919,18 +2888,18 @@ void StrcatConvert(char *dst, const char *src) {
 
 //Add all devices to the appropriate structure
 void AddDevices() {
-	int i,j=0,type=-1;
+	int i,j=0,fam=-1;
 	char *str=0,*tok;
 	for(i=0;i<NDEVLIST;i++){
 		if(str) free(str);
 		str=malloc(strlen(DEVLIST[i].device)+1);
 		strcpy(str,DEVLIST[i].device);
 		for(tok=strtok(str,",");tok;tok=strtok(NULL,",")){
-			type=DEVLIST[i].family;
+			fam=DEVLIST[i].family;
 			gtk_list_store_insert_with_values(devStore, NULL, -1,
 				DEVICE_ID_COLUMN, j++,
 				DEVICE_NAME_COLUMN, tok,
-				DEVICE_FAMILY_COLUMN, familyNames[type], -1);
+				DEVICE_FAMILY_COLUMN, familyNames[fam], -1);
 		}
 	}
 	free(str);

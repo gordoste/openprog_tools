@@ -1073,7 +1073,7 @@ struct DevInfo GetDevInfo(const char* dev)
 	double x;
 	struct DevInfo info;
 	info.device=0;
-	info.type=-1;
+	info.family=-1;
 	info.HV=-1;
 	info.V33=-1;
 	info.size=-1;
@@ -1087,7 +1087,26 @@ struct DevInfo GetDevInfo(const char* dev)
 			if(!strcmp(dev,tok)){	//proceed if found
 				info.device=malloc(strlen(dev)+1);
 				strcpy(info.device,dev);
-				info.type=DEVLIST[i].family;
+				info.family=DEVLIST[i].family;
+
+				if(!strncmp(devices[i],"10F",3)||!strncmp(devices[i],"12F",3))
+					info.group = G_PIC_10_12;
+				else if(!strncmp(devices[i],"16F",3)||!strncmp(devices[i],"16LF",4))
+					info.group = G_PIC_16;
+				else if(!strncmp(devices[i],"18F",3))
+					info.group = G_PIC_18;
+				else if(!strncmp(devices[i],"24F",3)||!strncmp(devices[i],"24H",3)||!strncmp(devices[i],"24E",3))
+					info.group = G_PIC_24;
+				else if(!strncmp(devices[i],"30F",3)||!strncmp(devices[i],"33F",3)||!strncmp(devices[i],"33E",3))
+					info.group = G_PIC_30_33;
+				else if(!strncmp(devices[i],"AT",2))
+					info.group = G_ATMEL;
+				else if(!strncmp(devices[i],"24",2)||!strncmp(devices[i],"25",2)||!strncmp(devices[i],"93",2)|| \
+					!strncmp(devices[i],"11",2)||!strncmp(devices[i],"DS",2))
+					info.group = G_EEPROM;
+				else PrintMessage1("can't determine group of device '%s'\n",devices[i]);
+					
+
 				info.HV=DEVLIST[i].HV;
 				info.V33=DEVLIST[i].V33;
 				info.size=DEVLIST[i].ReadParam[0];
@@ -1098,7 +1117,7 @@ struct DevInfo GetDevInfo(const char* dev)
 				x=info.size/1024.0;
 				if(x-(int)x) sprintf(strF,"%.1f",x);
 				else sprintf(strF,"%d",(int)x);
-				switch(info.type){
+				switch(info.family){
 				case -1:
 					sprintf(str2,"?? ");
 					break;

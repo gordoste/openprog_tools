@@ -19,6 +19,7 @@ void ShowContext();
 void TestHw();
 int CheckS1();
 void AddDevices();
+void GetSelectedDevice();
 
 enum
 {
