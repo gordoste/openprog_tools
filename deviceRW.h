@@ -1,6 +1,8 @@
 extern char* devices[];
 extern int Ndevices;
 extern char *familyNames[];
+extern char *groupNames[];
+extern char *GROUP_ALL;
 
 void Write(char* dev,int ee);
 void Read(char* dev,int ee,int r);

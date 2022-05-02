@@ -50,9 +50,11 @@ char *groupNames[NUM_GROUPS] = {
 	"PIC18",
 	"PIC24",
 	"PIC30/33",
-	"ATMEL",
+	"ATMEL AVR",
 	"EEPROM"
 };
+
+char *GROUP_ALL="*";
 
 char* devices[]={
 "10F200","10F202","10F204","10F206","10F220","10F222",
@@ -210,17 +212,6 @@ char* devices[]={
 };
 
 int Ndevices=sizeof(devices)/sizeof(char*);
-
-/*enum family {PIC12,PIC16,PIC18,PIC24,AVR,I2CEE,SPIEE,UWEE,OWEE,UNIOEE};
-
-struct DevInfo{
-	char *device;				//device name
-	int type;					//type
-	double HV;					//High voltage value (-1= turn off HV)
-	int V33;					//3.3V regulator required (0=not required)
-	int size;					//memory size
-	int sizeEE;					//EE memory size
-};*/
 
 struct DEVICES DEVLIST[]={
 //-------------PIC10-16---------------------------------------------------------
