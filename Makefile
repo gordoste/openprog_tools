@@ -4,10 +4,12 @@ CC = gcc
 PREFIX = /usr/local
 appimage: PREFIX = ./opgui.AppDir/usr
 
+CC += -Os -s
+
 # Check if we are running on windows
 UNAME := $(shell uname)
 ifneq (, $(findstring _NT-, $(UNAME)))
-	LDFLAGS = -mwindows
+	LDFLAGS += -mwindows
 	HIDAPI_PKG = hidapi
 else
 	LDFLAGS += -lrt
@@ -26,12 +28,7 @@ CFLAGS_HIDAPI = `pkg-config --cflags $(HIDAPI_PKG)`
 LDFLAGS_HIDAPI = `pkg-config --libs $(HIDAPI_PKG)`
 
 CFLAGS =  '-DVERSION="$(VERSION)"'
-CFLAGS += -Os -s #size
-#CFLAGS += -O3 -s #speed
-#CFLAGS += -g #debug
-
-CFLAGS += -DGTK_DISABLE_SINGLE_INCLUDES -DGSEAL_ENABLE
-#-DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED
+CFLAGS += -DGTK_DISABLE_SINGLE_INCLUDES -DGSEAL_ENABLE -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED
 CFLAGS += $(CFLAGS_GTK3) $(CFLAGS_HIDAPI)
 
 OBJECTS_SHARED = common.o \
