@@ -105,7 +105,7 @@ GtkTextBuffer *statusBuf, *sourceBuf;
 GtkWidget *icdVBox, *icdPC_CheckMenuItem, *icdSTAT_CheckMenuItem, *icdBank0_CheckMenuItem, *icdBank1_CheckMenuItem, *icdBank2_CheckMenuItem, *icdBank3_CheckMenuItem, *icdEE_CheckMenuItem, *icdCommandEntry;
 GtkWidget *dcdcOnToggle, *dcdcVoltageRange, *vppOnToggle, *vddOnToggle;
 GtkWidget *ioActiveToggle, *V33CheckToggle, *waitS1Toggle;
-GtkWidget *hexEntry, *addressEntry, *dataEntry, *hexDataEntry, *hexDataEntry2;
+GtkWidget *hexEntry, *addressEntry, *dataEntry, *hexDataEntry, *hexDataEntry2, *hexSaveBtn;
 GtkWidget *CW1Entry, *CW2Entry, *CW3Entry, *CW4Entry, *CW5Entry, *CW6Entry, *CW7Entry;
 GtkWidget *CW1Box, *CW2Box, *CW3Box, *CW4Box, *CW5Box, *CW6Box, *CW7Box;
 GtkWidget *configForceToggle;
@@ -1894,22 +1894,8 @@ int main( int argc, char *argv[])
 	return status;
 }
 
-void onActivate(GtkApplication *_app, gpointer user_data) {
-	window = gtk_application_window_new(app);
-	sprintf(str,"opgui v%s",VERSION);
-	gtk_window_set_title(GTK_WINDOW(window),str);
-	gtk_window_set_default_size(GTK_WINDOW(window), 750, 250);
-	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-	g_signal_connect(GTK_WINDOW(window), "destroy",G_CALLBACK(Xclose),NULL);
-	gtk_window_set_icon(GTK_WINDOW(window),gdk_pixbuf_new_from_resource("/openprog/icons/sys.png", NULL));
-	GtkWidget * mainVbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
-	gtk_container_add(GTK_CONTAINER(window),mainVbox);
-
-	GtkCssProvider *cssProv = gtk_css_provider_new();
-	gtk_css_provider_load_from_resource(cssProv, "/openprog/css/style.css");
-	gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), GTK_STYLE_PROVIDER(cssProv), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-
-//------toolbar-------------
+void buildMainToolbar() {
+	//------toolbar-------------
 	openToolItem = gtk_tool_button_new(\
 		gtk_image_new_from_icon_name("document-open", GTK_ICON_SIZE_BUTTON), strings[I_Fopen]);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(openToolItem), strings[I_Fopen]);
@@ -1947,7 +1933,6 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 
 	toolbar = gtk_toolbar_new();
 	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_ICONS);
-	gtk_box_pack_start(GTK_BOX(mainVbox),toolbar,FALSE,FALSE,0);
 
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(openToolItem), -1);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(saveToolItem), -1);
@@ -1960,24 +1945,12 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(infoToolItem), -1);
 
 	gtk_widget_set_sensitive(GTK_WIDGET(stopToolItem), FALSE);
+}
 
-//------tab widget-------------
-	notebook = gtk_notebook_new();
-	gtk_box_pack_start(GTK_BOX(mainVbox),notebook,FALSE,FALSE,0);
-//------logging window
-	data_scroll = gtk_scrolled_window_new(NULL,NULL);
-	data = gtk_text_view_new();
-	dataBuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data));
-	gtk_text_view_set_editable(GTK_TEXT_VIEW(data),FALSE);
-	gtk_container_add(GTK_CONTAINER(data_scroll),data);
-	styleCtx = gtk_widget_get_style_context(GTK_WIDGET(data));
-	gtk_style_context_add_class(styleCtx, "mono");
-	gtk_box_pack_start(GTK_BOX(mainVbox),data_scroll,TRUE,TRUE,0);
-//------device tab-------------
+GtkWidget * buildDeviceTab() {
 	GtkWidget * devGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(devGrid), 5);
 	gtk_grid_set_row_spacing(GTK_GRID(devGrid), 5);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),devGrid,gtk_label_new(strings[I_Dev])); //"Device"
 
 	//*********Device tree******
 	GtkWidget *devScroll = gtk_scrolled_window_new(NULL,NULL);
@@ -2117,11 +2090,13 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	wFuseLFBtn = gtk_button_new_with_label(strings[I_AT_FUSELF]);		//"Write Fuse Low @3kHz"
 	gtk_grid_attach(GTK_GRID(avrGrid),wFuseLFBtn,0,5,1,1);
 
-//------options tab-------------
+	return devGrid;
+}
+
+GtkWidget * buildOptionsTab() {
 	GtkWidget * optGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(optGrid), 5);
 	gtk_grid_set_row_spacing(GTK_GRID(optGrid), 5);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),optGrid,gtk_label_new(strings[I_Opt])); //"Options"
 	connectBtn = gtk_button_new_with_label(strings[I_CONN]);	//"Reconnect"
 	gtk_grid_attach(GTK_GRID(optGrid),connectBtn,0,0,1,1);
 	GtkWidget * optHboxVid = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
@@ -2151,10 +2126,12 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	errorsEntry = gtk_entry_new();
 	gtk_entry_set_width_chars(GTK_ENTRY(errorsEntry),6);
 	gtk_container_add(GTK_CONTAINER(optHboxErr),GTK_WIDGET(errorsEntry));
-//------I2C tab-------------
+	return optGrid;
+}
+
+GtkWidget * buildI2CTab() {
 	GtkWidget * i2cGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(i2cGrid),5);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),i2cGrid,gtk_label_new("I2C/SPI"));
 	GtkWidget * i2cModeFrame = gtk_frame_new(strings[I_I2CMode]);	//"Mode"
 	gtk_grid_attach(GTK_GRID(i2cGrid),i2cModeFrame,0,0,1,5);
 	GtkWidget * i2cVboxMode = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
@@ -2208,9 +2185,12 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	gtk_grid_attach(GTK_GRID(i2cGrid),i2cSendBtn,1,2,1,1);
 	i2cRcvBtn = gtk_button_new_with_label(strings[I_I2CReceive]);	//"Receive"
 	gtk_grid_attach(GTK_GRID(i2cGrid),i2cRcvBtn,2,2,1,1);
-//------ICD tab-------------
+	return i2cGrid;
+}
+
+GtkWidget * buildICDTab() {
 	icdVBox = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),icdVBox,gtk_label_new("ICD"));
+
 	//menu
 	GtkWidget * icdMenuBar = gtk_menu_bar_new ();
 	GtkWidget * icdRootMenu = gtk_menu_item_new_with_label(strings[I_Opt]); //"Options";
@@ -2233,6 +2213,7 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdBank2_CheckMenuItem);
 	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdBank3_CheckMenuItem);
 	gtk_menu_shell_append (GTK_MENU_SHELL (icdMenu), icdEE_CheckMenuItem);
+
 	//toolbar
 	GtkToolItem* icdGoBtn = gtk_tool_button_new(\
 		gtk_image_new_from_resource("/openprog/icons/go.png"), strings[I_ICD_RUN]);
@@ -2295,7 +2276,7 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	gtk_toolbar_insert(GTK_TOOLBAR(icdToolbar),gtk_separator_tool_item_new(),-1);
 	gtk_toolbar_insert(GTK_TOOLBAR(icdToolbar),icdHelpBtn,-1);
 
-	GtkWidget *icdHpaned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
+	GtkWidget * icdHpaned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_box_pack_start(GTK_BOX(icdVBox),icdHpaned,TRUE,TRUE,0);
 	gint width,height;
 	gtk_window_get_size(GTK_WINDOW(window),&width,&height);
@@ -2332,9 +2313,11 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	gtk_style_context_add_class(styleCtx, "mono");
 
 	gtk_box_pack_start(GTK_BOX(icdVbox3),statusScroll,TRUE,TRUE,0);
-//------IO tab-------------
+	return icdVBox;
+}
+
+GtkWidget * buildIOTab() {
 	GtkWidget * ioVbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),ioVbox,gtk_label_new("I/O"));
 	GtkWidget * ioFrame = gtk_frame_new("I/O");
 	gtk_box_pack_start(GTK_BOX(ioVbox),ioFrame,FALSE,FALSE,0);
 	GtkWidget * ioGrid = gtk_grid_new();
@@ -2396,10 +2379,11 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	gtk_box_pack_start(GTK_BOX(dcdcHbox),dcdcOnToggle,FALSE,TRUE,2);
 	dcdcVoltageRange=gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,5,15,0.1);
 	gtk_box_pack_start(GTK_BOX(dcdcHbox),dcdcVoltageRange,TRUE,TRUE,2);
-//------Utility tab-------------
-	GtkWidget * utVbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),utVbox,gtk_label_new("Utility"));
+	return ioVbox;
+}
 
+GtkWidget * buildUtilTab() {
+	GtkWidget * utVbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	GtkWidget * utFrameH2D = gtk_frame_new("HEX -> DATA");
 	gtk_box_pack_start(GTK_BOX(utVbox),utFrameH2D,FALSE,FALSE,5);
 	GtkWidget * utHexVbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
@@ -2429,12 +2413,55 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	hexDataEntry2 = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(hexDataEntry2),0);
 	gtk_grid_attach(GTK_GRID(utGrid),hexDataEntry2,1,2,1,1);
-	GtkWidget * hexSaveBtn = gtk_button_new_with_label(strings[I_Fsave]);
+	hexSaveBtn = gtk_button_new_with_label(strings[I_Fsave]);
 	gtk_grid_attach(GTK_GRID(utGrid),hexSaveBtn,0,3,1,1);
+	return utVbox;
+}
+
+void onActivate(GtkApplication *_app, gpointer user_data) {
+	window = gtk_application_window_new(app);
+	sprintf(str,"opgui v%s",VERSION);
+	gtk_window_set_title(GTK_WINDOW(window),str);
+	gtk_window_set_default_size(GTK_WINDOW(window), 750, 250);
+	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+	g_signal_connect(GTK_WINDOW(window), "destroy",G_CALLBACK(Xclose),NULL);
+	gtk_window_set_icon(GTK_WINDOW(window),gdk_pixbuf_new_from_resource("/openprog/icons/sys.png", NULL));
+	GtkWidget * mainVbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	gtk_container_add(GTK_CONTAINER(window),mainVbox);
+
+	GtkCssProvider *cssProv = gtk_css_provider_new();
+	gtk_css_provider_load_from_resource(cssProv, "/openprog/css/style.css");
+	gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), GTK_STYLE_PROVIDER(cssProv), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+	buildMainToolbar();
+	gtk_box_pack_start(GTK_BOX(mainVbox),toolbar,FALSE,FALSE,0);
+	
+//------tab widget-------------
+	notebook = gtk_notebook_new();
+	gtk_box_pack_start(GTK_BOX(mainVbox),notebook,FALSE,FALSE,0);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),buildDeviceTab(),gtk_label_new(strings[I_Dev])); //"Device"
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),buildOptionsTab(),gtk_label_new(strings[I_Opt])); //"Options"
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),buildI2CTab(),gtk_label_new("I2C/SPI"));
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),buildICDTab(),gtk_label_new("ICD"));
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),buildIOTab(),gtk_label_new("I/O"));
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),buildUtilTab(),gtk_label_new("Utility"));
+
+//------logging window
+	data_scroll = gtk_scrolled_window_new(NULL,NULL);
+	data = gtk_text_view_new();
+	dataBuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data));
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(data),FALSE);
+	gtk_container_add(GTK_CONTAINER(data_scroll),data);
+	styleCtx = gtk_widget_get_style_context(GTK_WIDGET(data));
+	gtk_style_context_add_class(styleCtx, "mono");
+	gtk_box_pack_start(GTK_BOX(mainVbox),data_scroll,TRUE,TRUE,0);
+
 //------status bar-------------
 	status_bar = gtk_statusbar_new();
 	gtk_box_pack_start(GTK_BOX(mainVbox),status_bar,FALSE,TRUE,0);
 	statusID=gtk_statusbar_get_context_id(GTK_STATUSBAR(status_bar),"ID");
+
+//------event handlers
 	g_signal_connect(G_OBJECT(testHWBtn),"clicked",G_CALLBACK(TestHw),window);
 	g_signal_connect(G_OBJECT(connectBtn),"clicked",G_CALLBACK(Connect),window);
 	g_signal_connect(G_OBJECT(i2cRcvBtn),"clicked",G_CALLBACK(I2cspiR),window);
@@ -2477,7 +2504,6 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devTypeCombo),"PIC30/33");
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devTypeCombo),"ATMEL AVR");
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(devTypeCombo),"EEPROM");
-	// gtk_combo_box_set_wrap_width(GTK_COMBO_BOX(devCombo),6);
 	int tt=0;
 	if(!strncmp(dev,"10F",3)||!strncmp(dev,"12F",3)) tt=1;	//10F 12F
 	else if(!strncmp(dev,"16F",3)) tt=2;	//16F
