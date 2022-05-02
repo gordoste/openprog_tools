@@ -1948,9 +1948,7 @@ void buildMainToolbar() {
 }
 
 GtkWidget * buildDeviceTab() {
-	GtkWidget * devGrid = gtk_grid_new();
-	gtk_grid_set_column_spacing(GTK_GRID(devGrid), 5);
-	gtk_grid_set_row_spacing(GTK_GRID(devGrid), 5);
+	GtkWidget *devBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 
 	//*********Device tree******
 	GtkWidget *devScroll = gtk_scrolled_window_new(NULL,NULL);
@@ -1979,25 +1977,28 @@ GtkWidget * buildDeviceTab() {
 
 	gtk_container_add(GTK_CONTAINER(devScroll), devTree);
 
+	GtkWidget * devVBox1 = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	GtkWidget * devHbox1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
-	gtk_grid_attach(GTK_GRID(devGrid),devHbox1,0,0,2,1);
-	gtk_box_pack_start(GTK_BOX(devHbox1),gtk_label_new(strings[I_Type]),FALSE,TRUE,0); //"Type"
 	devTypeCombo = gtk_combo_box_text_new();
+	gtk_box_pack_start(GTK_BOX(devHbox1),gtk_label_new(strings[I_Type]),FALSE,TRUE,0); //"Type"
 	gtk_box_pack_start(GTK_BOX(devHbox1),devTypeCombo,FALSE,TRUE,0);
-	gtk_grid_attach(GTK_GRID(devGrid),devScroll,0,1,2,4);
-	GtkWidget * devHbox2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
+	gtk_box_pack_start(GTK_BOX(devVBox1),devHbox1,FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(devVBox1),devScroll,TRUE,TRUE,0);
 
-	gtk_grid_attach(GTK_GRID(devGrid),devHbox2,2,1,2,1);
-	gtk_box_pack_start(GTK_BOX(devHbox2),gtk_label_new("info: "),FALSE,FALSE,0);
+	GtkWidget * devGrid = gtk_grid_new();
+	GtkWidget * devHbox2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
 	devInfoLabel = gtk_label_new("i");
+	gtk_box_pack_start(GTK_BOX(devHbox2),gtk_label_new("info: "),FALSE,FALSE,0);
 	gtk_box_pack_start(GTK_BOX(devHbox2),devInfoLabel,FALSE,FALSE,0);
+	gtk_grid_attach(GTK_GRID(devGrid),devHbox2,0,0,2,1);
 
 	eepromRWToggle = gtk_check_button_new_with_label(strings[I_EE]);	//"Read and write EEPROM"
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(eepromRWToggle),TRUE);
-	gtk_grid_attach(GTK_GRID(devGrid),eepromRWToggle,2,2,1,1);
+	gtk_grid_attach(GTK_GRID(devGrid),eepromRWToggle,0,1,2,1);
 
+	// ----- Begin PIC options
 	picOptsBox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);	//"PIC configuration"
-	gtk_grid_attach(GTK_GRID(devGrid),picOptsBox,2,3,1,1);
+	gtk_grid_attach(GTK_GRID(devGrid),picOptsBox,0,2,2,1);
 
 	GtkWidget *picGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(picGrid), 5);
@@ -2059,9 +2060,11 @@ GtkWidget * buildDeviceTab() {
 	CWX(5);
 	CWX(6);
 	CWX(7);
+	// ----- End PIC options
 
 	avrOptsBox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);	//Atmel configuration
-	gtk_grid_attach(GTK_GRID(devGrid),avrOptsBox,2,3,1,1);
+	gtk_grid_attach(GTK_GRID(devGrid),avrOptsBox,0,3,2,1);
+
 	GtkWidget * avrGrid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(avrGrid), 5);
 	gtk_grid_set_row_spacing(GTK_GRID(avrGrid), 2);
@@ -2090,7 +2093,9 @@ GtkWidget * buildDeviceTab() {
 	wFuseLFBtn = gtk_button_new_with_label(strings[I_AT_FUSELF]);		//"Write Fuse Low @3kHz"
 	gtk_grid_attach(GTK_GRID(avrGrid),wFuseLFBtn,0,5,1,1);
 
-	return devGrid;
+	gtk_box_pack_start(GTK_BOX(devBox),devVBox1,FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(devBox),devGrid,TRUE,TRUE,0);
+	return devBox;
 }
 
 GtkWidget * buildOptionsTab() {
