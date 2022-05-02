@@ -44,6 +44,16 @@ char *familyNames[NUM_FAMILIES] = {
 	"UNIO EE"
 };
 
+char *groupNames[NUM_GROUPS] = {
+	"PIC10/12",
+	"PIC16",
+	"PIC18",
+	"PIC24",
+	"PIC30/33",
+	"ATMEL",
+	"EEPROM"
+};
+
 char* devices[]={
 "10F200","10F202","10F204","10F206","10F220","10F222",
 "10F320","10F322",
