@@ -118,6 +118,7 @@ int FindDevice(int vid,int pid, bool _info);
 int SearchDevice(int *_vid, int *_pid, bool _info);
 void PacketIO(double delay);
 void msDelay(double delay);
+char *strcasestr(const char *haystack, const char *needle);
 
 // These functions have different implementations in opgui.c/op.c 
 // **************************************************************
