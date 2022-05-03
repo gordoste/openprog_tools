@@ -1762,6 +1762,18 @@ void Xclose(){
 	gtk_widget_destroy(window);
 }
 
+/// Walk the TreeModel until we find an entry with the passed device name
+/// Select that entry and then stop walking
+gboolean selectDev_ForeachFunc(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, char *devNameToSelect) {
+	char *thisEntryDevName;
+	gtk_tree_model_get(model, iter, DEVICE_NAME_COLUMN, &thisEntryDevName, -1);
+	if (strcmp(thisEntryDevName, devNameToSelect) == 0) {
+		gtk_tree_selection_select_iter(devSel, iter);
+		return TRUE;
+	}
+	return FALSE;
+}
+
 ///-----------------------------------
 ///Main function
 ///-----------------------------------
@@ -1971,8 +1983,9 @@ GtkWidget * buildDeviceTab() {
 	devSel = gtk_tree_view_get_selection(GTK_TREE_VIEW(devTree));
 	gtk_tree_selection_set_mode(devSel, GTK_SELECTION_BROWSE);
 	GtkTreeIter devIter;
-	gtk_tree_model_get_iter_first(GTK_TREE_MODEL(devStore), &devIter);
-	gtk_tree_selection_select_iter(devSel, &devIter);
+	gtk_tree_model_foreach(GTK_TREE_MODEL(devStore),
+		(GtkTreeModelForeachFunc)selectDev_ForeachFunc,
+		dev);
 	g_signal_connect(G_OBJECT(devSel),"changed",G_CALLBACK(onDevSel_Changed),NULL);
 
 	gtk_container_add(GTK_CONTAINER(devScroll), devTree);
