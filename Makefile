@@ -4,7 +4,17 @@ CC = gcc
 PREFIX = /usr/local
 appimage: PREFIX = ./opgui.AppDir/usr
 
-CC += -Os -s
+VERBOSE ?= 0
+ifeq ($(VERBOSE),1)
+	CFLAGS += -DVERBOSE
+endif
+
+DEBUG ?= 0
+ifeq ($(DEBUG),1)
+	CFLAGS += -DDEBUG
+else
+	CC += -Os -s
+endif
 
 # Check if we are running on windows
 UNAME := $(shell uname)
@@ -27,7 +37,7 @@ LDFLAGS_GTK3 = `pkg-config --libs gtk+-3.0`
 CFLAGS_HIDAPI = `pkg-config --cflags $(HIDAPI_PKG)`
 LDFLAGS_HIDAPI = `pkg-config --libs $(HIDAPI_PKG)`
 
-CFLAGS =  '-DVERSION="$(VERSION)"'
+CFLAGS +=  '-DVERSION="$(VERSION)"'
 CFLAGS += -DGTK_DISABLE_SINGLE_INCLUDES -DGSEAL_ENABLE -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED
 CFLAGS += $(CFLAGS_GTK3) $(CFLAGS_HIDAPI)
 
