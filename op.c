@@ -384,7 +384,7 @@ Foundation; either version 2 of the License, or (at your option) any later versi
 
 	struct DevInfo info;
 	info=GetDevInfo(dev);
-	devType=info.type;
+	devType=info.family;
 
 	if(fuse3k){ //write fuse low @ 3kHz
 		if(AVRfuse<0x100) WriteATfuseSlow(AVRfuse);
