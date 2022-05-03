@@ -112,6 +112,21 @@ extern char appName[6];
 #define PrintMessage3(s,p1,p2,p3) {sprintf(str,s,p1,p2,p3); PrintMessage(str);}
 #define PrintMessage4(s,p1,p2,p3,p4) {sprintf(str,s,p1,p2,p3,p4); PrintMessage(str);}
 
+// Macros for debug statements
+#ifdef VERBOSE
+#define Debug0(s) {fprintf(stderr,s); fflush(stderr);}
+#define Debug1(s,p) {fprintf(stderr,s,p); fflush(stderr);}
+#define Debug2(s,p1,p2) {fprintf(stderr,s,p1,p2); fflush(stderr);}
+#define Debug3(s,p1,p2,p3) {fprintf(stderr,s,p1,p2,p3); fflush(stderr);}
+#define Debug4(s,p1,p2,p3,p4) {fprintf(stderr,s,p1,p2,p3,p4); fflush(stderr);}
+#else
+#define Debug0(s) {}
+#define Debug1(s,p) {}
+#define Debug2(s,p1,p2) {}
+#define Debug3(s,p1,p2,p3) {}
+#define Debug4(s,p1,p2,p3,p4) {}
+#endif
+
 // These functions have a single implementation in common.c
 // ********************************************************
 int FindDevice(int vid,int pid, bool _info);
