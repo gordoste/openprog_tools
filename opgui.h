@@ -5,6 +5,8 @@
 
 #include <gtk/gtk.h>
 
+#include "deviceRW.h"
+
 extern int StatusID;
 extern GtkWidget *status_bar;
 
@@ -18,7 +20,7 @@ void ProgID();
 void ShowContext();
 void TestHw();
 int CheckS1();
-void AddDevices();
+void AddDevices(enum group_t groupFilter, char *textFilter);
 void GetSelectedDevice();
 
 enum

@@ -1049,7 +1049,7 @@ int GetDevType(const char* dev)
 	int i,type=-1;
 	char *str=0,*tok;
 	//parse all device names until "dev" is found
-	for(i=0;i<sizeof(DEVLIST)/sizeof(DEVLIST[0]);i++){
+	for(i=0;i<NDEVLIST;i++){
 		if(str) free(str);
 		str=malloc(strlen(DEVLIST[i].device)+1);
 		strcpy(str,DEVLIST[i].device);
@@ -1057,7 +1057,7 @@ int GetDevType(const char* dev)
 			if(!strcmp(dev,tok)){	//proceed if found
 				type=DEVLIST[i].family;
 				tok=0;
-				i=sizeof(DEVLIST)/sizeof(DEVLIST[0]);
+				i=NDEVLIST;
 			}
 		}
 	}
@@ -1065,13 +1065,140 @@ int GetDevType(const char* dev)
 	return type;
 }
 
+enum group_t nameToGroup(const char *devName) {
+	if(!strncmp(devName,"10F",3)||!strncmp(devName,"12F",3)||!strncmp(devName,"12C",3))
+		return G_PIC_10_12;
+	if(!strncmp(devName,"16F",3)||!strncmp(devName,"16LF",4)||!strncmp(devName,"16C",3))
+		return G_PIC_16;
+	if(!strncmp(devName,"18F",3))
+		return G_PIC_18;
+	if(!strncmp(devName,"24F",3)||!strncmp(devName,"24H",3)||!strncmp(devName,"24E",3))
+		return G_PIC_24;
+	if(!strncmp(devName,"30F",3)||!strncmp(devName,"33F",3)||!strncmp(devName,"33E",3))
+		return G_PIC_30_33;
+	if(!strncmp(devName,"AT",2))
+		return G_ATMEL;
+	if(!strncmp(devName,"24",2)||!strncmp(devName,"25",2)||!strncmp(devName,"93",2)|| \
+		!strncmp(devName,"95",2)||!strncmp(devName,"11",2)||!strncmp(devName,"DS",2))
+		return G_EEPROM;
+	Debug1("can't determine group of device '%s'\n",devName);
+	return -1;
+}
+
+/// Copies the device info from the passed devlist entry into the passed DevInfo
+/// Does NOT populate fields 'device' and 'group' as these are device-specific
+void populateDevInfo(struct DevInfo *info, const struct DEVICES *devlistEntry) {
+	char str2[256],str3[64],strF[32];
+	info->family=devlistEntry->family;
+	info->HV=devlistEntry->HV;
+	info->V33=devlistEntry->V33;
+	info->size=devlistEntry->ReadParam[0];
+	info->sizeEE=devlistEntry->ReadParam[1];
+	str2[0]=0;
+	double x=info->size/1024.0;
+	if(x-(int)x) sprintf(strF,"%.1f",x);
+	else sprintf(strF,"%d",(int)x);
+	switch(info->family){
+	case -1:
+		sprintf(str2,"?? ");
+		break;
+	case PIC12:
+		sprintf(str2,"PIC12, ");
+		if(info->size<1024) sprintf(str3,"%dW FLASH",info->size);
+		else sprintf(str3,"%sKW FLASH",strF);
+		strcat(str2,str3);
+		break;
+	case PIC16:
+		sprintf(str2,"PIC16, ");
+		if(info->size<1024) sprintf(str3,"%dW FLASH",info->size);
+		else sprintf(str3,"%sKW FLASH",strF);
+		strcat(str2,str3);
+		if(info->sizeEE){
+			int ee=info->sizeEE;
+			if(ee<0) ee=-ee;
+			sprintf(str3," + %dB EEPROM",ee);
+			strcat(str2,str3);
+		}
+		break;
+	case PIC18:
+		sprintf(str2,"PIC18, ");
+		if(info->size<1024) sprintf(str3,"%dB FLASH ",info->size);
+		else sprintf(str3,"%sKB FLASH ",strF);
+		strcat(str2,str3);
+		if(info->sizeEE){
+			sprintf(str3,"+ %dB EEPROM ",info->sizeEE);
+			strcat(str2,str3);
+		}
+		break;
+	case PIC24:
+		sprintf(str2,"PIC24, ");
+		if(info->size<1024) sprintf(str3,"%dW FLASH",info->size);
+		else sprintf(str3,"%sKW FLASH",strF);
+		strcat(str2,str3);
+		if(info->sizeEE){
+			sprintf(str3," + %dB EEPROM",info->sizeEE);
+			strcat(str2,str3);
+		}
+		break;
+	case PIC32:
+		sprintf(str2,"PIC32, ");
+		if(info->size<1024) sprintf(str3,"%dW FLASH",info->size);
+		else sprintf(str3,"%sKW FLASH",strF);
+		strcat(str2,str3);
+		if(info->sizeEE){
+			sprintf(str3," + %dB EEPROM",info->sizeEE);
+			strcat(str2,str3);
+		}
+		break;
+	case AVR:
+		sprintf(str2,"AVR, ");
+		if(info->size<1024) sprintf(str3,"%dB FLASH",info->size);
+		else sprintf(str3,"%sKB FLASH",strF);
+		strcat(str2,str3);
+		if(info->sizeEE){
+			sprintf(str3," + %dB EEPROM",info->sizeEE);
+			strcat(str2,str3);
+		}
+		break;
+	case I2CEE:
+		if(info->size<1024) sprintf(str2,"%s, %dB",strings[I_I2CMEM],info->size); //I2C Memory
+		else sprintf(str2,"%s, %sKB",strings[I_I2CMEM],strF); //I2C Memory
+		break;
+	case SPIEE:
+		if(info->size<1024) sprintf(str2,"%s, %dB",strings[I_SPIMEM],info->size); //SPI Memory
+		else sprintf(str2,"%s, %sKB",strings[I_SPIMEM],strF); //SPI Memory
+		break;
+	case UWEE:
+		if(info->size<1024) sprintf(str2,"%s, %dB",strings[I_UWMEM],info->size); //Microwire Memory
+		else sprintf(str2,"%s,%sKB",strings[I_UWMEM],strF);
+		break;
+	case OWEE:
+		if(info->size<0) sprintf(str2,strings[I_OWDEV]); //OneWire device
+		else if(info->size<1024) sprintf(str2,"%s, %dB",strings[I_OWMEM],info->size); //OneWire Memory
+		else sprintf(str2,"%s, %sKB",strings[I_OWMEM],strF);
+		break;
+	case UNIOEE:
+		if(info->size<1024) sprintf(str2,"%s, %dB",strings[I_UNIOMEM],info->size); //UNI/O Memory
+		else sprintf(str2,"%s, %sKB",strings[I_UNIOMEM],strF);
+		break;
+	}
+	if(info->HV>0){
+		sprintf(str3,", %.1fV",info->HV);
+		strcat(str2,str3);
+	}
+	if(info->V33){
+		strcat(str2,", ");
+		strcat(str2,strings[I_3V3REQUIRED]); // 3.3V adapter
+	}
+	info->features=malloc(strlen(str2)+1);
+	strcpy(info->features,str2);
+}
+
 ///Search and return device info
 struct DevInfo GetDevInfo(const char* dev)
 {
 	int i;
 	char *str=0,*tok;
-	char str2[256],str3[64],strF[32];
-	double x;
 	struct DevInfo info;
 	info.device=0;
 	info.family=-1;
@@ -1081,137 +1208,17 @@ struct DevInfo GetDevInfo(const char* dev)
 	info.sizeEE=-1;
 	info.features=0;
 	//parse all device names until "dev" is found
-	for(i=0;i<sizeof(DEVLIST)/sizeof(DEVLIST[0]);i++){
+	for(i=0;i<NDEVLIST;i++){
 		str=malloc(strlen(DEVLIST[i].device)+1);
 		strcpy(str,DEVLIST[i].device);
 		for(tok=strtok(str,",");tok;tok=strtok(NULL,",")){		//compare every device name
 			if(!strcmp(dev,tok)){	//proceed if found
-				info.device=malloc(strlen(dev)+1);
-				strcpy(info.device,dev);
-				info.family=DEVLIST[i].family;
-
-				if(!strncmp(devices[i],"10F",3)||!strncmp(devices[i],"12F",3))
-					info.group = G_PIC_10_12;
-				else if(!strncmp(devices[i],"16F",3)||!strncmp(devices[i],"16LF",4))
-					info.group = G_PIC_16;
-				else if(!strncmp(devices[i],"18F",3))
-					info.group = G_PIC_18;
-				else if(!strncmp(devices[i],"24F",3)||!strncmp(devices[i],"24H",3)||!strncmp(devices[i],"24E",3))
-					info.group = G_PIC_24;
-				else if(!strncmp(devices[i],"30F",3)||!strncmp(devices[i],"33F",3)||!strncmp(devices[i],"33E",3))
-					info.group = G_PIC_30_33;
-				else if(!strncmp(devices[i],"AT",2))
-					info.group = G_ATMEL;
-				else if(!strncmp(devices[i],"24",2)||!strncmp(devices[i],"25",2)||!strncmp(devices[i],"93",2)|| \
-					!strncmp(devices[i],"11",2)||!strncmp(devices[i],"DS",2))
-					info.group = G_EEPROM;
-				else PrintMessage1("can't determine group of device '%s'\n",devices[i]);
-					
-
-				info.HV=DEVLIST[i].HV;
-				info.V33=DEVLIST[i].V33;
-				info.size=DEVLIST[i].ReadParam[0];
-				info.sizeEE=DEVLIST[i].ReadParam[1];
-				tok=0;
-				i=sizeof(DEVLIST)/sizeof(DEVLIST[0]);
-				str2[0]=0;
-				x=info.size/1024.0;
-				if(x-(int)x) sprintf(strF,"%.1f",x);
-				else sprintf(strF,"%d",(int)x);
-				switch(info.family){
-				case -1:
-					sprintf(str2,"?? ");
-					break;
-				case PIC12:
-					sprintf(str2,"PIC12, ");
-					if(info.size<1024) sprintf(str3,"%dW FLASH",info.size);
-					else sprintf(str3,"%sKW FLASH",strF);
-					strcat(str2,str3);
-					break;
-				case PIC16:
-					sprintf(str2,"PIC16, ");
-					if(info.size<1024) sprintf(str3,"%dW FLASH",info.size);
-					else sprintf(str3,"%sKW FLASH",strF);
-					strcat(str2,str3);
-					if(info.sizeEE){
-						int ee=info.sizeEE;
-						if(ee<0) ee=-ee;
-						sprintf(str3," + %dB EEPROM",ee);
-						strcat(str2,str3);
-					}
-					break;
-				case PIC18:
-					sprintf(str2,"PIC18, ");
-					if(info.size<1024) sprintf(str3,"%dB FLASH ",info.size);
-					else sprintf(str3,"%sKB FLASH ",strF);
-					strcat(str2,str3);
-					if(info.sizeEE){
-						sprintf(str3,"+ %dB EEPROM ",info.sizeEE);
-						strcat(str2,str3);
-					}
-					break;
-				case PIC24:
-					sprintf(str2,"PIC24, ");
-					if(info.size<1024) sprintf(str3,"%dW FLASH",info.size);
-					else sprintf(str3,"%sKW FLASH",strF);
-					strcat(str2,str3);
-					if(info.sizeEE){
-						sprintf(str3," + %dB EEPROM",info.sizeEE);
-						strcat(str2,str3);
-					}
-					break;
-				case PIC32:
-					sprintf(str2,"PIC32, ");
-					if(info.size<1024) sprintf(str3,"%dW FLASH",info.size);
-					else sprintf(str3,"%sKW FLASH",strF);
-					strcat(str2,str3);
-					if(info.sizeEE){
-						sprintf(str3," + %dB EEPROM",info.sizeEE);
-						strcat(str2,str3);
-					}
-					break;
-				case AVR:
-					sprintf(str2,"AVR, ");
-					if(info.size<1024) sprintf(str3,"%dB FLASH",info.size);
-					else sprintf(str3,"%sKB FLASH",strF);
-					strcat(str2,str3);
-					if(info.sizeEE){
-						sprintf(str3," + %dB EEPROM",info.sizeEE);
-						strcat(str2,str3);
-					}
-					break;
-				case I2CEE:
-					if(info.size<1024) sprintf(str2,"%s, %dB",strings[I_I2CMEM],info.size); //I2C Memory
-					else sprintf(str2,"%s, %sKB",strings[I_I2CMEM],strF); //I2C Memory
-					break;
-				case SPIEE:
-					if(info.size<1024) sprintf(str2,"%s, %dB",strings[I_SPIMEM],info.size); //SPI Memory
-					else sprintf(str2,"%s, %sKB",strings[I_SPIMEM],strF); //SPI Memory
-					break;
-				case UWEE:
-					if(info.size<1024) sprintf(str2,"%s, %dB",strings[I_UWMEM],info.size); //Microwire Memory
-					else sprintf(str2,"%s,%sKB",strings[I_UWMEM],strF);
-					break;
-				case OWEE:
-					if(info.size<0) sprintf(str2,strings[I_OWDEV]); //OneWire device
-					else if(info.size<1024) sprintf(str2,"%s, %dB",strings[I_OWMEM],info.size); //OneWire Memory
-					else sprintf(str2,"%s, %sKB",strings[I_OWMEM],strF);
-					break;
-				case UNIOEE:
-					if(info.size<1024) sprintf(str2,"%s, %dB",strings[I_UNIOMEM],info.size); //UNI/O Memory
-					else sprintf(str2,"%s, %sKB",strings[I_UNIOMEM],strF);
-					break;
-				}
-				if(info.HV>0){
-					sprintf(str3,", %.1fV",info.HV);
-					strcat(str2,str3);
-				}
-				if(info.V33){
-					strcat(str2,", ");
-					strcat(str2,strings[I_3V3REQUIRED]); // 3.3V adapter
-				}
-				info.features=malloc(strlen(str2)+1);
-				strcpy(info.features,str2);
+				info.device=malloc(strlen(tok)+1);
+				strcpy(info.device,tok);
+				info.group=nameToGroup(info.device);
+				populateDevInfo(&info, &(DEVLIST[i]));
+				free(str);
+				return info;
 			}
 		}
 		free(str);

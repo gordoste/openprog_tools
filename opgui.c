@@ -490,16 +490,20 @@ void WriteATfuseLowLF(GtkWidget *widget,GtkWidget *window){
 	}
 }
 ///
-///Get device selected
+///Check GUI for selected device and put in variable 'dev'. Also enable/disable R/W buttons
 void GetSelectedDevice() {
 	GtkTreeModel *tmpModel;
 	GtkTreeIter tmpIter;
 	char *devName;
+	if (!GTK_IS_TREE_SELECTION(devSel)) { // Not initialised yet
+		return;
+	}
 	if (gtk_tree_selection_get_selected(devSel, &tmpModel, &tmpIter)) {
 		gtk_tree_model_get(tmpModel, &tmpIter, DEVICE_NAME_COLUMN, &devName, -1);
 		strcpy(dev,devName);
 		gtk_widget_set_sensitive(GTK_WIDGET(readToolItem), TRUE);
 		gtk_widget_set_sensitive(GTK_WIDGET(writeToolItem), TRUE);
+		g_free(devName);
 	} else { // Shouldn't ever happen, but just in case
 		dev[0] = '\0';
 		gtk_widget_set_sensitive(GTK_WIDGET(readToolItem), FALSE);
@@ -576,8 +580,23 @@ void onDevSel_Changed(GtkWidget *widget,GtkWidget *window)
 ///Filter device list according to type selected
 void FilterDevType(GtkWidget *widget,GtkWidget *window)
 {
-	char *str=0;
-	int i=gtk_combo_box_get_active(GTK_COMBO_BOX(devTypeCombo));
+	char *selGroupName = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(devTypeCombo));
+	Debug1("FilterDevType():%s\n",selGroupName);
+	enum group_t selGroup = -1;
+	for (int i=0; i<NUM_GROUPS; i++) {
+		if (strcmp(selGroupName, groupNames[i]) == 0) {
+			selGroup = i;
+			i = NUM_GROUPS;
+		}
+	}
+	// If no specific group selected, ALL should be selected
+	if (selGroup == -1 && strcmp(GROUP_ALL, selGroupName)) {
+		PrintMessage1("ERR: group name '%s' invalid", selGroupName);
+		return;
+	}
+	Debug2("group %d (%s) selected\n", selGroup, selGroup == -1 ? GROUP_ALL : groupNames[selGroup]);
+	AddDevices(selGroup , NULL);
+	onDevSel_Changed(NULL, NULL);
 }
 ///
 ///Scroll source file
@@ -1767,11 +1786,10 @@ void Xclose(){
 gboolean selectDev_ForeachFunc(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, char *devNameToSelect) {
 	char *thisEntryDevName;
 	gtk_tree_model_get(model, iter, DEVICE_NAME_COLUMN, &thisEntryDevName, -1);
-	if (strcmp(thisEntryDevName, devNameToSelect) == 0) {
-		gtk_tree_selection_select_iter(devSel, iter);
-		return TRUE;
-	}
-	return FALSE;
+	bool matched = (strcmp(thisEntryDevName, devNameToSelect) == 0);
+	if (matched) gtk_tree_selection_select_iter(devSel, iter);
+	g_free(thisEntryDevName);
+	return matched;
 }
 
 ///-----------------------------------
@@ -1970,29 +1988,15 @@ GtkWidget * buildDeviceTab() {
 	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(devTree),
 		-1, strings[I_Type], gtk_cell_renderer_text_new(), "text", DEVICE_FAMILY_COLUMN, NULL);
 
-  	devStore = gtk_list_store_new (DEVICE_N_COLUMNS,
-	  						  G_TYPE_UINT,
-                              G_TYPE_STRING,
-                              G_TYPE_STRING);
-
-	AddDevices();
-
-	gtk_tree_view_set_model(GTK_TREE_VIEW(devTree), GTK_TREE_MODEL(devStore));
- 	g_object_unref (G_OBJECT(devStore));
-
-	devSel = gtk_tree_view_get_selection(GTK_TREE_VIEW(devTree));
-	gtk_tree_selection_set_mode(devSel, GTK_SELECTION_BROWSE);
-	GtkTreeIter devIter;
-	gtk_tree_model_foreach(GTK_TREE_MODEL(devStore),
-		(GtkTreeModelForeachFunc)selectDev_ForeachFunc,
-		dev);
-	g_signal_connect(G_OBJECT(devSel),"changed",G_CALLBACK(onDevSel_Changed),NULL);
-
+	// AddDevices() gets when an entry in devTypeCombo is selected during init
 	gtk_container_add(GTK_CONTAINER(devScroll), devTree);
 
 	GtkWidget * devVBox1 = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	GtkWidget * devHbox1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
 	devTypeCombo = gtk_combo_box_text_new();
+	gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(devTypeCombo), GROUP_ALL, GROUP_ALL);
+	for (int i=0;i<NUM_GROUPS;i++)
+		gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(devTypeCombo), groupNames[i], groupNames[i]);
 	gtk_box_pack_start(GTK_BOX(devHbox1),gtk_label_new(strings[I_Type]),FALSE,TRUE,0); //"Type"
 	gtk_box_pack_start(GTK_BOX(devHbox1),devTypeCombo,FALSE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(devVBox1),devHbox1,FALSE,FALSE,0);
@@ -2501,6 +2505,7 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	g_signal_connect(G_OBJECT(wFuseLFBtn),"clicked",G_CALLBACK(WriteATfuseLowLF),window);
 
 	gtk_widget_show_all(window);
+
 //********Init*************
 	char text[16];
 	sprintf(text,"%04X",vid);
@@ -2514,8 +2519,7 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	initVar();
 	for(int i=0;i<0x8400;i++) memCODE_W[i]=0x3fff;
 	strncpy(LogFileName,strings[S_LogFile],sizeof(LogFileName));
-	gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(devTypeCombo), GROUP_ALL, GROUP_ALL);
-	for (int i=0;i<NUM_GROUPS;i++) 		gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(devTypeCombo), groupNames[i], groupNames[i]);
+	// These will trigger AddDevices to populate the device tree
 	if (strlen(dev)>0) {
 		struct DevInfo info = GetDevInfo(dev);
 		gtk_combo_box_set_active_id(GTK_COMBO_BOX(devTypeCombo), groupNames[info.group]);
@@ -2919,21 +2923,62 @@ void StrcatConvert(char *dst, const char *src) {
 	g_free(g);
 }
 
-//Add all devices to the appropriate structure
-void AddDevices() {
-	int i,j=0,fam=-1;
-	char *str=0,*tok;
-	for(i=0;i<NDEVLIST;i++){
-		if(str) free(str);
-		str=malloc(strlen(DEVLIST[i].device)+1);
-		strcpy(str,DEVLIST[i].device);
-		for(tok=strtok(str,",");tok;tok=strtok(NULL,",")){
-			fam=DEVLIST[i].family;
-			gtk_list_store_insert_with_values(devStore, NULL, -1,
-				DEVICE_ID_COLUMN, j++,
-				DEVICE_NAME_COLUMN, tok,
-				DEVICE_FAMILY_COLUMN, familyNames[fam], -1);
+///Add devices to the device ListStore (which may not have been created)
+///groupFilter: add devices in this group (-1 for all)
+///textFilter: only add devices containing this string (NULL for all)
+void AddDevices(enum group_t groupFilter, char *textFilter) {
+	Debug2("AddDevices(%d,%s) start\n", groupFilter, textFilter?textFilter:"(null)");
+	if (GTK_IS_TREE_SELECTION(devSel))
+		g_signal_handlers_disconnect_by_func(G_OBJECT(devSel),G_CALLBACK(onDevSel_Changed),NULL);
+
+	if (!GTK_IS_LIST_STORE(devStore)) {
+		devStore = gtk_list_store_new (DEVICE_N_COLUMNS,
+	  						  G_TYPE_UINT,
+                              G_TYPE_STRING,
+                              G_TYPE_STRING);
+
+		gtk_tree_view_set_model(GTK_TREE_VIEW(devTree), GTK_TREE_MODEL(devStore));
+ 		g_object_unref (G_OBJECT(devStore));
+	}
+	else gtk_list_store_clear(devStore);
+
+	int i,j=0;
+	char *devices=0,*tok;
+	for(i=0;i<NDEVLIST;i++) {
+		if(devices) free(devices);
+		devices=malloc(strlen(DEVLIST[i].device)+1);
+		strcpy(devices,DEVLIST[i].device);
+		struct DevInfo info;
+		populateDevInfo(&info, &(DEVLIST[i]));
+		Debug1("devs=%s\n",devices);
+		for(tok=strtok(devices,",");tok;tok=strtok(NULL,",")) {
+			info.device=malloc(strlen(tok)+1);
+			strcpy(info.device,tok);
+			info.group=nameToGroup(tok);
+			if ((!textFilter || strlen(textFilter) == 0 || strcasestr(tok, textFilter)) &&
+				(groupFilter == -1 || info.group == groupFilter)) {
+					gtk_list_store_insert_with_values(devStore, NULL, -1,
+						DEVICE_ID_COLUMN, j++,
+						DEVICE_NAME_COLUMN, tok,
+						DEVICE_FAMILY_COLUMN, groupNames[info.group], -1);
+					Debug1("inserted %s\n", tok);
+			}
 		}
 	}
-	free(str);
+	free(devices);
+
+	if(GTK_IS_TREE_SELECTION(devSel)) {
+		gtk_tree_selection_unselect_all(devSel);
+	}
+	else {
+		devSel = gtk_tree_view_get_selection(GTK_TREE_VIEW(devTree));
+		gtk_tree_selection_set_mode(devSel, GTK_SELECTION_SINGLE);
+	}
+	
+	g_signal_connect(G_OBJECT(devSel),"changed",G_CALLBACK(onDevSel_Changed),NULL);
+	gtk_tree_model_foreach(GTK_TREE_MODEL(devStore),
+		(GtkTreeModelForeachFunc)selectDev_ForeachFunc,
+	 	dev);
+	
+	Debug2("AddDevices(%d,%s) end\n", groupFilter, textFilter?textFilter:"(null)");
 }

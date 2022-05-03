@@ -1,3 +1,6 @@
+#ifndef _DEVICERW_H
+#define _DEVICERW_H
+
 extern char* devices[];
 extern int Ndevices;
 extern char *familyNames[];
@@ -35,7 +38,11 @@ struct DevInfo{
 	char *features;				//device features string
 };
 
+enum group_t nameToGroup(const char *devName);
+void populateDevInfo(struct DevInfo *info, const struct DEVICES *devlistEntry);
 struct DevInfo GetDevInfo(const char* dev);
 
 extern int NDEVLIST;
 extern struct DEVICES DEVLIST[];
+
+#endif // _DEVICERW_H
