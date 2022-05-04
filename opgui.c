@@ -111,7 +111,7 @@ GtkWidget *CW1Box, *CW2Box, *CW3Box, *CW4Box, *CW5Box, *CW6Box, *CW7Box;
 GtkWidget *configForceToggle;
 GtkStyleContext *styleCtx;
 GtkListStore *devStore;
-GtkWidget *devTree;
+GtkWidget *devTree, *devFiltEntry;
 GtkTreeSelection *devSel;
 
 ///array of radio buttons for IO manual control
@@ -581,7 +581,8 @@ void onDevSel_Changed(GtkWidget *widget,GtkWidget *window)
 void FilterDevType(GtkWidget *widget,GtkWidget *window)
 {
 	char *selGroupName = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(devTypeCombo));
-	Debug1("FilterDevType():%s\n",selGroupName);
+	const char *filtText = gtk_entry_get_text(GTK_ENTRY(devFiltEntry));
+	Debug2("FilterDevType():group='%s',filt='%s'\n",selGroupName,filtText);
 	enum group_t selGroup = -1;
 	for (int i=0; i<NUM_GROUPS; i++) {
 		if (strcmp(selGroupName, groupNames[i]) == 0) {
@@ -595,7 +596,8 @@ void FilterDevType(GtkWidget *widget,GtkWidget *window)
 		return;
 	}
 	Debug2("group %d (%s) selected\n", selGroup, selGroup == -1 ? GROUP_ALL : groupNames[selGroup]);
-	AddDevices(selGroup , NULL);
+	AddDevices(selGroup, filtText);
+	g_free(selGroupName);
 	onDevSel_Changed(NULL, NULL);
 }
 ///
@@ -1991,23 +1993,30 @@ GtkWidget * buildDeviceTab() {
 	// AddDevices() gets called when an entry in devTypeCombo is selected during init
 	gtk_container_add(GTK_CONTAINER(devScroll), devTree);
 
-	GtkWidget * devVBox1 = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
-	GtkWidget * devHbox1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
+	GtkWidget * devVboxDevSel = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
+	GtkWidget * devHboxDevType = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
 	devTypeCombo = gtk_combo_box_text_new();
 	gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(devTypeCombo), GROUP_ALL, GROUP_ALL);
 	for (int i=0;i<NUM_GROUPS;i++)
 		gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(devTypeCombo), groupNames[i], groupNames[i]);
-	gtk_box_pack_start(GTK_BOX(devHbox1),gtk_label_new(strings[I_Type]),FALSE,TRUE,0); //"Type"
-	gtk_box_pack_start(GTK_BOX(devHbox1),devTypeCombo,FALSE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(devVBox1),devHbox1,FALSE,FALSE,0);
-	gtk_box_pack_start(GTK_BOX(devVBox1),devScroll,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(devHboxDevType),gtk_label_new(strings[I_Type]),FALSE,TRUE,0); // "Filter by type"
+	gtk_box_pack_start(GTK_BOX(devHboxDevType),devTypeCombo,FALSE,TRUE,0);
+
+	GtkWidget * devHboxDevFilt = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
+	devFiltEntry = gtk_entry_new();
+	gtk_box_pack_start(GTK_BOX(devHboxDevFilt),gtk_label_new("Filter by name:"),FALSE,FALSE,0); // "Filter by name"
+	gtk_box_pack_start(GTK_BOX(devHboxDevFilt),devFiltEntry,TRUE,TRUE,0);
+
+	gtk_box_pack_start(GTK_BOX(devVboxDevSel),devHboxDevType,FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(devVboxDevSel),devHboxDevFilt,FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(devVboxDevSel),devScroll,TRUE,TRUE,0);
 
 	GtkWidget * devGrid = gtk_grid_new();
-	GtkWidget * devHbox2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
+	GtkWidget * devHboxDevInfo = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
 	devInfoLabel = gtk_label_new("i");
-	gtk_box_pack_start(GTK_BOX(devHbox2),gtk_label_new("info: "),FALSE,FALSE,0);
-	gtk_box_pack_start(GTK_BOX(devHbox2),devInfoLabel,FALSE,FALSE,0);
-	gtk_grid_attach(GTK_GRID(devGrid),devHbox2,0,0,2,1);
+	gtk_box_pack_start(GTK_BOX(devHboxDevInfo),gtk_label_new("info: "),FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(devHboxDevInfo),devInfoLabel,FALSE,FALSE,0);
+	gtk_grid_attach(GTK_GRID(devGrid),devHboxDevInfo,0,0,2,1);
 
 	eepromRWToggle = gtk_check_button_new_with_label(strings[I_EE]);	//"Read and write EEPROM"
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(eepromRWToggle),TRUE);
@@ -2110,7 +2119,7 @@ GtkWidget * buildDeviceTab() {
 	wFuseLFBtn = gtk_button_new_with_label(strings[I_AT_FUSELF]);		//"Write Fuse Low @3kHz"
 	gtk_grid_attach(GTK_GRID(avrGrid),wFuseLFBtn,0,5,1,1);
 
-	gtk_box_pack_start(GTK_BOX(devBox),devVBox1,FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(devBox),devVboxDevSel,FALSE,FALSE,0);
 	gtk_box_pack_start(GTK_BOX(devBox),devGrid,TRUE,TRUE,0);
 	return devBox;
 }
@@ -2493,6 +2502,7 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	g_signal_connect(G_OBJECT(icdCommandEntry),"key_press_event",G_CALLBACK(icdCommand_key_event),NULL);
 	g_signal_connect(G_OBJECT(icdVBox),"key_press_event",G_CALLBACK(icd_key_event),NULL);
 	g_signal_connect(G_OBJECT(devTypeCombo),"changed",G_CALLBACK(FilterDevType),NULL);
+	g_signal_connect(G_OBJECT(devFiltEntry),"changed",G_CALLBACK(FilterDevType),NULL);
 	g_signal_connect(G_OBJECT(ioActiveToggle),"toggled",G_CALLBACK(IOactive),NULL);
 	g_signal_connect(G_OBJECT(vddOnToggle),"toggled",G_CALLBACK(VPPVDDactive),NULL);
 	g_signal_connect(G_OBJECT(vppOnToggle),"toggled",G_CALLBACK(VPPVDDactive),NULL);
@@ -2926,7 +2936,7 @@ void StrcatConvert(char *dst, const char *src) {
 ///Add devices to the device ListStore (which may not have been created)
 ///groupFilter: add devices in this group (-1 for all)
 ///textFilter: only add devices containing this string (NULL for all)
-void AddDevices(enum group_t groupFilter, char *textFilter) {
+void AddDevices(enum group_t groupFilter, const char *textFilter) {
 	Debug2("AddDevices(%d,%s) start\n", groupFilter, textFilter?textFilter:"(null)");
 	if (GTK_IS_TREE_SELECTION(devSel))
 		g_signal_handlers_disconnect_by_func(G_OBJECT(devSel),G_CALLBACK(onDevSel_Changed),NULL);

@@ -22,7 +22,7 @@ void ProgID();
 void ShowContext();
 void TestHw();
 int CheckS1();
-void AddDevices(enum group_t groupFilter, char *textFilter);
+void AddDevices(enum group_t groupFilter, const char *textFilter);
 void GetSelectedDevice();
 
 enum dev_column_t {
