@@ -1999,12 +1999,12 @@ GtkWidget * buildDeviceTab() {
 	gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(devTypeCombo), GROUP_ALL, GROUP_ALL);
 	for (int i=0;i<NUM_GROUPS;i++)
 		gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(devTypeCombo), groupNames[i], groupNames[i]);
-	gtk_box_pack_start(GTK_BOX(devHboxDevType),gtk_label_new(strings[I_Type]),FALSE,TRUE,0); // "Filter by type"
+	gtk_box_pack_start(GTK_BOX(devHboxDevType),gtk_label_new(strings[I_FiltType]),FALSE,TRUE,0); // "Filter by type"
 	gtk_box_pack_start(GTK_BOX(devHboxDevType),devTypeCombo,FALSE,TRUE,0);
 
 	GtkWidget * devHboxDevFilt = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
 	devFiltEntry = gtk_entry_new();
-	gtk_box_pack_start(GTK_BOX(devHboxDevFilt),gtk_label_new("Filter by name:"),FALSE,FALSE,0); // "Filter by name"
+	gtk_box_pack_start(GTK_BOX(devHboxDevFilt),gtk_label_new(strings[I_FiltDev]),FALSE,FALSE,0); // "Filter by name"
 	gtk_box_pack_start(GTK_BOX(devHboxDevFilt),devFiltEntry,TRUE,TRUE,0);
 
 	gtk_box_pack_start(GTK_BOX(devVboxDevSel),devHboxDevType,FALSE,FALSE,0);
