@@ -1986,9 +1986,9 @@ GtkWidget * buildDeviceTab() {
 	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(devTree),
 		-1, strings[I_Dev], gtk_cell_renderer_text_new(), "text", DEVICE_NAME_COLUMN, NULL);
 	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(devTree),
-		-1, strings[I_Type], gtk_cell_renderer_text_new(), "text", DEVICE_FAMILY_COLUMN, NULL);
+		-1, strings[I_Type], gtk_cell_renderer_text_new(), "text", DEVICE_GROUP_COLUMN, NULL);
 
-	// AddDevices() gets when an entry in devTypeCombo is selected during init
+	// AddDevices() gets called when an entry in devTypeCombo is selected during init
 	gtk_container_add(GTK_CONTAINER(devScroll), devTree);
 
 	GtkWidget * devVBox1 = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
@@ -2938,7 +2938,16 @@ void AddDevices(enum group_t groupFilter, char *textFilter) {
                               G_TYPE_STRING);
 
 		gtk_tree_view_set_model(GTK_TREE_VIEW(devTree), GTK_TREE_MODEL(devStore));
- 		g_object_unref (G_OBJECT(devStore));
+		
+		gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(devStore), SORT_STRING_NAME,
+			sortIterCompareFunc, GINT_TO_POINTER(SORT_STRING_NAME), NULL);
+		gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(devStore), SORT_STRING_GROUP,
+			sortIterCompareFunc, GINT_TO_POINTER(SORT_STRING_GROUP), NULL);
+	 	gtk_tree_view_column_set_sort_column_id(
+			gtk_tree_view_get_column(GTK_TREE_VIEW(devTree), 0), SORT_STRING_NAME);
+		gtk_tree_view_column_set_sort_column_id(
+			gtk_tree_view_get_column(GTK_TREE_VIEW(devTree), 1), SORT_STRING_GROUP);
+		g_object_unref (G_OBJECT(devStore));
 	}
 	else gtk_list_store_clear(devStore);
 
@@ -2960,7 +2969,7 @@ void AddDevices(enum group_t groupFilter, char *textFilter) {
 					gtk_list_store_insert_with_values(devStore, NULL, -1,
 						DEVICE_ID_COLUMN, j++,
 						DEVICE_NAME_COLUMN, tok,
-						DEVICE_FAMILY_COLUMN, groupNames[info.group], -1);
+						DEVICE_GROUP_COLUMN, groupNames[info.group], -1);
 					Debug1("inserted %s\n", tok);
 			}
 		}
@@ -2981,4 +2990,44 @@ void AddDevices(enum group_t groupFilter, char *textFilter) {
 	 	dev);
 	
 	Debug2("AddDevices(%d,%s) end\n", groupFilter, textFilter?textFilter:"(null)");
+}
+
+int sortIterCompareFunc(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata) {
+	enum sort_type_t sortcol = GPOINTER_TO_INT(userdata);
+	int ret = 0;
+	enum sort_data_type_t sortDataType;
+	int dataCol;
+	switch (sortcol) {
+		case SORT_STRING_NAME:
+			sortDataType = SDT_STRING;
+			dataCol = DEVICE_NAME_COLUMN;
+			break;
+		case SORT_STRING_GROUP:
+			sortDataType = SDT_STRING;
+			dataCol = DEVICE_GROUP_COLUMN;
+			break;
+		default:
+			Debug1("invalid sortcol '%d'",sortcol)
+			return 0;
+	}
+	switch (sortDataType) {
+		case SDT_STRING:
+			char *nameA, *nameB;
+			gtk_tree_model_get(model, a, dataCol, &nameA, -1);
+			gtk_tree_model_get(model, b, dataCol, &nameB, -1);
+			if (nameA == NULL || nameB == NULL) {
+				if (nameA == NULL && nameB == NULL) break; // Both null. return 0 (no need to free)
+				ret = (nameA == NULL) ? -1 : 1;
+			}
+			else {
+				ret = g_utf8_collate(nameA,nameB);
+			}
+			Debug3("%s-%s-%d\n",nameA,nameB,ret);
+			g_free(nameA);
+			g_free(nameB);
+			break;
+		default:
+			g_return_val_if_reached(0);
+	}
+	return ret;
 }
