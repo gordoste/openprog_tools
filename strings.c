@@ -878,7 +878,7 @@ void strinit()
 	strings_en[S_NoCode2]="Nothing to write" NL;
 	strings_en[S_NoCalibW]="Can't find calibration data" NL;
 	strings_en[S_NoEEMem]="Can't find EEPROM data" NL;
-	strings_en[S_NoConfigW]="Impossibile leggere la config word" NL;
+	strings_en[S_NoConfigW]="Can't read the config word" NL;
 	strings_en[S_NoConfigW2]="Can't find CONFIG location (0xFFF)" NL;
 	strings_en[S_NoConfigW3]="Can't find CONFIG location (0x2007)" NL "End" NL;
 	strings_en[S_NoConfigW4]="Can't find CONFIG location (0x2008)" NL "End" NL;
@@ -905,7 +905,7 @@ void strinit()
 	strings_en[I_ReadRes]="Read reserved area";
 	strings_en[I_ID_BKo_W]="Write ID and BKosccal";
 	strings_en[I_EE]="Read and write EEPROM";
-	strings_en[I_CalW]="Write Calib1 e 2";
+	strings_en[I_CalW]="Write Calib1 + 2";
 	strings_en[I_OSCW]="Write OSCCal";
 	strings_en[I_OSC]="OSCCal";
 	strings_en[I_BKOSC]="Backup OSCCal";
