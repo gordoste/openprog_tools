@@ -851,6 +851,7 @@ struct DEVICES DEVLIST[]={
 
 int NDEVLIST = (sizeof(DEVLIST)/sizeof(struct DEVICES));
 
+#ifdef DEBUG
 //Make a list of all supported devices (insert \n between types)
 char* ListDevices(){
 	int i,len=0,l;
@@ -877,7 +878,28 @@ char* ListDevices(){
 	return list;
 }
 
-#ifdef DEBUG
+///Search the device type
+int GetDevType(const char* dev)
+{
+	int i,type=-1;
+	char *str=0,*tok;
+	//parse all device names until "dev" is found
+	for(i=0;i<NDEVLIST;i++){
+		if(str) free(str);
+		str=malloc(strlen(DEVLIST[i].device)+1);
+		strcpy(str,DEVLIST[i].device);
+		for(tok=strtok(str,",");tok;tok=strtok(NULL,",")){		//compare every device name
+			if(!strcmp(dev,tok)){	//proceed if found
+				type=DEVLIST[i].family;
+				tok=0;
+				i=NDEVLIST;
+			}
+		}
+	}
+	free(str);
+	return type;
+}
+
 //Check that all devices in the list have a read/write function
 void CheckDevices(){
 	int i;
@@ -1043,28 +1065,6 @@ void Write(char* dev,int ee)
 	PrintMessage(strings[S_nodev_w]); //"Device not supported for writing\r\n");
 }
 
-///Search the device type
-int GetDevType(const char* dev)
-{
-	int i,type=-1;
-	char *str=0,*tok;
-	//parse all device names until "dev" is found
-	for(i=0;i<NDEVLIST;i++){
-		if(str) free(str);
-		str=malloc(strlen(DEVLIST[i].device)+1);
-		strcpy(str,DEVLIST[i].device);
-		for(tok=strtok(str,",");tok;tok=strtok(NULL,",")){		//compare every device name
-			if(!strcmp(dev,tok)){	//proceed if found
-				type=DEVLIST[i].family;
-				tok=0;
-				i=NDEVLIST;
-			}
-		}
-	}
-	free(str);
-	return type;
-}
-
 enum group_t nameToGroup(const char *devName) {
 	if(!strncmp(devName,"10F",3)||!strncmp(devName,"12F",3)||!strncmp(devName,"12C",3))
 		return G_PIC_10_12;
@@ -1085,8 +1085,6 @@ enum group_t nameToGroup(const char *devName) {
 	return -1;
 }
 
-/// Copies the device info from the passed devlist entry into the passed DevInfo
-/// Does NOT populate fields 'device' and 'group' as these are device-specific
 void populateDevInfo(struct DevInfo *info, const struct DEVICES *devlistEntry) {
 	char str2[256],str3[64],strF[32];
 	info->family=devlistEntry->family;
@@ -1194,7 +1192,6 @@ void populateDevInfo(struct DevInfo *info, const struct DEVICES *devlistEntry) {
 	strcpy(info->features,str2);
 }
 
-///Search and return device info
 struct DevInfo GetDevInfo(const char* dev)
 {
 	int i;
