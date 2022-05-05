@@ -92,7 +92,7 @@ GtkTextBuffer * dataBuf;
 GtkWidget *data, *data_scroll;
 GtkWidget *window, *toolbar, *button, *notebook, *status_bar;
 GtkToolItem *openToolItem, *saveToolItem, *readToolItem, *writeToolItem, *connectToolItem, *stopToolItem, *infoToolItem;
-GtkWidget *devTypeCombo, *picOptsBox, *avrOptsBox, *configWOptsBox, *icdOptsBox, *oscOptsBox, *devInfoLabel;
+GtkWidget *devTypeCombo, *picOptsBox, *avrOptsBox, *configWOptsFrame, *icdOptsFrame, *oscOptsFrame, *devInfoLabel;
 GtkWidget *icdCheckToggle, *icdAddrEntry;
 GtkWidget *eepromRWToggle, *readReservedToggle, *writeIDBKCalToggle, *writeCalib12Toggle, *useOSCCALToggle, *useBKOSCCALToggle, *useFileCalToggle;
 GtkWidget *avrFuseLowEntry, *avrFuseLowWriteToggle, *avrFuseHighEntry, *avrFuseHighWriteToggle, *avrFuseExtEntry, *avrFuseExtWriteToggle, *avrLockEntry, *avrLockWriteToggle;
@@ -542,11 +542,11 @@ void onDevSel_Changed(GtkWidget *widget,GtkWidget *window)
 		gtk_widget_hide(GTK_WIDGET(eepromRWToggle));
 	}
 	if(devType==PIC16)		//ICD
-		gtk_widget_show_all(GTK_WIDGET(icdOptsBox));
-	else gtk_widget_hide(GTK_WIDGET(icdOptsBox));
+		gtk_widget_show_all(GTK_WIDGET(icdOptsFrame));
+	else gtk_widget_hide(GTK_WIDGET(icdOptsFrame));
 	if(devType==PIC12||devType==PIC16)	//Osc options
-		gtk_widget_show_all(GTK_WIDGET(oscOptsBox));
-	else gtk_widget_hide(GTK_WIDGET(oscOptsBox));
+		gtk_widget_show_all(GTK_WIDGET(oscOptsFrame));
+	else gtk_widget_hide(GTK_WIDGET(oscOptsFrame));
 	if(devType==PIC12||devType==PIC16||devType==PIC18)	//program ID
 		gtk_widget_show_all(GTK_WIDGET(writeIDBKCalToggle));
 	else gtk_widget_hide(GTK_WIDGET(writeIDBKCalToggle));
@@ -554,7 +554,7 @@ void onDevSel_Changed(GtkWidget *widget,GtkWidget *window)
 		gtk_widget_show_all(GTK_WIDGET(writeCalib12Toggle));
 	else gtk_widget_hide(GTK_WIDGET(writeCalib12Toggle));
 	if(devType==PIC12||devType==PIC16||devType==PIC18){	//Force config
-		gtk_widget_show_all(GTK_WIDGET(configWOptsBox));
+		gtk_widget_show_all(GTK_WIDGET(configWOptsFrame));
 		gtk_widget_hide(GTK_WIDGET(CW2Box));
 		gtk_widget_hide(GTK_WIDGET(CW3Box));
 		gtk_widget_hide(GTK_WIDGET(CW4Box));
@@ -574,7 +574,7 @@ void onDevSel_Changed(GtkWidget *widget,GtkWidget *window)
 		}
 	}
 	else{
-		gtk_widget_hide(GTK_WIDGET(configWOptsBox));
+		gtk_widget_hide(GTK_WIDGET(configWOptsFrame));
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(configForceToggle),FALSE);
 	}
 	gtk_statusbar_push(GTK_STATUSBAR(status_bar),statusID,dev);
@@ -2045,10 +2045,10 @@ GtkWidget * buildDeviceTab() {
 	writeCalib12Toggle = gtk_check_button_new_with_label(strings[I_CalW]);	//"Write Calib 1 and 2"
 	gtk_container_add(GTK_CONTAINER(picVbox),GTK_WIDGET(writeCalib12Toggle));
 	
-	oscOptsBox = gtk_frame_new(strings[I_OSCW]);	//"Write OscCal"
-	gtk_grid_attach(GTK_GRID(picGrid),oscOptsBox,0,1,1,1);
+	oscOptsFrame = gtk_frame_new(strings[I_OSCW]);	//"Write OscCal"
+	gtk_grid_attach(GTK_GRID(picGrid),oscOptsFrame,0,1,1,1);
 	GtkWidget * oscOptsVbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
-	gtk_container_add(GTK_CONTAINER(oscOptsBox),GTK_WIDGET(oscOptsVbox));
+	gtk_container_add(GTK_CONTAINER(oscOptsFrame),GTK_WIDGET(oscOptsVbox));
 	useOSCCALToggle = gtk_radio_button_new_with_label(NULL,strings[I_OSC]);	//"OSCCal"
 	useBKOSCCALToggle = gtk_radio_button_new_with_label(\
 		gtk_radio_button_get_group(GTK_RADIO_BUTTON(useOSCCALToggle)),strings[I_BKOSC]);	//"Backup OSCCal"
@@ -2058,7 +2058,7 @@ GtkWidget * buildDeviceTab() {
 	gtk_container_add(GTK_CONTAINER(oscOptsVbox),GTK_WIDGET(useBKOSCCALToggle));
 	gtk_container_add(GTK_CONTAINER(oscOptsVbox),GTK_WIDGET(useFileCalToggle));
 
-	icdOptsBox = gtk_frame_new("ICD");
+	icdOptsFrame = gtk_frame_new("ICD");
 	GtkWidget * icdOptsHbox1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,25);
 	icdCheckToggle = gtk_check_button_new_with_label(strings[I_ICD_ENABLE]);	//"Enable ICD"
 	icdAddrEntry = gtk_entry_new();
@@ -2068,13 +2068,13 @@ GtkWidget * buildDeviceTab() {
 	gtk_box_pack_start(GTK_BOX(icdOptsHbox2),GTK_WIDGET(icdAddrEntry),0,0,2);
 	gtk_container_add(GTK_CONTAINER(icdOptsHbox1),icdCheckToggle);
 	gtk_container_add(GTK_CONTAINER(icdOptsHbox1),GTK_WIDGET(icdOptsHbox2));
-	gtk_container_add(GTK_CONTAINER(icdOptsBox),GTK_WIDGET(icdOptsHbox1));
-	gtk_grid_attach(GTK_GRID(picGrid),icdOptsBox,0,2,2,1);
+	gtk_container_add(GTK_CONTAINER(icdOptsFrame),GTK_WIDGET(icdOptsHbox1));
+	gtk_grid_attach(GTK_GRID(picGrid),icdOptsFrame,0,2,2,1);
 
-	configWOptsBox = gtk_frame_new("Config Word");
-	gtk_grid_attach(GTK_GRID(picGrid),configWOptsBox,1,0,1,2);
+	configWOptsFrame = gtk_frame_new("Config Word");
+	gtk_grid_attach(GTK_GRID(picGrid),configWOptsFrame,1,0,1,2);
 	GtkWidget * cwGrid = gtk_grid_new();
-	gtk_container_add(GTK_CONTAINER(configWOptsBox),GTK_WIDGET(cwGrid));
+	gtk_container_add(GTK_CONTAINER(configWOptsFrame),GTK_WIDGET(cwGrid));
 	configForceToggle = gtk_check_button_new_with_label(strings[I_PIC_FORCECW]); //"force config word"
 	gtk_grid_attach(GTK_GRID(cwGrid),configForceToggle,0,0,2,1);
 #define CWX(y) 	CW##y##Box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);\
