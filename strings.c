@@ -905,7 +905,7 @@ void strinit()
 	strings_en[I_ReadRes]="Read reserved area";
 	strings_en[I_ID_BKo_W]="Write ID and BKosccal";
 	strings_en[I_EE]="Read and write EEPROM";
-	strings_en[I_CalW]="Write Calib1 e 2";
+	strings_en[I_CalW]="Write Calib1 + 2";
 	strings_en[I_OSCW]="Write OSCCal";
 	strings_en[I_OSC]="OSCCal";
 	strings_en[I_BKOSC]="Backup OSCCal";
