@@ -109,9 +109,8 @@ GtkWidget *hexEntry, *addressEntry, *dataEntry, *hexDataEntry, *hexDataEntry2, *
 GtkWidget *CW1Entry, *CW2Entry, *CW3Entry, *CW4Entry, *CW5Entry, *CW6Entry, *CW7Entry;
 GtkWidget *CW1Box, *CW2Box, *CW3Box, *CW4Box, *CW5Box, *CW6Box, *CW7Box;
 GtkWidget *configForceToggle;
-GtkStyleContext *styleCtx;
 GtkListStore *devStore;
-GtkWidget *devTree, *devFiltEntry;
+GtkWidget *devTree, *devFiltEntry, *devFrame;
 GtkTreeSelection *devSel;
 
 ///array of radio buttons for IO manual control
@@ -521,6 +520,10 @@ void onDevSel_Changed(GtkWidget *widget,GtkWidget *window)
 	GetSelectedDevice();
 	if (strlen(dev) == 0) return; // None selected
 	info=GetDevInfo(dev);
+
+	sprintf(str, "<b>%s: %s</b>", strings[I_Dev], dev);
+	gtk_label_set_markup(GTK_LABEL(gtk_frame_get_label_widget(GTK_FRAME(devFrame))), str);
+
 	devType=info.family;
 	gtk_label_set_text(GTK_LABEL(devInfoLabel),info.features);
 	if(devType==PIC12||devType==PIC16||devType==PIC18||devType==PIC24){
@@ -1993,6 +1996,7 @@ GtkWidget * buildDeviceTab() {
 	// AddDevices() gets called when an entry in devTypeCombo is selected during init
 	gtk_container_add(GTK_CONTAINER(devScroll), devTree);
 
+	devFrame = gtk_frame_new("");
 	GtkWidget * devVboxDevSel = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	GtkWidget * devHboxDevType = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
 	devTypeCombo = gtk_combo_box_text_new();
@@ -2040,8 +2044,8 @@ GtkWidget * buildDeviceTab() {
 	gtk_container_add(GTK_CONTAINER(picVbox),GTK_WIDGET(writeIDBKCalToggle));
 	writeCalib12Toggle = gtk_check_button_new_with_label(strings[I_CalW]);	//"Write Calib 1 and 2"
 	gtk_container_add(GTK_CONTAINER(picVbox),GTK_WIDGET(writeCalib12Toggle));
+	
 	oscOptsBox = gtk_frame_new(strings[I_OSCW]);	//"Write OscCal"
-
 	gtk_grid_attach(GTK_GRID(picGrid),oscOptsBox,0,1,1,1);
 	GtkWidget * oscOptsVbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	gtk_container_add(GTK_CONTAINER(oscOptsBox),GTK_WIDGET(oscOptsVbox));
@@ -2119,8 +2123,9 @@ GtkWidget * buildDeviceTab() {
 	wFuseLFBtn = gtk_button_new_with_label(strings[I_AT_FUSELF]);		//"Write Fuse Low @3kHz"
 	gtk_grid_attach(GTK_GRID(avrGrid),wFuseLFBtn,0,5,1,1);
 
+	gtk_container_add(GTK_CONTAINER(devFrame), devGrid);
 	gtk_box_pack_start(GTK_BOX(devBox),devVboxDevSel,FALSE,FALSE,0);
-	gtk_box_pack_start(GTK_BOX(devBox),devGrid,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(devBox),devFrame,TRUE,TRUE,0);
 	return devBox;
 }
 
@@ -2322,8 +2327,7 @@ GtkWidget * buildICDTab() {
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(sourceTextView),FALSE);
 	gtk_container_add(GTK_CONTAINER(sourceScroll),sourceTextView);
 
-	styleCtx = gtk_widget_get_style_context(GTK_WIDGET(sourceTextView));
-	gtk_style_context_add_class(styleCtx, "mono");
+	gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(sourceTextView)), "mono");
 
 	gtk_box_pack_start(GTK_BOX(icdVbox2),sourceScroll,TRUE,TRUE,0);
 	//status
@@ -2340,8 +2344,7 @@ GtkWidget * buildICDTab() {
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(statusTextView),FALSE);
 	gtk_container_add(GTK_CONTAINER(statusScroll),statusTextView);
 
-	styleCtx = gtk_widget_get_style_context(GTK_WIDGET(statusTextView));
-	gtk_style_context_add_class(styleCtx, "mono");
+	gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(statusTextView)), "mono");
 
 	gtk_box_pack_start(GTK_BOX(icdVbox3),statusScroll,TRUE,TRUE,0);
 	return icdVBox;
@@ -2483,8 +2486,7 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	dataBuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data));
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(data),FALSE);
 	gtk_container_add(GTK_CONTAINER(data_scroll),data);
-	styleCtx = gtk_widget_get_style_context(GTK_WIDGET(data));
-	gtk_style_context_add_class(styleCtx, "mono");
+	gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(data)), "mono");
 	gtk_box_pack_start(GTK_BOX(mainVbox),data_scroll,TRUE,TRUE,0);
 
 //------status bar-------------
