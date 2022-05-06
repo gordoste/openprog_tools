@@ -64,4 +64,4 @@ hid_test
 ihex
 
 # IDE config
-.vscode
+.vscode/*.log
