@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
   <gresource prefix="/openprog/icons">
-    <file>go.png</file>
-    <file>halt.png</file>
     <file>opgui.svg</file>
     <file>read.png</file>
-    <file>step.png</file>
-    <file>stepover.png</file>
-    <file>stop.png</file>
     <file>sys.png</file>
     <file>write.png</file>
   </gresource>

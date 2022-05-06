@@ -1962,7 +1962,7 @@ void buildMainToolbar() {
 	g_signal_connect(G_OBJECT(connectToolItem), "clicked", G_CALLBACK(Connect),NULL);
 
 	infoToolItem = gtk_tool_button_new(\
-		gtk_image_new_from_icon_name("dialog-information", GTK_ICON_SIZE_BUTTON), strings[I_Info]);
+		gtk_image_new_from_icon_name("help-about", GTK_ICON_SIZE_BUTTON), strings[I_Info]);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(infoToolItem), strings[I_Info]);
 	g_signal_connect(G_OBJECT(infoToolItem), "clicked", G_CALLBACK(info),NULL);
 
@@ -2252,27 +2252,27 @@ GtkWidget * buildICDTab() {
 
 	//toolbar
 	GtkToolItem* icdGoBtn = gtk_tool_button_new(\
-		gtk_image_new_from_resource("/openprog/icons/go.png"), strings[I_ICD_RUN]);
+		gtk_image_new_from_icon_name("media-playback-start", GTK_ICON_SIZE_BUTTON), strings[I_ICD_RUN]);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(icdGoBtn), strings[I_ICD_RUN]);
 	g_signal_connect(G_OBJECT(icdGoBtn), "clicked", G_CALLBACK(icdRun),NULL);
 
 	GtkToolItem* icdHaltBtn = gtk_tool_button_new(\
-		gtk_image_new_from_resource("/openprog/icons/halt.png"), strings[I_ICD_HALT]);
+		gtk_image_new_from_icon_name("media-playback-pause", GTK_ICON_SIZE_BUTTON), strings[I_ICD_HALT]);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(icdHaltBtn), strings[I_ICD_HALT]);
 	g_signal_connect(G_OBJECT(icdHaltBtn), "clicked", G_CALLBACK(icdHalt),NULL);
 
 	GtkToolItem* icdStepBtn = gtk_tool_button_new(\
-		gtk_image_new_from_resource("/openprog/icons/step.png"), strings[I_ICD_STEP]);
+		gtk_image_new_from_icon_name("media-seek-forward", GTK_ICON_SIZE_BUTTON), strings[I_ICD_STEP]);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(icdStepBtn), strings[I_ICD_STEP]);
 	g_signal_connect(G_OBJECT(icdStepBtn), "clicked", G_CALLBACK(icdStep),NULL);
 
 	GtkToolItem* icdStepoverBtn = gtk_tool_button_new(\
-		gtk_image_new_from_resource("/openprog/icons/stepover.png"), strings[I_ICD_STEPOVER]);
+		gtk_image_new_from_icon_name("media-skip-forward", GTK_ICON_SIZE_BUTTON), strings[I_ICD_STEPOVER]);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(icdStepoverBtn), strings[I_ICD_STEPOVER]);
 	g_signal_connect(G_OBJECT(icdStepoverBtn), "clicked", G_CALLBACK(icdStepOver),NULL);
 
 	GtkToolItem* icdStopBtn = gtk_tool_button_new(\
-		gtk_image_new_from_resource("/openprog/icons/stop.png"), strings[I_ICD_STOP]);
+		gtk_image_new_from_icon_name("media-playback-stop", GTK_ICON_SIZE_BUTTON), strings[I_ICD_STOP]);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(icdStopBtn), strings[I_ICD_STOP]);
 	g_signal_connect(G_OBJECT(icdStopBtn), "clicked", G_CALLBACK(icdStop),NULL);
 
@@ -2290,7 +2290,7 @@ GtkWidget * buildICDTab() {
 	gtk_container_add(GTK_CONTAINER(icdCommandToolItem), icdCommandEntry);
 
 	GtkToolItem* icdHelpBtn = gtk_tool_button_new(\
-		gtk_image_new_from_icon_name("system-help", GTK_ICON_SIZE_BUTTON), strings[I_ICD_HELP]);
+		gtk_image_new_from_icon_name("help-browser", GTK_ICON_SIZE_BUTTON), strings[I_ICD_HELP]);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(icdHelpBtn), strings[I_ICD_HELP]);
 	g_signal_connect(G_OBJECT(icdHelpBtn), "clicked", G_CALLBACK(ICDHelp),NULL);
 
