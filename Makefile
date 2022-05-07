@@ -54,36 +54,52 @@ OBJECTS_SHARED = common.o \
 	strings.o
 
 OBJECTS_OPGUI = opgui.o \
-	coff.o \
-	icd.o \
 	icons.o \
 	style.o
+
+OBJECTS_ICDGUI = icons.o \
+	common.o \
+	fileIO.o \
+	strings.o \
+	style.o \
+	coff.o \
+	icd.o \
+	icdgui.o \
+	progDummy.o \
+	deviceRW.o
 
 OBJECTS_HIDTEST = hid_test.o
 
 OBJECTS_OP = op.o
 
 LDFLAGS_OPGUI = $(LDFLAGS) $(LDFLAGS_GTK3)
+LDFLAGS_ICDGUI = $(LDFLAGS) $(LDFLAGS_GTK3)
 LDFLAGS_OP = $(LDFLAGS)
 LDFLAGS_HIDTEST = $(LDFLAGS) $(LDFLAGS_HIDAPI)
 
-OBJECTS = $(OBJECTS_OP) $(OBJECTS_OPGUI) $(OBJECTS_SHARED)
+OBJECTS = $(OBJECTS_OP) $(OBJECTS_OPGUI) $(OBJECTS_ICDGUI) $(OBJECTS_SHARED)
 
-targets = opgui op
+targets = opgui op icdgui
 
 # Targets
 all: $(targets)
 
 opgui: $(OBJECTS_OPGUI) $(OBJECTS_SHARED)
-	$(CC) -o $@ $(OBJECTS_OPGUI) $(OBJECTS_SHARED) $(LDFLAGS_OPGUI)
+	$(CC) -o $@ $^ $(LDFLAGS_OPGUI)
+
+icdgui: $(OBJECTS_ICDGUI)
+	$(CC) -o $@ $^ $(LDFLAGS_ICDGUI)
 
 op: $(OBJECTS_OP) $(OBJECTS_SHARED)
-	$(CC) -o $@ $(OBJECTS_OP) $(OBJECTS_SHARED) $(LDFLAGS_OP)
+	$(CC) -o $@ $^ $(LDFLAGS_OP)
 
 hid_test: $(OBJECTS_HIDTEST)
-	$(CC) -o $@ $(OBJECTS_HIDTEST) $(LDFLAGS_HIDTEST)
+	$(CC) -o $@ $^ $(LDFLAGS_HIDTEST)
 
 opgui.o: opgui.c icons.h style.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+icdgui.o: icdgui.c icons.h style.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 icons.c: $(ICONS) icons.xml
