@@ -217,16 +217,12 @@ struct DEVICES DEVLIST[]={
 //-------------PIC10-16---------------------------------------------------------
 	{"10F200,10F204,10F220",
 		PIC12,13.0,0,Read12F5xx,{0x100,5},0x40,Write12F5xx,{0x100,0xFF},0},		//256
-	{"10F320",
-		PIC16,9.0,1,Read16Fxxx,{0x100,0,10,0},0x80,Write12F6xx,{0x100,0,-10},0},	//256, vpp, 3.3V
 	{"12C508,12C508A",
 		PIC12,13.0,0,Read12F5xx,{0x200,4},0x40,Write12C5xx,{0x200,0},0},		//512
 	{"12F508,10F202,10F206,10F222",
 		PIC12,13.0,0,Read12F5xx,{0x200,5},0x40,Write12F5xx,{0x200,0x1FF},0},	//512
 	{"16F54",
 		PIC12,13.0,0,Read12F5xx,{0x200,4},0x40,Write12F5xx,{0x200,-1},0},		//512, no osccal
-	{"10F322",
-		PIC16,9.0,1,Read16Fxxx,{0x200,0,10,0},0x80,Write12F6xx,{0x200,0,-10},0},	//512, vpp, 3.3V
 	{"12C509,12C509A",
 		PIC12,13.0,0,Read12F5xx,{0x400,4},0x40,Write12C5xx,{0x400,0},0},		//1K
 	{"12F509,12F510,16F505,16F506",
@@ -239,6 +235,10 @@ struct DEVICES DEVLIST[]={
 		PIC12,13.0,0,Read12F5xx,{0x800,4},0x40,Write12F5xx,{0x800,-1},0},		//2K
 	{"16F570",
 		PIC12,13.0,0,Read12F5xx,{0x840,8},0x70,Write12F5xx,{0x840,0x7FF},0},	//2K + 64
+	{"10F320",
+		PIC16,9.0,1,Read16Fxxx,{0x100,0,10,0},0x80,Write12F6xx,{0x100,0,-10},0},	//256, vpp, 3.3V
+	{"10F322",
+		PIC16,9.0,1,Read16Fxxx,{0x200,0,10,0},0x80,Write12F6xx,{0x200,0,-10},0},	//512, vpp, 3.3V
 	{"16C83,16F83,16F83A",
 		PIC16,13.0,0,Read16Fxxx,{0x200,0x40,8,1},0x10,Write16F8x,{0x200,0x40,-10},0},		//512, 64, vdd
 	{"12C671,12CE673",
@@ -912,9 +912,12 @@ void CheckDevices(){
 }
 #endif
 
-
 void Read(char* dev,int ee,int r)
 {
+	Read33(dev,ee,r,false);
+}
+
+void Read33(char *dev,int ee,int r,bool skipV33check) {
 	int i,j;
 	int params[5];
 	char *str=0,*tok;
@@ -931,7 +934,7 @@ void Read(char* dev,int ee,int r)
 			if(!strcmp(dev,tok)){	//proceed if found
 				for(j=0;j<4;j++) params[j]=DEVLIST[i].ReadParam[j];
 				if(DEVLIST[i].V33>0){	//3.3V required
-					if(!CheckV33Regulator()){
+					if(!skipV33check && !CheckV33Regulator()){
 						PrintMessage(strings[S_noV33reg]);	//Can't find 3.3V expansion board
 						return;
 					}
@@ -1222,5 +1225,3 @@ struct DevInfo GetDevInfo(const char* dev)
 	}
 	return info;
 }
-
-
