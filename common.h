@@ -96,6 +96,7 @@ extern int load_calibword,max_err;
 extern int AVRlock,AVRfuse,AVRfuse_h,AVRfuse_x;
 extern int ICDenable,ICDaddr;
 extern int FWVersion,HwID;
+extern int DeviceDetected;
 extern FILE* logfile;
 extern char LogFileName[512];
 extern char loadfile[512],savefile[512];
@@ -134,6 +135,10 @@ int SearchDevice(int *_vid, int *_pid, bool _info);
 void PacketIO(double delay);
 void msDelay(double delay);
 char *strcasestr(const char *haystack, const char *needle);
+int CheckV33Regulator();
+int StartHVReg(double V);
+void ProgID();
+int CheckS1();
 
 // These functions have different implementations in opgui.c/op.c 
 // **************************************************************
@@ -145,9 +150,7 @@ void PrintMessage(const char *msg);
 void PrintMessageI2C(const char *msg);
 // Convert src to correct encoding for output and concatenate to dst
 void StrcatConvert(char *dst, const char *src);
-int StartHVReg(double V);
 void DisplayEE();
-int CheckV33Regulator(void);
 void OpenLogFile(void);
 void WriteLogIO();
 void CloseLogFile();
