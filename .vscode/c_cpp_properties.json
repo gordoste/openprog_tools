@@ -1,0 +1,35 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "c:\\msys64\\mingw64\\include",
+                "c:\\msys64\\mingw64\\include\\gtk-3.0",
+                "c:\\msys64\\mingw64\\include\\glib-2.0",
+                "c:\\msys64\\mingw64\\include\\pango-1.0",
+                "c:\\msys64\\mingw64\\include\\harfbuzz",
+                "c:\\msys64\\mingw64\\include\\freetype2",
+                "c:\\msys64\\mingw64\\include\\libpng16",
+                "c:\\msys64\\mingw64\\include\\fribidi",
+                "c:\\msys64\\mingw64\\include\\cairo",
+                "c:\\msys64\\mingw64\\include\\lzo",
+                "c:\\msys64\\mingw64\\include\\pixman-1",
+                "c:\\msys64\\mingw64\\include\\gdk-pixbuf-2.0",
+                "c:\\msys64\\mingw64\\include\\atk-1.0",
+                "c:\\msys64\\mingw64\\lib\\glib-2.0\\include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "C:\\msys64\\mingw64\\bin\\gcc.exe",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "windows-gcc-x64",
+            "configurationProvider": "ms-vscode.makefile-tools"
+        }
+    ],
+    "version": 4
+}
