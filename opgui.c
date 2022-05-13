@@ -1979,6 +1979,17 @@ void buildMainToolbar() {
 	gtk_widget_set_sensitive(GTK_WIDGET(stopToolItem), FALSE);
 }
 
+GtkWidget * buildDataTab() {
+	//------logging window
+	data_scroll = gtk_scrolled_window_new(NULL,NULL);
+	data = gtk_text_view_new();
+	dataBuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data));
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(data),FALSE);
+	gtk_container_add(GTK_CONTAINER(data_scroll),data);
+	gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(data)), "mono");
+	return data_scroll;
+}
+
 GtkWidget * buildDeviceTab() {
 	GtkWidget *devBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 
@@ -2469,22 +2480,14 @@ void onActivate(GtkApplication *_app, gpointer user_data) {
 	
 //------tab widget-------------
 	notebook = gtk_notebook_new();
-	gtk_box_pack_start(GTK_BOX(mainVbox),notebook,FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(mainVbox),notebook,TRUE,TRUE,0);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),buildDataTab(),gtk_label_new(strings[I_Data])); //"Data"
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),buildDeviceTab(),gtk_label_new(strings[I_Dev])); //"Device"
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),buildOptionsTab(),gtk_label_new(strings[I_Opt])); //"Options"
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),buildI2CTab(),gtk_label_new("I2C/SPI"));
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),buildICDTab(),gtk_label_new("ICD"));
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),buildIOTab(),gtk_label_new("I/O"));
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook),buildUtilTab(),gtk_label_new("Utility"));
-
-//------logging window
-	data_scroll = gtk_scrolled_window_new(NULL,NULL);
-	data = gtk_text_view_new();
-	dataBuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data));
-	gtk_text_view_set_editable(GTK_TEXT_VIEW(data),FALSE);
-	gtk_container_add(GTK_CONTAINER(data_scroll),data);
-	gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(data)), "mono");
-	gtk_box_pack_start(GTK_BOX(mainVbox),data_scroll,TRUE,TRUE,0);
 
 //------status bar-------------
 	status_bar = gtk_statusbar_new();
