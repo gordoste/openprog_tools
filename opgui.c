@@ -396,6 +396,7 @@ void DevWrite(GtkWidget *widget,GtkWidget *window)
 #ifndef DEBUG
 	if(DeviceDetected!=1) return;
 #endif
+	selectDataTab();
 	gtk_statusbar_push(GTK_STATUSBAR(status_bar),statusID,"");
 	RWstop=0;
 	getOptions();
@@ -437,6 +438,7 @@ void DevRead(GtkWidget *widget,GtkWidget *window)
 #ifndef DEBUG
 	if(DeviceDetected!=1) return;
 #endif
+	selectDataTab();
 	gtk_statusbar_push(GTK_STATUSBAR(status_bar),statusID,"");
 	getOptions();
 	RWstop=0;
@@ -506,6 +508,8 @@ void GetSelectedDevice() {
 		gtk_widget_set_sensitive(GTK_WIDGET(writeToolItem), FALSE);
 	}
 }
+
+void selectDataTab() { gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), 0); }
 
 ///
 ///Callback function to set available options for each device type

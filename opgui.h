@@ -13,6 +13,8 @@ extern GtkWidget *status_bar;
 void onActivate(GtkApplication *_app, gpointer user_data);
 void onShutdown(GtkApplication *_app, gpointer user_data);
 
+void selectDataTab();
+
 int sortIterCompareFunc(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata);
 
 void Connect(GtkWidget *widget,GtkWidget *window);
