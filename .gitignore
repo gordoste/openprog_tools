@@ -62,3 +62,6 @@ op
 opgui
 hid_test
 ihex
+
+# IDE config
+.vscode/*.log

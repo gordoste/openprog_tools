@@ -259,7 +259,9 @@ void strinit()
 	STR_ID[I_Data]="I_Data";
 	STR_ID[I_Opt]="I_Opt";
 	STR_ID[I_Dev]="I_Dev";
+	STR_ID[I_FiltDev]="I_FiltDev";
 	STR_ID[I_Type]="I_Type";
+	STR_ID[I_FiltType]="I_FiltType";
 	STR_ID[I_Speed]="I_Speed";
 	STR_ID[I_ReadRes]="I_ReadRes";
 	STR_ID[I_ID_BKo_W]="I_ID_BKo_W";
@@ -532,7 +534,9 @@ void strinit()
 	strings_it[I_Data]="Dati";
 	strings_it[I_Opt]="Opzioni";
 	strings_it[I_Dev]="Dispositivo";
-	strings_it[I_Type]="Filtra per tipo";
+	strings_it[I_FiltDev]="Ricerca:";
+	strings_it[I_Type]="Tipo";
+	strings_it[I_FiltType]="Filtra per tipo";
 	strings_it[I_Speed]="VelocitÃ ";
 	strings_it[I_ReadRes]="Leggi area riservata";
 	strings_it[I_ID_BKo_W]="Programma ID e BKosccal";
@@ -643,7 +647,7 @@ void strinit()
 		"-BKosccal                   carica BKosccal da file" NL
 		"-calib                      carica calibration da file" NL
 		"-command <messaggio>        invia <messaggio> al programmatore ed esci." NL
-		"                            Il messaggio è composto da byte esadecimali separati da uno spazio," NL
+		"                            Il messaggio ï¿½ composto da byte esadecimali separati da uno spazio," NL
 		"                            fino a un massimo di 64; quelli non specificati vengono posti a 0" NL
 		"-cwX <cw>                   forza config word X [1-7]" NL
 		"-d, device <disp.>          dispositivo" NL
@@ -661,7 +665,7 @@ void strinit()
 		"-i2c_r2 <N Ctr Ind(2)>      leggi N byte dal bus I2C (indirizzi 16b)" NL
 		"-i2c_w <N Ctr Ind Dati>     scrivi N byte sul bus I2C" NL
 		"-i2c_w2 <N Ctr Ind(2) Dati> scrivi N byte sul bus I2C (indirizzi 16b)" NL
-		"-i2cspeed <s>               cambia velocità I2C: 0=100k,1=200k,2=500k,3=800k" NL
+		"-i2cspeed <s>               cambia velocitï¿½ I2C: 0=100k,1=200k,2=500k,3=800k" NL
 		"-id                         usa ID" NL
 		"-l, log [=file]             salva registro" NL
 		"-lang <lingua>              carica <lingua>" NL
@@ -679,7 +683,7 @@ void strinit()
 		"-se, saveEE <file>          salva EEPROM su file Ihex (solo ATxxxx)" NL
 		"-spi_r <N>                  leggi N byte dal bus SPI" NL
 		"-spi_w <N Dati>             scrivi N byte sul bus SPI" NL
-		"-spispeed <s>               cambia velocità SPI: 0=100k,1=200k,2=300k,3=500k" NL
+		"-spispeed <s>               cambia velocitï¿½ SPI: 0=100k,1=200k,2=300k,3=500k" NL
 		"-support                    dispositivi supportati" NL
 		"-use_BKosccal               copia BKosccal su osccal" NL
 		"-v, version                 versione" NL
@@ -874,7 +878,7 @@ void strinit()
 	strings_en[S_NoCode2]="Nothing to write" NL;
 	strings_en[S_NoCalibW]="Can't find calibration data" NL;
 	strings_en[S_NoEEMem]="Can't find EEPROM data" NL;
-	strings_en[S_NoConfigW]="Impossibile leggere la config word" NL;
+	strings_en[S_NoConfigW]="Can't read the config word" NL;
 	strings_en[S_NoConfigW2]="Can't find CONFIG location (0xFFF)" NL;
 	strings_en[S_NoConfigW3]="Can't find CONFIG location (0x2007)" NL "End" NL;
 	strings_en[S_NoConfigW4]="Can't find CONFIG location (0x2008)" NL "End" NL;
@@ -894,12 +898,14 @@ void strinit()
 	strings_en[I_Data]="Data";
 	strings_en[I_Opt]="Options";
 	strings_en[I_Dev]="Device";
-	strings_en[I_Type]="Filter by type";
+	strings_en[I_FiltDev]="Search:";
+	strings_en[I_Type]="Type";
+	strings_en[I_FiltType]="Filter by type";
 	strings_en[I_Speed]="Speed";
 	strings_en[I_ReadRes]="Read reserved area";
 	strings_en[I_ID_BKo_W]="Write ID and BKosccal";
 	strings_en[I_EE]="Read and write EEPROM";
-	strings_en[I_CalW]="Write Calib1 e 2";
+	strings_en[I_CalW]="Write Calib1 + 2";
 	strings_en[I_OSCW]="Write OSCCal";
 	strings_en[I_OSC]="OSCCal";
 	strings_en[I_BKOSC]="Backup OSCCal";
