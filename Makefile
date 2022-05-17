@@ -22,20 +22,20 @@ ifneq (, $(findstring _NT-, $(UNAME)))
 	LDFLAGS += -mwindows
 	HIDAPI_PKG = hidapi
 else
-	LDFLAGS += -lrt
+	LIBS += -lrt
 	HIDAPI_PKG = hidapi-hidraw
 endif
 
 ICONS = opgui.svg read.png sys.png write.png
 
 CFLAGS_GTK2 = `pkg-config --cflags gtk+-2.0`
-LDFLAGS_GTK2 = `pkg-config --libs gtk+-2.0`
+LIBS_GTK2 = `pkg-config --libs gtk+-2.0`
 
 CFLAGS_GTK3 = `pkg-config --cflags gtk+-3.0`
-LDFLAGS_GTK3 = `pkg-config --libs gtk+-3.0`
+LIBS_GTK3 = `pkg-config --libs gtk+-3.0`
 
 CFLAGS_HIDAPI = `pkg-config --cflags $(HIDAPI_PKG)`
-LDFLAGS_HIDAPI = `pkg-config --libs $(HIDAPI_PKG)`
+LIBS_HIDAPI = `pkg-config --libs $(HIDAPI_PKG)`
 
 CFLAGS +=  '-DVERSION="$(VERSION)"'
 CFLAGS += -DGTK_DISABLE_SINGLE_INCLUDES -DGSEAL_ENABLE -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED
@@ -63,9 +63,9 @@ OBJECTS_HIDTEST = hid_test.o
 
 OBJECTS_OP = op.o
 
-LDFLAGS_OPGUI = $(LDFLAGS) $(LDFLAGS_GTK3)
-LDFLAGS_OP = $(LDFLAGS)
-LDFLAGS_HIDTEST = $(LDFLAGS) $(LDFLAGS_HIDAPI)
+LIBS_OPGUI = $(LIBS) $(LIBS_GTK3)
+LIBS_OP = $(LIBS)
+LIBS_HIDTEST = $(LIBS) $(LIBS_HIDAPI)
 
 OBJECTS = $(OBJECTS_OP) $(OBJECTS_OPGUI) $(OBJECTS_SHARED)
 
@@ -75,13 +75,13 @@ targets = opgui op
 all: $(targets)
 
 opgui: $(OBJECTS_OPGUI) $(OBJECTS_SHARED)
-	$(CC) -o $@ $(OBJECTS_OPGUI) $(OBJECTS_SHARED) $(LDFLAGS_OPGUI)
+	$(CC) $(LDFLAGS) -o $@ $(OBJECTS_OPGUI) $(OBJECTS_SHARED) $(LIBS_OPGUI)
 
 op: $(OBJECTS_OP) $(OBJECTS_SHARED)
-	$(CC) -o $@ $(OBJECTS_OP) $(OBJECTS_SHARED) $(LDFLAGS_OP)
+	$(CC) $(LDFLAGS) -o $@ $(OBJECTS_OP) $(OBJECTS_SHARED) $(LIBS_OP)
 
 hid_test: $(OBJECTS_HIDTEST)
-	$(CC) -o $@ $(OBJECTS_HIDTEST) $(LDFLAGS_HIDTEST)
+	$(CC) $(LDFLAGS) -o $@ $(OBJECTS_HIDTEST) $(LIBS_HIDTEST)
 
 opgui.o: opgui.c icons.h style.h
 	$(CC) $(CFLAGS) -c -o $@ $<
