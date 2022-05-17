@@ -19,7 +19,6 @@ endif
 # Check if we are running on windows
 UNAME := $(shell uname)
 ifneq (, $(findstring _NT-, $(UNAME)))
-	LDFLAGS += -mwindows
 	HIDAPI_PKG = hidapi
 else
 	LIBS += -lrt
