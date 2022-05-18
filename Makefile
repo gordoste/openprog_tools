@@ -74,7 +74,7 @@ targets = opgui op
 all: $(targets)
 
 opgui: $(OBJECTS_OPGUI) $(OBJECTS_SHARED)
-	$(CC) $(LDFLAGS) -o $@ $(OBJECTS_OPGUI) $(OBJECTS_SHARED) $(LIBS_OPGUI)
+	$(CC) $(LDFLAGS) -mwindows -o $@ $(OBJECTS_OPGUI) $(OBJECTS_SHARED) $(LIBS_OPGUI)
 
 op: $(OBJECTS_OP) $(OBJECTS_SHARED)
 	$(CC) $(LDFLAGS) -o $@ $(OBJECTS_OP) $(OBJECTS_SHARED) $(LIBS_OP)
