@@ -1,10 +1,18 @@
-opgui: control program for open programmer, 
-an USB programmer for PIC and ATMEL micros, I2C/SPI/MicroWire memories, 
-and other I2C/SPI devices.
+opgui and op: control programs for open programmer, 
+a USB programmer for PIC and ATMEL micros, I2C/SPI/MicroWire memories, and other I2C/SPI devices.
 Website: http://openprog.altervista.org
-These sources are given free of charge under the GNU General Public License version 2 
+
+This is my update to the existing code, mainly to move to GTK3 which has better support for x64 & Windows.
+
+These sources are given free of charge under the GNU General Public License version 3
 
 Changelog (to use new features the corresponding firmware is required):
+v 0.12.0 may 2022:	Use GTK3.
+			Merge opgui and op source to a single tree.
+			Many minor and some major refactoring - see git log.
+			
+------- History below here is from the original openprog project ------
+
 V 0.11.5 december 2021: fixed config word write on some 33FJXX devices
 
 V 0.11.4 july 2021:     fixed missing parentheses in progP18.c and progP16.c
