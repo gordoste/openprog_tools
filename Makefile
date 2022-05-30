@@ -16,6 +16,7 @@ else
 	CC += -Os -s
 endif
 
+
 # Check if we are running on windows
 UNAME := $(shell uname)
 ifneq (, $(findstring _NT-, $(UNAME)))
@@ -27,18 +28,20 @@ endif
 
 ICONS = opgui.svg read.png sys.png write.png
 
-CFLAGS_GTK2 = `pkg-config --cflags gtk+-2.0`
-LIBS_GTK2 = `pkg-config --libs gtk+-2.0`
+CFLAGS_GTK3 := -DGTK_DISABLE_SINGLE_INCLUDES -DGSEAL_ENABLE -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED `pkg-config --cflags gtk+-3.0`
+LIBS_GTK3 := `pkg-config --libs gtk+-3.0`
 
-CFLAGS_GTK3 = `pkg-config --cflags gtk+-3.0`
-LIBS_GTK3 = `pkg-config --libs gtk+-3.0`
+CFLAGS_HIDAPI := `pkg-config --cflags $(HIDAPI_PKG)`
+LIBS_HIDAPI := `pkg-config --libs $(HIDAPI_PKG)`
 
-CFLAGS_HIDAPI = `pkg-config --cflags $(HIDAPI_PKG)`
-LIBS_HIDAPI = `pkg-config --libs $(HIDAPI_PKG)`
+CFLAGS += '-DVERSION="$(VERSION)"'
 
-CFLAGS +=  '-DVERSION="$(VERSION)"'
-CFLAGS += -DGTK_DISABLE_SINGLE_INCLUDES -DGSEAL_ENABLE -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED
-CFLAGS += $(CFLAGS_GTK3) $(CFLAGS_HIDAPI)
+USB ?= usb
+ifeq ($(HIDAPI),1)
+	LIBS += $(LIBS_HIDAPI)
+	CFLAGS += $(CFLAGS_HIDAPI)
+	USB = usb-hidapi
+endif
 
 OBJECTS_SHARED = common.o \
 	deviceRW.o \
@@ -50,7 +53,8 @@ OBJECTS_SHARED = common.o \
 	progP16.o \
 	progP18.o \
 	progP24.o \
-	strings.o
+	strings.o \
+	$(USB).o
 
 OBJECTS_OPGUI = opgui.o \
 	coff.o \
@@ -62,10 +66,6 @@ OBJECTS_HIDTEST = hid_test.o
 
 OBJECTS_OP = op.o
 
-LIBS_OPGUI = $(LIBS) $(LIBS_GTK3)
-LIBS_OP = $(LIBS)
-LIBS_HIDTEST = $(LIBS) $(LIBS_HIDAPI)
-
 OBJECTS = $(OBJECTS_OP) $(OBJECTS_OPGUI) $(OBJECTS_SHARED)
 
 targets = opgui op
@@ -74,31 +74,33 @@ targets = opgui op
 all: $(targets)
 
 opgui: $(OBJECTS_OPGUI) $(OBJECTS_SHARED)
-	$(CC) $(LDFLAGS) -mwindows -o $@ $(OBJECTS_OPGUI) $(OBJECTS_SHARED) $(LIBS_OPGUI)
+	$(CC) $(LDFLAGS) -mwindows -o $@ $(OBJECTS_OPGUI) $(OBJECTS_SHARED) $(LIBS) $(LIBS_GTK3)
 
 op: $(OBJECTS_OP) $(OBJECTS_SHARED)
-	$(CC) $(LDFLAGS) -o $@ $(OBJECTS_OP) $(OBJECTS_SHARED) $(LIBS_OP)
+	$(CC) $(LDFLAGS) -o $@ $(OBJECTS_OP) $(OBJECTS_SHARED) $(LIBS)
 
 hid_test: $(OBJECTS_HIDTEST)
-	$(CC) $(LDFLAGS) -o $@ $(OBJECTS_HIDTEST) $(LIBS_HIDTEST)
+	$(CC) $(LDFLAGS) -o $@ $(OBJECTS_HIDTEST) $(LIBS)
 
 opgui.o: opgui.c icons.h style.h
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-icons.c: $(ICONS) icons.xml
-	glib-compile-resources icons.xml --generate-source
+	$(CC) $(CFLAGS) $(CFLAGS_GTK3) -c -o $@ $<
 
 icons.h: $(ICONS) icons.xml
 	glib-compile-resources icons.xml --generate-header
 
-style.c: style.css style.xml
-	glib-compile-resources style.xml --generate-source
-
 style.h: style.css style.xml
 	glib-compile-resources style.xml --generate-header
 
+icons.o: $(ICONS) icons.xml icons.h
+	glib-compile-resources icons.xml --generate-source
+	$(CC) $(CFLAGS) $(CFLAGS_GTK3) -c -o $@ icons.c
+
+style.o: style.css style.xml style.h
+	glib-compile-resources style.xml --generate-source
+	$(CC) $(CFLAGS) $(CFLAGS_GTK3) -c -o $@ style.c
+
 clean:
-	rm -f $(targets) $(OBJECTS) icons.c icons.h
+	rm -f $(targets) $(OBJECTS) icons.c icons.h style.c style.h
 	
 install: all
 	#test -d $(prefix) || mkdir $(prefix)

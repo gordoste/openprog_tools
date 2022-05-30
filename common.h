@@ -9,8 +9,6 @@
 	#include <sys/stat.h>
 	#include <asm/types.h>
 	#include <fcntl.h>
-	#include <linux/hiddev.h>
-	#include <linux/hidraw.h>
 	#include <linux/input.h>
 	#include <sys/timeb.h>
 	#include <stdint.h>
@@ -18,8 +16,6 @@
 #else
 	#include <windows.h>
 	#include <setupapi.h>
-	#include <hidusage.h>
-	#include <hidpi.h>
 	#include <math.h>
 	#include <sys/timeb.h>
 	#include <wchar.h>
@@ -35,8 +31,10 @@
 #include <ctype.h>
 #include <getopt.h>
 #include <string.h>
-#include "strings.h"
+
 #include "instructions.h"
+#include "strings.h"
+#include "usb.h"
 
 typedef unsigned long DWORD;
 typedef unsigned short WORD;
@@ -130,9 +128,7 @@ extern char appName[6];
 
 // These functions have a single implementation in common.c
 // ********************************************************
-int FindDevice(int vid,int pid, bool _info);
 int SearchDevice(int *_vid, int *_pid, bool _info);
-void PacketIO(double delay);
 void msDelay(double delay);
 char *strcasestr(const char *haystack, const char *needle);
 int CheckV33Regulator();
