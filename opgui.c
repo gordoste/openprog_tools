@@ -1835,12 +1835,7 @@ int main( int argc, char *argv[])
 	vid_ini=vid;
 	pid_ini=pid;
 	max_err_ini=max_err;
-#if defined _WIN32 || defined __CYGWIN__	//Windows
-	bufferI=bufferI0+1;
-	bufferU=bufferU0+1;
-	bufferI0[0]=0;
-	bufferU0[0]=0;
-#endif
+
 	gtk_init(&argc, &argv);
 	unsigned int tmpbuf[128];
 	opterr = 0;

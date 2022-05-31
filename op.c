@@ -66,12 +66,6 @@ int main (int argc, char **argv) {
 	char* langid=0;
 	int cw1,cw2,cw3,cw4,cw5,cw6,cw7;
 	cw1=cw2=cw3=cw4=cw5=cw6=cw7=0x10000;
-#if defined _WIN32 || defined __CYGWIN__	//Windows
-	bufferI=bufferI0+1;
-	bufferU=bufferU0+1;
-	bufferI0[0]=0;
-	bufferU0[0]=0;
-#endif
 
 	struct option long_options[] =
 	{
