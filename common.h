@@ -75,14 +75,9 @@ typedef unsigned char BYTE;
 #else	//Windows
 	#define SYSNAME "Windows"
 	#define DIMBUF 64
-	extern unsigned char bufferU0[128],bufferI0[128];
-	extern unsigned char *bufferU,*bufferI;
-	extern DWORD NumberOfBytesRead,BytesWritten;
-	extern ULONG Result;
-	extern HANDLE WriteHandle,ReadHandle;
-	extern OVERLAPPED HIDOverlapped;
-	extern HANDLE hEventObject;
 #endif
+
+extern unsigned char *bufferU,*bufferI;
 
 extern char str[4096];
 extern int saveLog;

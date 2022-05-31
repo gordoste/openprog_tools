@@ -117,6 +117,12 @@ int FindDevice(int vid,int pid,bool _info){
 	ref_multi_u.num_values=ref_multi_i.num_values=DIMBUF;
 	#endif
 #else		//Windows
+	// On Windows, report ID (zero) must be put at the beginning of the buffer
+	bufferI=bufferI0+1;
+	bufferU=bufferU0+1;
+	bufferI0[0]=0;
+	bufferU0[0]=0;
+
 	PSP_DEVICE_INTERFACE_DETAIL_DATA detailData;
 	HANDLE DeviceHandle;
 	HANDLE hDevInfo;
