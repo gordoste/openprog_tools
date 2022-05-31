@@ -66,15 +66,14 @@ typedef unsigned char BYTE;
 #define CAL 	16
 #define SLOW	256
 
+#define DIMBUF 64 // USB HID packet size
+
 #if !defined _WIN32 && !defined __CYGWIN__		//Linux
 	#define SYSNAME "Linux"
-	#define DIMBUF 64
 	DWORD GetTickCount();
 	int kbhit();
-	extern unsigned char bufferU[128],bufferI[128];
 #else	//Windows
 	#define SYSNAME "Windows"
-	#define DIMBUF 64
 #endif
 
 extern unsigned char *bufferU,*bufferI;
