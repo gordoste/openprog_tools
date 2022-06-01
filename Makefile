@@ -100,7 +100,7 @@ style.o: style.css style.xml style.h
 	$(CC) $(CFLAGS) $(CFLAGS_GTK3) -c -o $@ style.c
 
 clean:
-	rm -f $(targets) $(OBJECTS) icons.c icons.h style.c style.h
+	rm -f $(targets) *.o icons.c icons.h style.c style.h
 	
 install: all
 	#test -d $(prefix) || mkdir $(prefix)
