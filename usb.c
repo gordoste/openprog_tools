@@ -63,7 +63,6 @@ int FindDevice(int vid,int pid,bool _info){
 		}
 	}
 	printf(strings[S_progDev],path);
-	return 1;
 	#else		//use hiddev device (old method)
 	struct hiddev_devinfo device_info;
 	int i=-1;
@@ -116,6 +115,16 @@ int FindDevice(int vid,int pid,bool _info){
 	ref_multi_u.uref.usage_index=ref_multi_i.uref.usage_index=0;
 	ref_multi_u.num_values=ref_multi_i.num_values=DIMBUF;
 	#endif
+	if(_info){
+		struct hiddev_devinfo device_info;
+		ioctl(fd, HIDIOCGDEVINFO, &device_info);
+		printf(strings[L_INFO1],device_info.vendor, device_info.product, device_info.version);
+		printf(strings[L_INFO2],device_info.busnum, device_info.devnum, device_info.ifnum);
+		char name[256];
+		strcpy(name,strings[L_UNKNOWN]);//"Unknown"
+		if(ioctl(fd, HIDIOCGNAME(sizeof(name)), name) < 0) perror("evdev ioctl");
+		printf(strings[L_NAME], path, name);//"The device on %s says its name is %s\n"
+	}
 #else		//Windows
 	// On Windows, report ID (zero) must be put at the beginning of the buffer
 	bufferI=bufferI0+1;

@@ -316,20 +316,6 @@ Foundation; either version 2 of the License, or (at your option) any later versi
 	if(!DeviceDetected) exit(1);
 	ProgID();		//get firmware version and reset
 
-#if !defined _WIN32 && !defined __CYGWIN__
-	if(info){
-		struct hiddev_devinfo device_info;
-		ioctl(fd, HIDIOCGDEVINFO, &device_info);
-		printf(strings[L_INFO1],device_info.vendor, device_info.product, device_info.version);
-		printf(strings[L_INFO2],device_info.busnum, device_info.devnum, device_info.ifnum);
-		char name[256];
-		strcpy(name,strings[L_UNKNOWN]);//"Unknown"
-		if(ioctl(fd, HIDIOCGNAME(sizeof(name)), name) < 0) perror("evdev ioctl");
-		printf(strings[L_NAME], path, name);//"The device on %s says its name is %s\n"
-		return 0;
-	}
-#endif
-
 	DWORD t0,t;
 	t=t0=GetTickCount();
 	if(testhw){
@@ -490,9 +476,6 @@ Foundation; either version 2 of the License, or (at your option) any later versi
 		if(!strncmp(dev,"AT",2)&&savefileEE[0]) SaveEE(dev,savefileEE);
 	}
 
-#if !defined _WIN32 && !defined __CYGWIN__	//Linux
-	close(fd);
-#endif
 	return 0 ;
 }
 

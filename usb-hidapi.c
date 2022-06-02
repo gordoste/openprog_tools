@@ -6,12 +6,14 @@
 #include "hidapi.h"
 
 #define USB_TIMEOUT 50 // timeout for usb reads
+#define MAX_STR 255
 
 hid_device *device;
 
 unsigned char *bufferI, *bufferU;
 unsigned char bufferI0[128],bufferU0[128];
 
+// _info: If specified, prints device manufacturer & product strings to stdout
 int FindDevice(int vid,int pid, bool _info) {
     bufferI = bufferI0; // hidapi puts the data where you point to
     bufferU = bufferU0+1; // hidapi expects byte 0 to be the report ID and data to start at byte 1
@@ -23,6 +25,15 @@ int FindDevice(int vid,int pid, bool _info) {
         return FALSE;
     }
 	PrintMessage(strings[S_prog]);	//"Programmer detected\r\n");
+    if (_info) {
+        wchar_t wstr[MAX_STR];
+        int res = hid_get_manufacturer_string(device, wstr, MAX_STR);
+	    if (res < 0) { PrintMessage("Cannot read manufacturer string\n"); }
+        else { wprintf(L"Manufacturer String: %ls\n", wstr); }
+    	res = hid_get_product_string(device, wstr, MAX_STR);
+        if (res < 0) { PrintMessage("Cannot read product string\n"); }
+        else { wprintf(L"Product String: %ls\n", wstr); }
+    }
     return TRUE;
 };
 
