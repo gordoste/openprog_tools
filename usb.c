@@ -357,8 +357,8 @@ int FindDevice(int vid,int pid,bool _info){
 	if(_info&&l_DeviceDetected == TRUE){
 		char string[1024];
 		PrintMessage3("Device detected: vid=0x%04X pid=0x%04X\nPath: %s\n",vid,pid,MyDevicePathName);
-		if(HidD_GetManufacturerString(DeviceHandle,string,sizeof(string))==TRUE) wprintf(L"Manufacturer string: %s\n",string);
-		if(HidD_GetProductString(DeviceHandle,string,sizeof(string))==TRUE) wprintf(L"Product string: %s\n",string);
+		if(HidD_GetManufacturerString(DeviceHandle,string,sizeof(string))==TRUE) wprintf(L"Manufacturer string: %ls\n",string);
+		if(HidD_GetProductString(DeviceHandle,string,sizeof(string))==TRUE) wprintf(L"Product string: %ls\n",string);
 	}
 #endif
 	if (l_DeviceDetected == FALSE){
