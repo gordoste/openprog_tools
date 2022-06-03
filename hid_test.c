@@ -27,6 +27,10 @@
 
 #include "instructions.h"
 
+#if defined _WIN32
+#include <winnls.h>
+#endif
+
 hid_device *device;
 
 int FindDevice();

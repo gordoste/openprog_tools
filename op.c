@@ -44,6 +44,10 @@ char loadfileEE[512]="",savefileEE[512]="";
 int info=0;
 int vid=0x1209,pid=0x5432;
 
+#if !defined _WIN32 && !defined __CYGWIN__
+	#define getch getchar
+#endif
+
 WORD *memCODE_W=0;
 int size=0,sizeW=0,sizeEE=0,sizeCONFIG=0,sizeUSERID=0;
 unsigned char *memCODE=0,*memEE=0,memID[64],memCONFIG[48],memUSERID[8];
@@ -66,12 +70,6 @@ int main (int argc, char **argv) {
 	char* langid=0;
 	int cw1,cw2,cw3,cw4,cw5,cw6,cw7;
 	cw1=cw2=cw3=cw4=cw5=cw6=cw7=0x10000;
-#if defined _WIN32 || defined __CYGWIN__	//Windows
-	bufferI=bufferI0+1;
-	bufferU=bufferU0+1;
-	bufferI0[0]=0;
-	bufferU0[0]=0;
-#endif
 
 	struct option long_options[] =
 	{
@@ -322,20 +320,6 @@ Foundation; either version 2 of the License, or (at your option) any later versi
 	if(!DeviceDetected) exit(1);
 	ProgID();		//get firmware version and reset
 
-#if !defined _WIN32 && !defined __CYGWIN__
-	if(info){
-		struct hiddev_devinfo device_info;
-		ioctl(fd, HIDIOCGDEVINFO, &device_info);
-		printf(strings[L_INFO1],device_info.vendor, device_info.product, device_info.version);
-		printf(strings[L_INFO2],device_info.busnum, device_info.devnum, device_info.ifnum);
-		char name[256];
-		strcpy(name,strings[L_UNKNOWN]);//"Unknown"
-		if(ioctl(fd, HIDIOCGNAME(sizeof(name)), name) < 0) perror("evdev ioctl");
-		printf(strings[L_NAME], path, name);//"The device on %s says its name is %s\n"
-		return 0;
-	}
-#endif
-
 	DWORD t0,t;
 	t=t0=GetTickCount();
 	if(testhw){
@@ -496,9 +480,6 @@ Foundation; either version 2 of the License, or (at your option) any later versi
 		if(!strncmp(dev,"AT",2)&&savefileEE[0]) SaveEE(dev,savefileEE);
 	}
 
-#if !defined _WIN32 && !defined __CYGWIN__	//Linux
-	close(fd);
-#endif
 	return 0 ;
 }
 

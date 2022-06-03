@@ -36,7 +36,6 @@
 #define MAXLINES 600
 #define  CONFIG_FILE "opgui.ini"
 #define  CONFIG_DIR ".opgui"
-#define MinDly 0
 
 char** strings;	//!localized strings
 int cmdline=0;
@@ -1835,12 +1834,7 @@ int main( int argc, char *argv[])
 	vid_ini=vid;
 	pid_ini=pid;
 	max_err_ini=max_err;
-#if defined _WIN32 || defined __CYGWIN__	//Windows
-	bufferI=bufferI0+1;
-	bufferU=bufferU0+1;
-	bufferI0[0]=0;
-	bufferU0[0]=0;
-#endif
+
 	gtk_init(&argc, &argv);
 	unsigned int tmpbuf[128];
 	opterr = 0;
@@ -2893,9 +2887,9 @@ int sortIterCompareFunc(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpo
 			Debug1("invalid sortcol '%d'",sortcol)
 			return 0;
 	}
+	char *nameA, *nameB;
 	switch (sortDataType) {
 		case SDT_STRING:
-			char *nameA, *nameB;
 			gtk_tree_model_get(model, a, dataCol, &nameA, -1);
 			gtk_tree_model_get(model, b, dataCol, &nameB, -1);
 			if (nameA == NULL || nameB == NULL) {

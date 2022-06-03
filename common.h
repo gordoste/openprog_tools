@@ -9,8 +9,6 @@
 	#include <sys/stat.h>
 	#include <asm/types.h>
 	#include <fcntl.h>
-	#include <linux/hiddev.h>
-	#include <linux/hidraw.h>
 	#include <linux/input.h>
 	#include <sys/timeb.h>
 	#include <stdint.h>
@@ -18,8 +16,6 @@
 #else
 	#include <windows.h>
 	#include <setupapi.h>
-	#include <hidusage.h>
-	#include <hidpi.h>
 	#include <math.h>
 	#include <sys/timeb.h>
 	#include <wchar.h>
@@ -35,8 +31,10 @@
 #include <ctype.h>
 #include <getopt.h>
 #include <string.h>
-#include "strings.h"
+
 #include "instructions.h"
+#include "strings.h"
+#include "usb.h"
 
 typedef unsigned long DWORD;
 typedef unsigned short WORD;
@@ -68,29 +66,23 @@ typedef unsigned char BYTE;
 #define CAL 	16
 #define SLOW	256
 
+#define DIMBUF 64 // USB HID packet size
+
 #if !defined _WIN32 && !defined __CYGWIN__		//Linux
 	#define SYSNAME "Linux"
-	#define DIMBUF 64
 	DWORD GetTickCount();
 	int kbhit();
-	extern unsigned char bufferU[128],bufferI[128];
 #else	//Windows
 	#define SYSNAME "Windows"
-	#define DIMBUF 64
-	extern unsigned char bufferU0[128],bufferI0[128];
-	extern unsigned char *bufferU,*bufferI;
-	extern DWORD NumberOfBytesRead,BytesWritten;
-	extern ULONG Result;
-	extern HANDLE WriteHandle,ReadHandle;
-	extern OVERLAPPED HIDOverlapped;
-	extern HANDLE hEventObject;
 #endif
+
+extern unsigned char *bufferU,*bufferI;
 
 extern char str[4096];
 extern int saveLog;
 extern char** strings;
 extern int fd;
-extern int saveLog,programID,MinDly,load_osccal,load_BKosccal;
+extern int saveLog,programID,load_osccal,load_BKosccal;
 extern int use_osccal,use_BKosccal;
 extern int load_calibword,max_err;
 extern int AVRlock,AVRfuse,AVRfuse_h,AVRfuse_x;
@@ -130,9 +122,7 @@ extern char appName[6];
 
 // These functions have a single implementation in common.c
 // ********************************************************
-int FindDevice(int vid,int pid, bool _info);
 int SearchDevice(int *_vid, int *_pid, bool _info);
-void PacketIO(double delay);
 void msDelay(double delay);
 char *strcasestr(const char *haystack, const char *needle);
 int CheckV33Regulator();
