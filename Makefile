@@ -21,6 +21,7 @@ endif
 UNAME := $(shell uname)
 ifneq (, $(findstring _NT-, $(UNAME)))
 	HIDAPI_PKG = hidapi
+	LDFLAGS_GTK3 = -mwindows
 else
 	LIBS += -lrt
 	HIDAPI_PKG = hidapi-hidraw
@@ -74,7 +75,7 @@ targets = opgui op
 all: $(targets)
 
 opgui: $(OBJECTS_OPGUI) $(OBJECTS_SHARED)
-	$(CC) $(LDFLAGS) -mwindows -o $@ $(OBJECTS_OPGUI) $(OBJECTS_SHARED) $(LIBS) $(LIBS_GTK3)
+	$(CC) $(LDFLAGS) $(LDFLAGS_GTK3) -o $@ $(OBJECTS_OPGUI) $(OBJECTS_SHARED) $(LIBS) $(LIBS_GTK3)
 
 op: $(OBJECTS_OP) $(OBJECTS_SHARED)
 	$(CC) $(LDFLAGS) -o $@ $(OBJECTS_OP) $(OBJECTS_SHARED) $(LIBS)
