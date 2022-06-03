@@ -37,11 +37,12 @@ LIBS_HIDAPI := `pkg-config --libs $(HIDAPI_PKG)`
 
 CFLAGS += '-DVERSION="$(VERSION)"'
 
-USB ?= usb
-ifeq ($(HIDAPI),1)
+USB ?= usb-hidapi
+ifeq ($(NO_HIDAPI),1)
+	USB = usb
+else
 	LIBS += $(LIBS_HIDAPI)
 	CFLAGS += $(CFLAGS_HIDAPI)
-	USB = usb-hidapi
 endif
 
 OBJECTS_SHARED = common.o \
