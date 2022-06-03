@@ -7,6 +7,8 @@
 
 #include <stdbool.h>
 
+extern char path[512];
+
 #if !defined _WIN32 && !defined __CYGWIN__
 	#include <linux/hiddev.h>
 	#include <linux/hidraw.h>

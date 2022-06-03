@@ -82,7 +82,7 @@ extern char str[4096];
 extern int saveLog;
 extern char** strings;
 extern int fd;
-extern int saveLog,programID,MinDly,load_osccal,load_BKosccal;
+extern int saveLog,programID,load_osccal,load_BKosccal;
 extern int use_osccal,use_BKosccal;
 extern int load_calibword,max_err;
 extern int AVRlock,AVRfuse,AVRfuse_h,AVRfuse_x;

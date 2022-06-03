@@ -1,14 +1,12 @@
 #include "usb.h"
 
+unsigned char *bufferU,*bufferI;
+unsigned char bufferU0[128],bufferI0[128];
 #if !defined _WIN32 && !defined __CYGWIN__	//Linux
 	int fd = -1;
 	struct hiddev_report_info rep_info_i,rep_info_u;
 	struct hiddev_usage_ref_multi ref_multi_i,ref_multi_u;
-	char path[512]="";
-	unsigned char bufferU[128],bufferI[128];
 #else	//Windows
-	unsigned char bufferU0[128],bufferI0[128];
-	unsigned char *bufferU,*bufferI;
 	DWORD NumberOfBytesRead,BytesWritten;
 	ULONG Result;
 	HANDLE WriteHandle,ReadHandle;
@@ -22,6 +20,8 @@
 int FindDevice(int vid,int pid,bool _info){
 	int l_DeviceDetected = FALSE;
 #if !defined _WIN32 && !defined __CYGWIN__	//Linux
+	bufferI=bufferI0;
+	bufferU=bufferU0;
 	#ifndef hiddevIO	//use raw USB device
 	struct hidraw_devinfo device_info;
 	int i=-1;

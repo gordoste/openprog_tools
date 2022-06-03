@@ -44,6 +44,10 @@ char loadfileEE[512]="",savefileEE[512]="";
 int info=0;
 int vid=0x1209,pid=0x5432;
 
+#if !defined _WIN32 && !defined __CYGWIN__
+	#define getch getchar
+#endif
+
 WORD *memCODE_W=0;
 int size=0,sizeW=0,sizeEE=0,sizeCONFIG=0,sizeUSERID=0;
 unsigned char *memCODE=0,*memEE=0,memID[64],memCONFIG[48],memUSERID[8];

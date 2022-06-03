@@ -5,6 +5,8 @@ double hvreg=0;
 int FWVersion=0,HwID=0;
 
 #if !defined _WIN32 && !defined __CYGWIN__
+	char path[512]="";
+
 int kbhit()
 {
 	struct timeval tv;
@@ -17,6 +19,7 @@ int kbhit()
 	if(FD_ISSET(0,&read_fd)) return 1;
 	return 0;
 }
+
 #define getch getchar
 #endif
 
@@ -26,9 +29,8 @@ void msDelay(double delay)
 {
 #if !defined _WIN32 && !defined __CYGWIN__
 	long x=(int)(delay*1000.0);
-	usleep(x>MinDly?x:MinDly);
+	usleep(x>MIN_DELAY?x:MIN_DELAY);
 #else
-//	Sleep((long)ceil(delay)>MinDly?(long)ceil(delay):MinDly);
 	__int64 stop,freq,timeout;
 	QueryPerformanceCounter((LARGE_INTEGER *)&stop);
 	QueryPerformanceFrequency((LARGE_INTEGER *)&freq);
