@@ -40,18 +40,27 @@ int FindDevice(int vid,int pid, bool _info) {
 void PacketIO(double delay) {
 	if(saveLog&&logfile) fprintf(logfile,"PacketIO(%.2f)\n",delay);
     
+	double delay0 = delay;
+
     delay-=USB_TIMEOUT-10;	//shorter delays are covered by 50ms timeout
 	if(delay<MIN_DELAY) delay=MIN_DELAY;
 
-    Debug0("-> ");
-    for(int i=1;i<DIMBUF+1;i++) Debug1("%02X ",(unsigned char)bufferU0[i]);
-    Debug0("\n");
+#if !defined _WIN32 && !defined __CYGWIN__	//Linux
+	uint64_t start,stop;
+	struct timespec ts;
+	clock_gettime( CLOCK_REALTIME, &ts );
+	start=ts.tv_nsec/1000;
+#else // Windows
+	__int64 start,stop,freq,timeout;
+	QueryPerformanceCounter((LARGE_INTEGER *)&start);
+	QueryPerformanceFrequency((LARGE_INTEGER *)&freq);
+#endif
 
     int res;
     bufferU0[0] = 0; // Report ID
     res = hid_write(device, bufferU0, DIMBUF);
     if (res == -1) {
-        fprintf(stderr, "Write failed\n");
+        PrintMessage("Write failed\n");
         hid_close(device);
         return;
     }
@@ -60,17 +69,37 @@ void PacketIO(double delay) {
     bufferI0[0] = 0; // Report ID
     res = hid_read_timeout(device, bufferI0, DIMBUF+1, USB_TIMEOUT); // +1 byte for report ID
     if (res == -1) {
-        fprintf(stderr, "Read failed\n");
+        PrintMessage("Read failed\n");
         hid_close(device);
         return;
     }
     if (res == 0) {
-        fprintf(stderr, "No data read within timeout\n");
+        PrintMessage("No data read within timeout\n");
     }
     else {
-        Debug0("<- ");
-        for(int i=0;i<DIMBUF+1;i++) Debug1("%02X ",(unsigned char)bufferI0[i]);
-        Debug0("\n");
+		if (saveLog && logfile) {
+			fprintf(logfile,"bufferU=[");
+			for(int i=0;i<DIMBUF;i++){
+				if(i%32==0) fprintf(logfile,"\n");
+				fprintf(logfile,"%02X ",bufferU[i]);
+			}
+			fprintf(logfile,"]\n");
+			//fprintf(logfile,"bufferI=[%02X\n",bufferI[0]);
+			fprintf(logfile,"bufferI=[");
+			for(int i=0;i<DIMBUF;i++){
+				if(i%32==0) fprintf(logfile,"\n");
+				fprintf(logfile,"%02X ",bufferI[i]);
+			}
+			fprintf(logfile,"]\n");
+		}
+#if !defined _WIN32 && !defined __CYGWIN__	//Linux
+		clock_gettime( CLOCK_REALTIME, &ts );
+		stop  = ts.tv_nsec / 1000;
+		if(saveLog&&logfile) fprintf(logfile,"T=%.2f ms (%+.2f ms)\n",(stop-start)/1000.0,(stop-start)/1000.0-delay0);
+#else	// Windows
+		QueryPerformanceCounter((LARGE_INTEGER *)&stop);
+		if(saveLog&&logfile) fprintf(logfile,"T=%.2f ms (%+.2f ms)\n",(stop-start)*1000.0/freq,(stop-start)*1000.0/freq-delay0);
+#endif
     }
     return;
     
