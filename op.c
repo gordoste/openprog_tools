@@ -51,7 +51,6 @@ int vid=0x1209,pid=0x5432;
 WORD *memCODE_W=0;
 int size=0,sizeW=0,sizeEE=0,sizeCONFIG=0,sizeUSERID=0;
 unsigned char *memCODE=0,*memEE=0,memID[64],memCONFIG[48],memUSERID[8];
-int skipV33check=0;
 int progress=0;
 int RWstop=0;
 int forceConfig=0;

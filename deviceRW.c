@@ -912,12 +912,7 @@ void CheckDevices(){
 }
 #endif
 
-void Read(char* dev,int ee,int r)
-{
-	Read33(dev,ee,r,false);
-}
-
-void Read33(char *dev,int ee,int r,bool skipV33check) {
+void Read(char* dev,int ee,int r) {
 	int i,j;
 	int params[5];
 	char *str=0,*tok;
@@ -934,7 +929,7 @@ void Read33(char *dev,int ee,int r,bool skipV33check) {
 			if(!strcmp(dev,tok)){	//proceed if found
 				for(j=0;j<4;j++) params[j]=DEVLIST[i].ReadParam[j];
 				if(DEVLIST[i].V33>0){	//3.3V required
-					if(!skipV33check && !CheckV33Regulator()){
+					if(!CheckV33Regulator()){
 						PrintMessage(strings[S_noV33reg]);	//Can't find 3.3V expansion board
 						return;
 					}
@@ -996,9 +991,7 @@ void Read33(char *dev,int ee,int r,bool skipV33check) {
 	PrintMessage(strings[S_nodev_r]); //"Device not supported for reading\r\n");
 }
 
-
-void Write(char* dev,int ee)
-{
+void Write(char* dev, int ee) {
 	int i,j;
 	int params[6];
 	char *str=0,*tok;

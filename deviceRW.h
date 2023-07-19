@@ -52,8 +52,6 @@ void populateDevInfo(struct DevInfo *info, const struct DEVICES *devlistEntry);
 struct DevInfo GetDevInfo(const char* dev);
 
 void Read(char* dev,int ee,int r);
-void Read33(char* dev,int ee,int r, bool skipV33check);
-
 void Write(char* dev,int ee);
 
 #endif // _DEVICERW_H

@@ -71,7 +71,6 @@ guint icdTimer=0,IOTimer=0;
 int currentSource=-1;
 int sourceHilight=0;
 char lastCmd[64]="";
-int skipV33check=0;
 int waitS1=0,waitingS1=0;
 int progress=0;
 int RWstop=0;

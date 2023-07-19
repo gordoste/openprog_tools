@@ -97,6 +97,7 @@ extern int size,sizeW,sizeEE,sizeCONFIG,sizeUSERID;
 extern unsigned char *memCODE,*memEE,memID[64],memCONFIG[48],memUSERID[8];
 extern double hvreg;
 extern int RWstop;
+extern int skipV33check;
 
 extern char appName[6];
 

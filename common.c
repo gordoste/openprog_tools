@@ -3,6 +3,7 @@
 int DeviceDetected=0;
 double hvreg=0;
 int FWVersion=0,HwID=0;
+int skipV33check=0;
 
 #if !defined _WIN32 && !defined __CYGWIN__
 	char path[512]="";
@@ -104,6 +105,7 @@ char *strcasestr(const char *haystack, const char *needle) {
 ///Check if a 3.3V regulator is present
 int CheckV33Regulator()
 {
+	if (skipV33check) return 1;
 	int i,j=0;
 	bufferU[j++]=WRITE_RAM;
 	bufferU[j++]=0x0F;
@@ -144,6 +146,7 @@ int StartHVReg(double V){
 	if(V==-1){
 		bufferU[j++]=VREG_DIS;			//disable HV regulator
 		bufferU[j++]=FLUSH;
+		for(;j<DIMBUF;j++) bufferU[j]=0x0;
 		PacketIO(5);
 		msDelay(40);
 		return -1;
