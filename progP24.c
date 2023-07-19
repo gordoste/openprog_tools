@@ -3438,7 +3438,7 @@ void Write24Ex(int dim,int dim2,int options,int appIDaddr,int rowSize, double wa
 	bufferU[j++]=ICSP_NOP;
 	bufferU[j++]=FLUSH;
 	for(;j<DIMBUF;j++) bufferU[j]=0x0;
-	PacketIO(65);
+	PacketIO(200);
 	j=0;
 	//Read DeviceID @0xFF0000, DevRev @0xFF0002
 	bufferU[j++]=SIX_N;
