@@ -229,11 +229,11 @@ int CheckS1()
 	int i,j=0;
 	bufferU[j++]=READ_RAM;
 	bufferU[j++]=0x0F;
-	bufferU[j++]=0x84;	//READ PORTE
+	bufferU[j++]=0x80;	//READ PORTA
 	bufferU[j++]=FLUSH;
 	for(;j<DIMBUF;j++) bufferU[j]=0x0;
 	PacketIO(5);
 	for(j=0;j<DIMBUF-3&&bufferI[j]!=READ_RAM;j++);
-	i=bufferI[j+3]&0x8;		//i=E3
-	return i?0:1;			//S1 open -> E3=1
+	i=bufferI[j+3]&0x80;		// i=A7
+	return i?0:1;			// S1 open -> A7=1
 }

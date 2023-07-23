@@ -73,18 +73,19 @@ void PacketIO(double delay) {
         hid_close(device);
         return;
     }
+	if (saveLog && logfile) {
+		fprintf(logfile,"bufferU=[");
+		for(int i=0;i<DIMBUF;i++){
+			if(i%32==0) fprintf(logfile,"\n");
+			fprintf(logfile,"%02X ",bufferU[i]);
+		}
+		fprintf(logfile,"]\n");
+	}
     if (res == 0) {
         PrintMessage("No data read within timeout\n");
     }
     else {
 		if (saveLog && logfile) {
-			fprintf(logfile,"bufferU=[");
-			for(int i=0;i<DIMBUF;i++){
-				if(i%32==0) fprintf(logfile,"\n");
-				fprintf(logfile,"%02X ",bufferU[i]);
-			}
-			fprintf(logfile,"]\n");
-			//fprintf(logfile,"bufferI=[%02X\n",bufferI[0]);
 			fprintf(logfile,"bufferI=[");
 			for(int i=0;i<DIMBUF;i++){
 				if(i%32==0) fprintf(logfile,"\n");
@@ -92,6 +93,7 @@ void PacketIO(double delay) {
 			}
 			fprintf(logfile,"]\n");
 		}
+	}
 #if !defined _WIN32 && !defined __CYGWIN__	//Linux
 		clock_gettime( CLOCK_REALTIME, &ts );
 		stop  = ts.tv_nsec / 1000;
@@ -100,7 +102,6 @@ void PacketIO(double delay) {
 		QueryPerformanceCounter((LARGE_INTEGER *)&stop);
 		if(saveLog&&logfile) fprintf(logfile,"T=%.2f ms (%+.2f ms)\n",(stop-start)*1000.0/freq,(stop-start)*1000.0/freq-delay0);
 #endif
-    }
     return;
     
 };
